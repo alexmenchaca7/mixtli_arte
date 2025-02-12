@@ -1,0 +1,10 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.boton-verde {
+    @include m.boton(v.$primario, inline-block);
+}
+.boton-verde-block {
+    @include m.boton(v.$primario, block);
+    width: 100%;
+}

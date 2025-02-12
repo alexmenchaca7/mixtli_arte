@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MixtliArte</title>
+    <link rel="stylesheet" href="build/css/app.css">
+</head>
+<body>
+    <header class="header inicio">
+        <div class="contenedor">
+            <nav class="barra">
+                <a class="logo" href="/">
+                    <h2>MixtliArte</h2>
+                </a>
+    
+                <div class="enlaces">
+                    <a href="/">Inicio</a>
+                    <a href="/nosotros.html">Nosotros</a>
+                    <a href="/contacto.html">Contacto</a>
+    
+                    <a href="perfil.html">
+                        <img class="icono_perfil" src="src/img/icon_user.svg" alt="Icono de perfil">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="contenedor seccion seccion-principal">
+        <section class="seccion-principal-info">
+            <h1>MixtliArte</h1>
+            <h2>¿Te gustan las Artesanías y el Arte Mexicano?</h2>
+    
+            <p>Inicia sesión o registrate en MixtliArte para encontrar nuevos articulos. Al iniciar sesion podras tener acceso a vender o visualizar artesanias
+            </p>
+        </section>
+
+        <div class="seccion-principal-imagen">
+            <img src="src/img/logo.png" alt="Imagen Logo MixtliArte">
+        </div>
+    </main>
+
+    <footer class="footer mt-10">
+        <div class="contenedor footer-contenedor">
+            <!-- Sección del logo y derechos de autor -->
+            <div class="footer-logo">
+                <h2>MixtliArte</h2>
+                <p>Copyright © 2025 MixtliArte</p>
+                <p>Todos los derechos reservados</p>
+
+                <div class="footer-social">
+                    <a href="#"><img src="src/img/icon_instagram.svg" alt="Instagram"></a>
+                    <a href="#"><img src="src/img/icon_facebook.svg" alt="Facebook"></a>
+                    <a href="#"><img src="src/img/icon_youtube.svg" alt="YouTube"></a>
+                </div>
+            </div>
+
+            <!-- Sección de enlaces -->
+            <div class="footer-links">
+                <h3>Enlaces</h3>
+                <a href="#">Inicio</a>
+                <a href="#">Nosotros</a>
+                <a href="#">Contacto</a>
+                <a href="#">Iniciar sesión</a>
+            </div>
+
+            <div class="footer-links">
+                <h3>Soporte</h3>
+                <a href="#">Centro de ayuda</a>
+                <a href="#">Términos de servicio</a>
+                <a href="#">Legal</a>
+                <a href="#">Política de privacidad</a>
+            </div>
+    
+            <!-- Sección de suscripción -->
+            <div class="footer-subscribe">
+                <h3>Mantente actualizado</h3>
+                <form action="subscribe.php" method="POST">
+                    <input type="email" name="email" placeholder="Tu correo electrónico" required>
+                    <button type="submit">
+                        <img src="src/img/icon_send.svg" alt="Enviar">
+                    </button>
+                </form>
+            </div>
+        </div>
+    </footer>
+
+
+    <script src="build/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+/* _productos.scss */
+
+.contenedor-productos {
+    display: grid;
+    column-gap: 1rem;
+    row-gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) {
+    .contenedor-productos {
+        display: grid;
+        column-gap: 3rem;
+        row-gap: 3rem;
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .contenedor-productos {
+        display: grid;
+        column-gap: 3.5rem;
+        row-gap: 3.5rem;
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.producto {
+    overflow: hidden;
+}
+
+.producto img {
+    max-height: 33rem;
+    width: 100%;
+    object-fit: cover;
+}
+
+.producto .producto-info {
+    background-color: #f4f5f7;
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.producto .producto-info h3 {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.producto .producto-info p {
+    margin: 0;
+}
+
+.producto .precio {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 2rem;
+}
+
+.producto .precio p {
+    font-weight: 600;
+}
+
+.producto .precio button {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+.producto .precio button img {
+    height: 2rem;
+}

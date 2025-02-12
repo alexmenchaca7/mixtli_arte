@@ -1,0 +1,56 @@
+@use 'variables' as v;
+@use "sass:color";
+
+/** Media queries **/
+@mixin telefono {
+    @media (min-width: v.$telefono) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (min-width: v.$tablet) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (min-width: v.$desktop) {
+        @content;
+    }
+}
+
+@mixin desktopXL {
+    @media (min-width: v.$desktopXL) {
+        @content;
+    }
+}
+
+
+/** Grid **/
+@mixin grid($columnas, $espaciado_columna, $espaciado_fila : $espaciado_columna ) {
+    display: grid;
+    column-gap: $espaciado_columna;
+    row-gap: $espaciado_fila;
+    grid-template-columns: repeat($columnas, 1fr);
+}
+
+
+/** Boton **/
+@mixin boton($bgColor, $display) {
+    background-color: $bgColor;
+    display: $display;
+    color: v.$blanco;
+    font-weight: v.$bold;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 1rem 3rem;
+    text-align: center;
+    transition: ease 0.3s all;
+    border: none;
+
+    &:hover {
+        background-color: color.adjust($bgColor, $lightness: -5%);
+        cursor: pointer;
+    }
+}

@@ -1,0 +1,59 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+
+
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @include m.desktop {
+        flex-direction: row;
+        gap: 3rem;
+    }
+
+    img {
+        height: 20rem;
+        width: auto;
+
+        @include m.desktop {
+            height: 8rem;
+        }
+    }
+}
+
+
+.hero {
+    background-position: center center;
+    background-size: cover;
+    min-height: 31rem;
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.1);
+        z-index: 1;
+    }
+}
+
+
+.contenido-header {
+    position: relative;
+    min-height: 31rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    z-index: 2;
+
+    h1, p {
+        color: v.$blanco;
+    }
+}

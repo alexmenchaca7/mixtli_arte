@@ -1,0 +1,22 @@
+{
+  "name": "dilae",
+  "version": "1.0.0",
+  "description": "Pagina web DILAE",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "gulp"
+  },
+  "author": "Alejandro Menchaca V.",
+  "license": "ISC",
+  "devDependencies": {
+    "glob": "^11.0.0",
+    "gulp": "^5.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-sass": "^6.0.0",
+    "gulp-terser": "^2.1.0",
+    "sass": "^1.83.0",
+    "sharp": "^0.33.5"
+  }
+}
