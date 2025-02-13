@@ -1,6 +1,25 @@
 @use 'base/variables' as v;
 @use 'base/mixins' as m;
 
+/** Estilos para la barra nav de index.html **/
+.inicio {
+    background-color: v.$primario;
+
+    .barra {
+        h2 {
+            color: v.$blanco;
+        }
+
+        .enlaces {
+            a {
+                color: v.$blanco;
+            }
+        }
+    }
+}
+
+
+/** Estilos generales para la barra nav **/
 .barra {
     display: flex;
     flex-direction: column;
@@ -66,7 +85,7 @@
 
 
 
-/* Modal de navegación */
+/* Modal de Categorias */
 .modal {
     opacity: 0;
     visibility: hidden;

@@ -1,4 +1,5 @@
-/* _seccion-principal.scss */
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
 
 .seccion-principal {
     display: flex;
@@ -7,51 +8,39 @@
     align-items: center;
     gap: 2rem;
 
-    
-}
-
-@media (min-width: 768px) {
-    .seccion-principal {
-        display: grid;
-        column-gap: 2rem;
-        row-gap: 2rem;
-        grid-template-columns: repeat(2, 1fr);
-        align-items: center;
-        justify-content: center;
+    @include m.tablet {
+        @include m.grid(2, 2rem);
     }
-}
 
-.seccion-principal .seccion-principal-imagen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    .seccion-principal-imagen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-.seccion-principal .seccion-principal-imagen img {
-    height: 40rem;
-    width: auto;
-    max-width: 100%;
-}
+        img {
+            height: 40rem;
+            width: auto;
+            max-width: 100%;
+        }
+    }
 
-.seccion-principal .seccion-principal-info {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    line-height: normal;
-}
+    .seccion-principal-info {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
 
-.seccion-principal .seccion-principal-info h1,
-.seccion-principal .seccion-principal-info h2,
-.seccion-principal .seccion-principal-info p {
-    text-align: left;
-}
+        h1, h2, p {
+            text-align: left;
+        }
 
-.seccion-principal .seccion-principal-info h2 {
-    font-size: 2.5rem;
-}
+        h2 {
+            font-size: 2.5rem;
+        }
 
-.seccion-principal .seccion-principal-info p {
-    font-family: Montserrat, serif;
-    font-size: 2rem;
-    max-width: 80%;
+        p {
+            font-family: Montserrat, serif;
+            font-size: 2rem;
+            max-width: 80%;
+        }
+    }
 }
