@@ -2,7 +2,7 @@
 @use 'base/mixins' as m;
 
 .footer {
-    background-color: #181818;
+    background-color: v.$gris-oscuro;
     padding: 4rem 0;
 
     h2, h3 {

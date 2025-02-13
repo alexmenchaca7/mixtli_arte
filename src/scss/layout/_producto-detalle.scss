@@ -1,0 +1,135 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.contenedor-producto {
+    @include m.grid(1, 2rem);
+
+    @include m.tablet {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* Imagen del producto */
+.producto-imagen {
+    display: flex;
+    justify-content: center;
+
+    picture {
+        img {
+            border-radius: 8px;
+        }
+    }
+}
+
+
+
+/* Información del producto */
+.producto-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    h2 {
+        font-size: 2.3rem;
+        margin-bottom: 0;
+    }
+
+    .producto-header {
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        .producto-precio {
+            font-size: 2.3rem;
+            font-weight: v.$bold;
+            color: #000;
+        }
+
+        .producto-fecha {
+            font-size: 1.6rem;
+            color: v.$gris-oscuro;
+            margin: 0;
+        }
+    }
+
+    .producto-descripcion,
+    .producto-ubicacion {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        p {
+            font-size: 1.6rem;
+            color: v.$gris-oscuro;
+            margin-bottom: 0;
+        }
+
+        small {
+            font-size: 1.4rem;
+            color: v.$gris-oscuro;
+        }
+    }
+
+    .producto-ubicacion {
+        img {
+            width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+        }
+
+        p {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+    }
+
+    /* Información del vendedor */
+    .producto-vendedor {
+        display: flex;
+        flex-direction: column;
+
+        .vendedor-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+
+            img {
+                width: 5rem;
+                height: 5rem;
+                border-radius: 50%;
+            }
+        }
+
+        .vendedor-nombre {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+
+        .vendedor-reputacion {
+            font-size: 1.5rem;
+            color: v.$gris-oscuro;
+            margin-top: 0;
+        }
+    }
+
+
+    /* Contacto */
+    .producto-contacto {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.6rem;
+            border: 1px solid #d1d1d1;
+            border-radius: 5px;
+            resize: none;
+        }
+    }
+}
