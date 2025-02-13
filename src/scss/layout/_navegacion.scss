@@ -40,9 +40,14 @@
         align-items: center;
         gap: 2rem;
         font-size: 2rem;
+        
+        a {
+            font-weight: v.$bold;
+            color: v.$negro;
+        }
 
         .icono_favorito {
-            height: 2rem;
+            height: 2.5rem;
         }
 
         .icono_perfil {
@@ -53,7 +58,7 @@
             border: none;
             background: transparent;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: v.$bold
         }
     }
 

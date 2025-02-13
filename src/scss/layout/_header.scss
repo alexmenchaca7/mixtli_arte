@@ -2,7 +2,13 @@
 @use 'base/mixins' as m;
 
 
+.webp .hero {
+    background-image: url(/build/img/hero.webp);
+}
 
+.no-webp .hero {
+    background-image: url(/build/img/hero.jpg);
+}
 
 .logo {
     display: flex;
@@ -21,6 +27,10 @@
         @include m.desktop {
             height: 8rem;
         }
+    }
+
+    h2 {
+        font-weight: 700;
     }
 }
 

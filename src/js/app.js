@@ -1,43 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const categoriasBtn = document.getElementById("categorias-btn");
+    const categoriasModal = document.getElementById("categorias-modal");
+    const closeBtn = document.querySelector(".close");
 
-    // 🟢 Contadores Animados
-    const contadores = document.querySelectorAll(".contador");
-    const duracion = 2000; // Duración total en milisegundos (2 segundos)
+    function enableScroll() {
+        document.body.style.overflow = "";
+    }
 
-    const iniciarContador = (contador) => {
-        const objetivo = +contador.dataset.target;
-        let inicio = 0;
-        const incremento = objetivo / (duracion / 16); // Ajusta el incremento basado en el tiempo total
+    categoriasModal.classList.remove("show");
 
-        const actualizarContador = () => {
-            inicio += incremento;
-            if (inicio >= objetivo) {
-                contador.innerText = `+${objetivo}`; // Muestra el valor final
-            } else {
-                contador.innerText = `+${Math.floor(inicio)}`;
-                requestAnimationFrame(actualizarContador);
-            }
-        };
+    categoriasBtn.addEventListener("click", function () {
+        categoriasModal.classList.add("show");
+        document.body.style.overflow = "hidden";
+    });
 
-        actualizarContador();
-    };
+    closeBtn.addEventListener("click", function () {
+        categoriasModal.classList.remove("show");
+        enableScroll();
+    });
 
-    // Detecta si los contadores están en pantalla y los inicia
-    const observarContadores = new IntersectionObserver((entradas) => {
-        entradas.forEach((entrada) => {
-            if (entrada.isIntersecting) {
-                // Reiniciar el contador a 0 antes de volver a animar
-                entrada.target.innerText = "+0"; 
-                iniciarContador(entrada.target);
-            }
-        });
-    }, { threshold: 0.6 });
-
-    contadores.forEach((contador) => observarContadores.observe(contador));
-
-
-
-    /** DUPLICANDO LAS MARCAS PARA EFECTO INFINITO DEL CARRUSEL **/
-    let copy = document.querySelector(".logos-slide").cloneNode(true);
-    document.querySelector('.carrusel-logos').appendChild(copy);
+    window.addEventListener("click", function (e) {
+        if (e.target === categoriasModal) {
+            categoriasModal.classList.remove("show");
+            enableScroll();
+        }
+    });
 });
