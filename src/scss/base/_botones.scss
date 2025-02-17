@@ -4,3 +4,7 @@
 .boton-rosa-block {
     @include m.boton(v.$primario, block);
 }
+
+.boton-rosa {
+    @include m.boton(v.$primario, inline-block);
+}

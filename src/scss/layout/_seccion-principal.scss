@@ -2,13 +2,10 @@
 @use 'base/mixins' as m;
 
 .seccion-principal {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
+    margin-top: 5rem;
+    @include m.grid(1, 2rem);
 
-    @include m.tablet {
+    @include m.desktop {
         @include m.grid(2, 2rem);
     }
 
@@ -16,31 +13,40 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        grid-row: 1/2;
 
         img {
-            height: 40rem;
-            width: auto;
-            max-width: 100%;
+            width: 100%;
+            height: auto;
+            max-height: 30rem; // Limita el tamaño en móviles
+            object-fit: cover; // Evita que la imagen se deforme
+            border-radius: 8px; // Opción para diseño más moderno
+
+
+            @include m.tablet {
+                max-height: 40rem; // Ajusta para tablet
+            }
         }
     }
 
     .seccion-principal-info {
         display: flex;
         flex-direction: column;
-        text-align: left;
+        justify-content: center;
 
-        h1, h2, p {
+        h1 {
+            font-weight: 700;
             text-align: left;
         }
 
         h2 {
             font-size: 2.5rem;
+            text-align: left;
         }
 
         p {
             font-family: Montserrat, serif;
             font-size: 2rem;
-            max-width: 80%;
         }
     }
 }

@@ -1,0 +1,51 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+@use 'sass:color';
+
+.seccion-logros {
+    h2 {
+        font-weight: 700;
+        font-size: 4rem;
+        text-align: center;
+
+        @include m.tablet {
+            font-size: 5rem;
+        }
+    }
+}
+
+.logros {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+
+    @include m.desktop {
+        flex-direction: row;
+    }
+}
+
+.logro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+
+    @include m.desktop {
+        width: 45rem;
+    }
+
+    .contador {
+        margin: 0;
+        font-size: 9rem;
+        font-family: 'Montserrat', 'serif';
+        font-weight: 700;
+        color: color.adjust(v.$primario, $lightness: -15%);
+    }
+
+    p {
+        font-size: 2.4rem;
+        font-weight: 700;
+        text-align: center;
+    }
+}
