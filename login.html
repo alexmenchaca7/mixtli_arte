@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inciar Sesión - MixtliArte</title>
+    <link rel="stylesheet" href="build/css/app.css">
+</head>
+<body>
+    <div class="contenedor-login">
+        <picture class="login-imagen">
+            <source srcset="build/img/login.avif" type="image/avif">
+            <source srcset="build/img/login.webp" type="image/webp">
+            <source srcset="build/img/login.jpg" type="image/jpg">
+            <img loading="lazy" src="build/img/login.jpg" alt="Imagen de Login">
+        </picture>
+
+        <section class="login-formulario">
+            <img src="src/img/logo.png" alt="Logo MixtliArte">
+            <h1>Iniciar Sesión</h1>
+
+            <form action="marketplace.html" method="POST">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Ejemplo@correo.com" required>
+
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="********" required>
+
+                <button type="submit" class="boton-rosa-block">Iniciar Sesión</button>
+
+                <div class="links">
+                    <a href="recuperar.html">¿Olvidaste tu contraseña?</a>
+                    <p>¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script src="build/js/app.js"></script>
+</body>
+</html>
