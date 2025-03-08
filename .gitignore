@@ -32,3 +32,5 @@ Thumbs.db
 
 # 🔹 Archivos de Git relacionados con parches o cambios descartados
 *.patch
+
+/vendor/

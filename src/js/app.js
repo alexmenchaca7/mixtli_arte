@@ -29,9 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 🟢 Contadores Animados
+    /** CONTADORES ANIMADOS **/
     const contadores = document.querySelectorAll(".contador");
-    const duracion = 2000; // Duración total en milisegundos (2 segundos)
+    const duracion = 500; // Duración total en milisegundos (2 segundos)
 
     if (contadores.length === 0) return;
 
