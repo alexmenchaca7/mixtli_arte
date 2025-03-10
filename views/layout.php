@@ -17,7 +17,7 @@
         <header class="header <?php echo $inicio ? 'inicio' : ''; ?>">
             <div class="contenedor">
                 <nav class="barra">
-                    <a class="logo" href="<?php echo $inicio ? '/' : '/marketplace.html'; ?>">
+                    <a class="logo" href="<?php echo $inicio ? '/' : '/marketplace'; ?>">
                         <?php if(!$inicio): ?>
                             <img src="../build/img/logo.png" alt="Logo de Mixtli Arte">
                         <?php endif; ?>
@@ -33,29 +33,28 @@
                         </div>
                     <?php endif; ?>
                     
-                    <div class="enlaces">
-                        <?php if($inicio): ?>
+                    <?php if($inicio): ?>
+                        <div class="enlaces--inicio">
                             <a href="/">Inicio</a>
                             <a href="/nosotros">Nosotros</a>
                             <a href="/contacto">Contacto</a>
-            
-                            <a href="login.html">
-                                <img class="icono_perfil" src="../build/img/icon_user.svg" alt="Icono de perfil">
-                            </a>
-                        <?php else: ?>
+                            <a href="/login">Iniciar Sesión</a>
+                        </div>      
+                    <?php else: ?>
+                        <div class="enlaces">
                             <!-- Botón de Categorías que activa el modal -->
                             <button id="categorias-btn" class="categorias-btn">Categorías</button>
                             
-                            <a href="/marketplace.html">Para Ti</a>
-                            <a href="favoritos.html">
+                            <a href="/marketplace">Para Ti</a>
+                            <a href="/favoritos">
                                 <img class="icono_favorito" src="../build/img/icon_heart.svg" alt="Icono de favoritos">
                             </a>
             
-                            <a href="perfil.html">
+                            <a href="/perfil">
                                 <img class="icono_perfil" src="../build/img/icon_user.svg" alt="Icono de perfil">
                             </a>
-                        <?php endif; ?>
-                    </div>
+                        </div>
+                    <?php endif; ?>
                 </nav>
                 
                 <?php if(!$inicio): ?>
@@ -65,11 +64,11 @@
                             <span class="close">&times;</span>
                             <h2>Categorías</h2>
                             <ul>
-                                <li><a href="categoria1.html">Pinturas</a></li>
-                                <li><a href="categoria2.html">Esculturas</a></li>
-                                <li><a href="categoria3.html">Textiles</a></li>
-                                <li><a href="categoria4.html">Cerámica</a></li>
-                                <li><a href="categoria5.html">Joyería</a></li>
+                                <li><a href="/categoria">Pinturas</a></li>
+                                <li><a href="/categoria">Esculturas</a></li>
+                                <li><a href="/categoria">Textiles</a></li>
+                                <li><a href="/categoria">Cerámica</a></li>
+                                <li><a href="/categoria">Joyería</a></li>
                             </ul>
                         </div>
                     </div>
@@ -113,9 +112,9 @@
     
                     <?php if($inicio): ?>
                         <a href="/">Inicio</a>
-                        <a href="/nosotros.html">Nosotros</a>
-                        <a href="/contacto.html">Contacto</a>
-                        <a href="/login.html">Iniciar sesión</a>
+                        <a href="/nosotros">Nosotros</a>
+                        <a href="/contacto">Contacto</a>
+                        <a href="/login">Iniciar sesión</a>
                     <?php else: ?>
                         <a href="#">Categorias</a>
                         <a href="#">Para Ti</a>
@@ -136,7 +135,7 @@
                 <!-- Sección de suscripción -->
                 <div class="footer-subscribe">
                     <h3>Mantente actualizado</h3>
-                    <form action="subscribe.php" method="POST">
+                    <form action="/subscribe" method="POST">
                         <input type="email" name="email" placeholder="Tu correo electrónico" required>
                         <button type="submit">
                             <img src="../build/img/icon_send.svg" alt="Enviar">

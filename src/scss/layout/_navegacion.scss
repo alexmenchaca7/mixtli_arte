@@ -59,6 +59,14 @@
         align-items: center;
         gap: 2rem;
         font-size: 2rem;
+
+        &--inicio {
+            @extend .enlaces;
+            
+            a {
+                text-transform: uppercase;
+            }
+        }
         
         a {
             font-weight: v.$bold;

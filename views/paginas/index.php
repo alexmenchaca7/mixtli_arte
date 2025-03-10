@@ -6,7 +6,7 @@
         <p>Inicia sesión o registrate en MixtliArte para encontrar nuevos articulos. Al iniciar sesion podras tener acceso a vender o visualizar artesanias
         </p>
 
-        <a class="boton-rosa" href="login.html">Iniciar Sesión</a>
+        <a class="boton-rosa" href="/login">Iniciar Sesión</a>
     </section>
 
     <div class="seccion-principal-imagen">

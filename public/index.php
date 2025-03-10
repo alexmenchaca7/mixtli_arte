@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
 use Controllers\AuthController;
+use Controllers\MarketplaceController;
 use Controllers\PaginasController;
 $router = new Router();
 
@@ -29,10 +30,13 @@ $router->post('/reestablecer', [AuthController::class, 'reestablecer']);
 $router->get('/mensaje', [AuthController::class, 'mensaje']);
 $router->get('/confirmar-cuenta', [AuthController::class, 'confirmar']);
 
-// ZONA PUBLICA
+// Pagina de Inicio
 $router->get('/', [PaginasController::class, 'index']);
 $router->get('/nosotros', [PaginasController::class, 'nosotros']);
 $router->get('/contacto', [PaginasController::class, 'contacto']);
+
+// Marketplace (vista de compradores)
+$router->get('/marketplace', [MarketplaceController::class, 'index']);
 
 
 

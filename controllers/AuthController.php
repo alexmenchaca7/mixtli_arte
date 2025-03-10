@@ -35,9 +35,19 @@ class AuthController {
                         $_SESSION['nombre'] = $usuario->nombre;
                         $_SESSION['apellido'] = $usuario->apellido;
                         $_SESSION['email'] = $usuario->email;
+                        $_SESSION['rol'] = $usuario->rol;
+
+                        // Redirección
+                        if($usuario->rol === 'comprador') {
+                            header('Location: /marketplace');
+                        } else if($usuario->rol === 'vendedor') {
+                            header('Location: /marketplace');
+                        } else if($usuario->rol === 'admin') {
+                            header('Location: /dashboard');
+                        }
                         
                     } else {
-                        Usuario::setAlerta('error', 'Password Incorrecto');
+                        Usuario::setAlerta('error', 'Credenciales incorrectas');
                     }
                 }
             }
