@@ -165,11 +165,12 @@ class AuthController {
 
     public static function reestablecer(Router $router) {
 
+
+        $inicio = true;
+        $token_valido = true;
         $token = s($_GET['token']);
 
-        $token_valido = true;
-
-        if(!$token) header('Location: /');
+        if(!$token) header('Location: /login');
 
         // Identificar el usuario con este token
         $usuario = Usuario::where('token', $token);
@@ -200,7 +201,7 @@ class AuthController {
 
                 // Redireccionar
                 if($resultado) {
-                    header('Location: /');
+                    header('Location: /login');
                 }
             }
         }
@@ -210,6 +211,7 @@ class AuthController {
         // Muestra la vista
         $router->render('auth/reestablecer', [
             'titulo' => 'Reestablecer Password',
+            'inicio' => $inicio,
             'alertas' => $alertas,
             'token_valido' => $token_valido
         ]);
@@ -226,7 +228,8 @@ class AuthController {
     }
 
     public static function confirmar(Router $router) {
-        
+
+        $inicio = true;
         $token = s($_GET['token']);
 
         if(!$token) header('Location: /');
@@ -236,7 +239,7 @@ class AuthController {
 
         if(empty($usuario)) {
             // No se encontró un usuario con ese token
-            Usuario::setAlerta('error', 'Token No Válido');
+            Usuario::setAlerta('error', 'Token no válido, la cuenta no se confirmó');
         } else {
             // Confirmar la cuenta
             $usuario->verificado = 1;
@@ -246,13 +249,14 @@ class AuthController {
             // Guardar en la BD
             $usuario->guardar();
 
-            Usuario::setAlerta('exito', 'Cuenta Comprobada Correctamente');
+            Usuario::setAlerta('exito', 'Cuenta comprobada éxitosamente');
         }
 
      
 
         $router->render('auth/confirmar', [
-            'titulo' => 'Confirma tu cuenta MixtloArte',
+            'titulo' => 'Confirma tu cuenta MixtliArte',
+            'inicio' => $inicio,
             'alertas' => Usuario::getAlertas()
         ]);
     }
