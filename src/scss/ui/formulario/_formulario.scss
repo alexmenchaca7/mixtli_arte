@@ -1,0 +1,46 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+@use 'sass:color';
+
+.formulario {
+    display: flex;
+    flex-direction: column;
+
+    &__campo {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 1.5rem 0;
+    }
+
+    &__label {
+        display: block;
+        font-weight: v.$bold;
+        font-size: 1.4rem;
+        text-transform: uppercase;
+    }
+
+    &__input {
+        padding: 1rem;
+        display: block;
+        width: 100%;
+        background-color: v.$blanco;
+        border: 1px solid v.$gris-claro;
+        border-radius: 1rem;
+        transition: all 0.3s ease-in-out;
+
+        &:focus {
+            border-color: v.$primario; 
+            box-shadow: 0 0 8px rgba(v.$primario, 0.5); /* Resalta el elemento */
+            outline: none; /* Elimina el borde azul predeterminado */
+        }
+    }
+
+    &__submit {
+        @include m.boton(v.$primario, block);
+
+        @include m.tablet {
+            @include m.boton(v.$primario, inline-block);
+        }
+    }
+}

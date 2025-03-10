@@ -1,0 +1,22 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+@use 'sass:color';
+
+.alerta {
+    padding: 1.5rem 1.5rem 1.5rem 3rem;
+    text-transform: uppercase;
+    margin: 1rem 0;
+    font-weight: v.$bold;
+
+    &__error {
+        background-color: color.adjust(v.$error, $lightness: 35%);
+        border-left: .5rem solid v.$error;
+        color: v.$error;
+    }
+
+    &__exito {
+        background-color: color.adjust(v.$success, $lightness: 50%);
+        border-left: .5rem solid v.$success;
+        color: v.$success;
+    }
+}

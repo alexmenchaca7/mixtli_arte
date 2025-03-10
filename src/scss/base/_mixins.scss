@@ -27,6 +27,19 @@
 }
 
 
+/** Contenedores **/
+@mixin contenedor-sm {
+    width: min(95%, 60rem);
+    margin: 0 auto;
+}
+
+@mixin contenedor-md {
+    width: min(95%, 80rem);
+    margin: 0 auto;
+}
+
+
+
 /** Grid **/
 @mixin grid($columnas, $espaciado_columna, $espaciado_fila : $espaciado_columna ) {
     display: grid;
@@ -53,4 +66,9 @@
         background-color: color.adjust($bgColor, $lightness: -5%);
         cursor: pointer;
     }
+}
+
+/** Shadow **/
+@mixin shadow() {
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }

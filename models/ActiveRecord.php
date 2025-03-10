@@ -85,8 +85,15 @@ class ActiveRecord {
 
         // Recorriendo el arreglo como un arreglo asociativo (tanto llave como valor)
         foreach($atributos as $key => $value) {
-            $sanitizado[$key] = self::$conexion->escape_string($value);
+
+            // Verificamos si el valor es null o vacío y lo reemplazamos por null
+            if ($value === NULL || $value === '') {
+                $sanitizado[$key] = NULL;  // Reemplazamos con NULL
+            } else {
+                $sanitizado[$key] = self::$conexion->escape_string($value);
+            }
         }
+
         return $sanitizado;
     }
 
@@ -208,16 +215,27 @@ class ActiveRecord {
         $atributos = $this->sanitizarAtributos();
 
         $columnas = join(', ', array_keys($atributos)); // Crear un string a partir de las llaves del arreglo
-        $filas = join("', '", array_values($atributos)); // Crear un string a partir de los valores del arreglo
+        $filas = [];
 
-        // Insertar en la base de datos
-        $query = "INSERT INTO " . static::$tabla . " ($columnas) VALUES ('$filas')";
-        
-        // Resultado de la consulta
+        // Reemplazar los valores NULL por la palabra 'NULL' en la consulta
+        foreach (array_values($atributos) as $value) {
+            if ($value === null) {
+                $filas[] = 'NULL'; // Si el valor es NULL, se agrega 'NULL' a la consulta
+            } else {
+                $filas[] = "'" . self::$conexion->escape_string($value) . "'"; // Si no es NULL, escapamos y agregamos comillas
+            }
+        }
+
+        $filas = join(", ", $filas); // Convertir el array a un string de valores
+
+        // Reemplazar las comillas adicionales antes de insertar en la consulta
+        $query = "INSERT INTO " . static::$tabla . " ($columnas) VALUES ($filas)";
+
+        // Ejecutar la consulta
         $resultado = self::$conexion->query($query); 
         return [
-           'resultado' =>  $resultado,
-           'id' => self::$conexion->insert_id
+            'resultado' =>  $resultado,
+            'id' => self::$conexion->insert_id
         ];
     }
 

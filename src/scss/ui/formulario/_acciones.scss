@@ -1,0 +1,18 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+@use 'sass:color';
+
+.acciones {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+
+    &__enlace {
+        color: v.$negro;
+        font-weight: 300;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

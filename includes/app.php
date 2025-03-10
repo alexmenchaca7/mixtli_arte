@@ -1,13 +1,15 @@
-<?php
+<?php 
 
-require 'funciones.php';
-require 'config/database.php';
+use Dotenv\Dotenv;
+use Model\ActiveRecord;
 require __DIR__ . '/../vendor/autoload.php';
 
-// Conexion a la base de datos
-$conexion = conectarDB();
+// Añadir Dotenv
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
 
-// Importar la clase padre
-use Model\ActiveRecord;
+require 'funciones.php';
+require 'database.php';
 
-ActiveRecord::setDB($conexion);
+// Conectarnos a la base de datos
+ActiveRecord::setDB($db);
