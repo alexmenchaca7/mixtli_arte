@@ -17,7 +17,7 @@ function estaAutenticado() {
     }
 }
 
-function debuguear($variable) {
+function debuguear($variable) : string {
     echo "<pre>";
     var_dump($variable);
     echo "</pre>";
@@ -43,3 +43,7 @@ function validar_redireccionar(string $url) {
 
     return $id;
 } 
+
+function pagina_actual($path) : bool {
+    return str_contains($_SERVER['PATH_INFO'], $path) ? true : false;
+}

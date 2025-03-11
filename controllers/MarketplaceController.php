@@ -7,7 +7,7 @@ class MarketplaceController {
     public static function index(Router $router) {
         
         $router->render('marketplace/index', [
-
+            'titulo' => 'Para Ti'
         ]);
     }
 }

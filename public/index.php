@@ -4,8 +4,11 @@ require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
 use Controllers\AuthController;
+use Controllers\DashboardVendedorController;
 use Controllers\MarketplaceController;
 use Controllers\PaginasController;
+use Controllers\ProductosController;
+
 $router = new Router();
 
 
@@ -37,6 +40,17 @@ $router->get('/contacto', [PaginasController::class, 'contacto']);
 
 // Marketplace (vista de compradores)
 $router->get('/marketplace', [MarketplaceController::class, 'index']);
+
+
+// Dashboard del Artesano (VENDEDOR)
+$router->get('/vendedor/dashboard', [DashboardVendedorController::class, 'index']);
+
+$router->get('/vendedor/productos', [ProductosController::class, 'index']);
+$router->get('/vendedor/productos/crear', [ProductosController::class, 'crear']);
+$router->post('/vendedor/productos/crear', [ProductosController::class, 'crear']);
+$router->get('/vendedor/productos/editar', [ProductosController::class, 'editar']);
+$router->post('/vendedor/productos/editar', [ProductosController::class, 'editar']);
+$router->get('/vendedor/productos/eliminar', [ProductosController::class, 'eliminar']);
 
 
 

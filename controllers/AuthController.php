@@ -41,7 +41,7 @@ class AuthController {
                         if($usuario->rol === 'comprador') {
                             header('Location: /marketplace');
                         } else if($usuario->rol === 'vendedor') {
-                            header('Location: /marketplace');
+                            header('Location: /vendedor/dashboard');
                         } else if($usuario->rol === 'admin') {
                             header('Location: /dashboard');
                         }

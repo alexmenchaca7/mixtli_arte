@@ -79,7 +79,6 @@
                 <div class="hero">
                     <section class="contenido-header contenedor">
                         <h1>Para ti</h1>
-                        <p>Descubre las mejores recomendaciones en artesanías y arte mexicano, seleccionadas según tus preferencias</p>
                     </section>
                 </div>
             <?php endif; ?>
