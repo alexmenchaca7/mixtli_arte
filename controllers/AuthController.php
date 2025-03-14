@@ -20,41 +20,48 @@ class AuthController {
             
             if(empty($alertas)) {
 
-                // Verificar quel el usuario exista
+                // Verificar que el usuario exista
                 $usuario = Usuario::where('email', $usuario->email);
                 if(!$usuario || !$usuario->verificado ) {
                     Usuario::setAlerta('error', 'El usuario no existe o no esta verificado');
                 } else {
-
                     // El Usuario existe
                     if( password_verify($_POST['pass'], $usuario->pass) ) {
-                        
-                        // Iniciar la sesión
-                        session_start();    
-                        $_SESSION['id'] = $usuario->id;
-                        $_SESSION['nombre'] = $usuario->nombre;
-                        $_SESSION['apellido'] = $usuario->apellido;
-                        $_SESSION['email'] = $usuario->email;
-                        $_SESSION['rol'] = $usuario->rol;
+                        // Verificar si la cuenta está confirmada
+                        if($usuario->verificado === "1") {
+                            // Iniciar la sesión
+                            session_start();
+                            $_SESSION['id'] = $usuario->id;
+                            $_SESSION['nombre'] = $usuario->nombre;
+                            $_SESSION['apellido'] = $usuario->apellido;
+                            $_SESSION['email'] = $usuario->email;
+                            $_SESSION['verificado'] = $usuario->verificado;
+                            $_SESSION['rol'] = $usuario->rol;
+                            $_SESSION['login'] = true;
 
-                        // Redirección
-                        if($usuario->rol === 'comprador') {
-                            header('Location: /marketplace');
-                        } else if($usuario->rol === 'vendedor') {
-                            header('Location: /vendedor/dashboard');
-                        } else if($usuario->rol === 'admin') {
-                            header('Location: /dashboard');
+                            // Redirección
+                            if($usuario->rol === 'comprador') {
+                                header('Location: /marketplace');
+                                exit();
+                            } else if($usuario->rol === 'vendedor') {
+                                header('Location: /vendedor/dashboard');
+                                exit();
+                            } else if($usuario->rol === 'admin') {
+                                header('Location: /dashboard');
+                                exit();
+                            }
+                        } else {
+                            Usuario::setAlerta('error', 'Tu cuenta no ha sido confirmada. Revisa tu correo');
                         }
-                        
                     } else {
                         Usuario::setAlerta('error', 'Credenciales incorrectas');
                     }
                 }
             }
+
+            $alertas = Usuario::getAlertas();
         }
 
-        $alertas = Usuario::getAlertas();
-        
         // Render a la vista 
         $router->render('auth/login', [
             'titulo' => 'Iniciar Sesión',
@@ -66,8 +73,10 @@ class AuthController {
     public static function logout() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_start();
-            $_SESSION = [];
+            session_unset(); // Eliminar todas las variables de sesión
+            session_destroy(); // Destruir la sesión
             header('Location: /');
+            exit();
         }
        
     }

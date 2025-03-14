@@ -47,3 +47,20 @@ function validar_redireccionar(string $url) {
 function pagina_actual($path) : bool {
     return str_contains($_SERVER['PATH_INFO'], $path) ? true : false;
 }
+
+function is_auth($required_role = null) : bool {
+    // Verifica si la sesión no está iniciada para iniciar una nueva
+    if (session_status() == PHP_SESSION_NONE) {  
+        session_start();  
+    }
+
+    // Verifica si el usuario está autenticado
+    $authenticated = isset($_SESSION['login']) && $_SESSION['login'] === true && isset($_SESSION['verificado']) && $_SESSION['verificado'] === "1";
+
+    // Si se requiere un rol específico, verifica también el rol del usuario
+    if ($required_role) {
+        return $authenticated && isset($_SESSION['rol']) && $_SESSION['rol'] === $required_role;
+    }
+
+    return $authenticated;
+}

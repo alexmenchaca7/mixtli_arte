@@ -24,13 +24,23 @@
     }
 
     &__logo {
-        color: v.$blanco;
-        text-transform: uppercase;
-        margin: 0;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        
+        img {
+            height: 8rem;
+        }
 
-        @include m.tablet {
-            text-align: left;
+        h2 {
+            color: v.$blanco;
+            text-transform: uppercase;
+            margin: 0;
+            text-align: center;
+    
+            @include m.tablet {
+                text-align: left;
+            }
         }
     }
 
@@ -131,7 +141,6 @@
     &__formulario {
         @extend .dashboard__contenedor; // Hereda todos los estilos
 
-        @include m.contenedor-md(); 
+        @include m.contenedor-md();
     }
 }
-

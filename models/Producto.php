@@ -2,8 +2,6 @@
 
 namespace Model;
 
-use DateTime;
-
 class Producto extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
@@ -33,5 +31,26 @@ class Producto extends ActiveRecord {
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
         $this->usuarioId = $args['usuarioId'] ?? '';
         $this->categoriaId = $args['categoriaId'] ?? '';
+    }
+
+
+    public function validar() {
+        if(!$this->nombre) {
+            self::$alertas['error'][] = 'El titulo del producto es obligatorio';
+        } 
+        if(!$this->descripcion) {
+            self::$alertas['error'][] = 'La descripcion no puede ir vacia';
+        }
+        if(!$this->precio) {
+            self::$alertas['error'][] = 'El precio es obligatorio';
+        }
+        if(!$this->estado) {
+            self::$alertas['error'][] = 'Seleccionar el tipo de producto es obligatorio';
+        }
+        if(!$this->categoriaId) {
+            self::$alertas['error'][] = 'La categoria es obligatoria';
+        }
+        
+        return self::$alertas;
     }
 }

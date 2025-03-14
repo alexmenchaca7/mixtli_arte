@@ -33,10 +33,16 @@ $router->post('/reestablecer', [AuthController::class, 'reestablecer']);
 $router->get('/mensaje', [AuthController::class, 'mensaje']);
 $router->get('/confirmar-cuenta', [AuthController::class, 'confirmar']);
 
+
+
+
 // Pagina de Inicio
 $router->get('/', [PaginasController::class, 'index']);
 $router->get('/nosotros', [PaginasController::class, 'nosotros']);
 $router->get('/contacto', [PaginasController::class, 'contacto']);
+
+
+
 
 // Marketplace (vista de compradores)
 $router->get('/marketplace', [MarketplaceController::class, 'index']);
@@ -52,6 +58,8 @@ $router->get('/vendedor/productos/editar', [ProductosController::class, 'editar'
 $router->post('/vendedor/productos/editar', [ProductosController::class, 'editar']);
 $router->get('/vendedor/productos/eliminar', [ProductosController::class, 'eliminar']);
 
+$router->get('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']);
+$router->post('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']);
 
 
 // Comprobar y validar que las rutas existan para asignarles las funciones del Controlador
