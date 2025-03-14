@@ -46,4 +46,37 @@ class DashboardVendedorController {
             'vendedor' => $vendedor
         ], 'vendedor-layout');
     }
+
+    public static function editarTelefono(Router $router) {
+        if(!is_auth('vendedor')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $vendedor = Usuario::find($_SESSION['id']);
+        $alertas = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $telefono = $_POST['telefono'];
+            $vendedor->telefono = $telefono;
+
+            // Validar el teléfono
+            if (empty($telefono)) {
+                Usuario::setAlerta('error', 'El teléfono es obligatorio');
+            } else {
+                // Guardar el teléfono
+                $vendedor->guardar();
+                header('Location: /vendedor/perfil');
+                exit();
+            }
+
+            $alertas = Usuario::getAlertas();
+        }
+
+        $router->render('vendedor/perfil/editar-telefono', [
+            'titulo' => 'Editar Teléfono',
+            'vendedor' => $vendedor,
+            'alertas' => $alertas
+        ], 'vendedor-layout');
+    }
 }

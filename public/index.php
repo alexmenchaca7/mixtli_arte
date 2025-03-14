@@ -49,6 +49,7 @@ $router->get('/marketplace', [MarketplaceController::class, 'index']);
 
 
 // Dashboard del Artesano (VENDEDOR)
+
 $router->get('/vendedor/dashboard', [DashboardVendedorController::class, 'index']);
 
 $router->get('/vendedor/productos', [ProductosController::class, 'index']);
@@ -60,6 +61,9 @@ $router->get('/vendedor/productos/eliminar', [ProductosController::class, 'elimi
 
 $router->get('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']);
 $router->post('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']);
+
+$router->get('/vendedor/editar-telefono', [DashboardVendedorController::class, 'editarTelefono']);
+$router->post('/vendedor/editar-telefono', [DashboardVendedorController::class, 'editarTelefono']);
 
 
 // Comprobar y validar que las rutas existan para asignarles las funciones del Controlador

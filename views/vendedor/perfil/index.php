@@ -1,9 +1,9 @@
 <h2 class="dashboard__heading"><?php echo $titulo; ?></h2>
 
 <div class="dashboard__contenedor-boton">
-    <a class="dashboard__boton" href="/vendedor/dashboard">
-        <i class="fa-solid fa-circle-arrow-left"></i>
-        Volver
+    <a class="dashboard__boton" href="/vendedor/editar-telefono">
+        <i class="fa-solid fa-phone"></i>
+        Editar Teléfono
     </a>
 </div>
 
@@ -63,6 +63,7 @@
                 name="vendedor[telefono]"
                 placeholder="Tu Teléfono"
                 value="<?php echo $vendedor->telefono ?? ''; ?>"
+                readonly
             >
         </div>
 

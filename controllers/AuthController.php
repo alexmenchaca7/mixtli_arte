@@ -115,7 +115,6 @@ class AuthController {
                     // Enviar email
                     $email = new Email($usuario->email, $usuario->nombre, $usuario->token);
                     $email->enviarConfirmacion();
-                    
 
                     if($resultado) {
                         header('Location: /mensaje');
