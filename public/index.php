@@ -6,6 +6,7 @@ use MVC\Router;
 use Controllers\AuthController;
 use Controllers\DashboardVendedorController;
 use Controllers\MarketplaceController;
+use Controllers\MensajesController;
 use Controllers\PaginasController;
 use Controllers\ProductosController;
 
@@ -64,6 +65,9 @@ $router->post('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']
 
 $router->get('/vendedor/editar-telefono', [DashboardVendedorController::class, 'editarTelefono']);
 $router->post('/vendedor/editar-telefono', [DashboardVendedorController::class, 'editarTelefono']);
+
+$router->get('/vendedor/mensajes', [MensajesController::class, 'index']);
+
 
 
 // Comprobar y validar que las rutas existan para asignarles las funciones del Controlador

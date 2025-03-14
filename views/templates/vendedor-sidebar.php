@@ -24,7 +24,7 @@
             </span>  
         </a>
 
-        <a href="/vendedor/perfil" class="dashboard__enlace <?php echo pagina_actual('/mensajes') ? 'dashboard__enlace--actual' : ''; ?>">
+        <a href="/vendedor/perfil" class="dashboard__enlace <?php echo pagina_actual('/perfil') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-user dashboard__icono"></i>
 
             <span class="dashboard__menu-texto">
