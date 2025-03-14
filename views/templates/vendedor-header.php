@@ -6,7 +6,10 @@
         </a>
 
         <nav class="dashboard__nav">
-            <form method="POST" action="/logout" class="dashboard__form">
+            <span class="dashboard__usuario">
+                <?php echo $_SESSION['nombre'] . ' ' . $_SESSION['apellido']; ?>
+            </span>
+            <form class="dashboard__form" method="POST" action="/logout">
                 <input type="submit" value="Cerrar Sesión" class="dashboard__submit-logout">
             </form>
         </nav>

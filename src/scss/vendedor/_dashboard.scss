@@ -26,10 +26,10 @@
     &__logo {
         display: flex;
         align-items: center;
-        gap: 2rem;
+        gap: 1rem;
         
         img {
-            height: 8rem;
+            height: 6rem;
         }
 
         h2 {
@@ -42,6 +42,11 @@
                 text-align: left;
             }
         }
+    }
+
+    &__usuario {
+        color: v.$blanco;
+        font-weight: v.$bold;
     }
 
     &__form {
