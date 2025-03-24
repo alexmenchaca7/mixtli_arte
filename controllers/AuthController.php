@@ -47,7 +47,7 @@ class AuthController {
                                 header('Location: /vendedor/dashboard');
                                 exit();
                             } else if($usuario->rol === 'admin') {
-                                header('Location: /dashboard');
+                                header('Location: /admin/dashboard');
                                 exit();
                             }
                         } else {

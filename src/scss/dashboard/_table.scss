@@ -1,0 +1,73 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+@use 'sass:color';
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+
+    &__thead {
+        background-color: v.$dashboard;
+        color: v.$blanco;
+    }
+
+    &__th {
+        padding: 1rem;
+        text-align: left;
+    }
+
+    &__tr {
+        &:nth-child(even) {
+            background-color: color.adjust(v.$dashboard, $lightness: 70%);
+        }
+    }
+
+    &__td {
+        padding: 1.5rem 1rem;
+
+        &--acciones {
+            @extend .table__td;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 2rem;
+
+            &-subcategorias {
+                @extend .table__td--acciones;
+                padding: 0;
+            }
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+
+            li {
+                display: flex;  // Cambiado para alinear los elementos dentro de cada li
+                justify-content: space-between;
+                align-items: center;  // Centra verticalmente el contenido
+                gap: 1rem;  // Añade espacio entre los enlaces de editar y eliminar
+            }
+        }
+    }
+
+    &__accion {
+        all: unset;
+        text-transform: uppercase;
+        font-size: 1.4rem;
+        font-weight: v.$bold;
+
+        &--editar {
+            color: v.$primario;
+        }
+
+        &--eliminar {
+            color: v.$error;
+        }
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}

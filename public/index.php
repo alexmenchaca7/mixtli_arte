@@ -3,12 +3,14 @@
 require_once __DIR__ . '/../includes/app.php'; 
 
 use MVC\Router;
+use Controllers\UsuariosController;
 use Controllers\AuthController;
-use Controllers\DashboardVendedorController;
-use Controllers\MarketplaceController;
-use Controllers\MensajesController;
 use Controllers\PaginasController;
+use Controllers\MensajesController;
 use Controllers\ProductosController;
+use Controllers\MarketplaceController;
+use Controllers\DashboardAdminController;
+use Controllers\DashboardVendedorController;
 
 $router = new Router();
 
@@ -45,12 +47,11 @@ $router->get('/contacto', [PaginasController::class, 'contacto']);
 
 
 
-// Marketplace (vista de compradores)
+// Marketplace (VISTA COMPRADOR)
 $router->get('/marketplace', [MarketplaceController::class, 'index']);
 
 
-// Dashboard del Artesano (VENDEDOR)
-
+// Dashboard del Artesano (VISTA VENDEDOR)
 $router->get('/vendedor/dashboard', [DashboardVendedorController::class, 'index']);
 
 $router->get('/vendedor/productos', [ProductosController::class, 'index']);
@@ -67,6 +68,32 @@ $router->get('/vendedor/editar-telefono', [DashboardVendedorController::class, '
 $router->post('/vendedor/editar-telefono', [DashboardVendedorController::class, 'editarTelefono']);
 
 $router->get('/vendedor/mensajes', [MensajesController::class, 'index']);
+
+
+
+// Dashboard del Admin (VISTA ADMINISTRADOR)
+$router->get('/admin/dashboard', [DashboardAdminController::class, 'index']);
+
+$router->get('/admin/usuarios', [UsuariosController::class, 'index']);
+$router->get('/admin/usuarios/crear', [UsuariosController::class, 'crear']);
+$router->post('/admin/usuarios/crear', [UsuariosController::class, 'crear']);
+$router->get('/admin/usuarios/editar', [UsuariosController::class, 'editar']);
+$router->post('/admin/usuarios/editar', [UsuariosController::class, 'editar']);
+$router->get('/admin/usuarios/eliminar', [UsuariosController::class, 'eliminar']);
+
+$router->get('/admin/productos', [ProductosController::class, 'index']);
+$router->get('/admin/productos/crear', [ProductosController::class, 'crear']);
+$router->post('/admin/productos/crear', [ProductosController::class, 'crear']);
+$router->get('/admin/productos/editar', [ProductosController::class, 'editar']);
+$router->post('/admin/productos/editar', [ProductosController::class, 'editar']);
+$router->get('/admin/productos/eliminar', [ProductosController::class, 'eliminar']);
+
+$router->get('/admin/perfil', [DashboardAdminController::class, 'perfil']);
+$router->post('/admin/perfil', [DashboardAdminController::class, 'perfil']);
+
+$router->get('/admin/editar-telefono', [DashboardAdminController::class, 'editarTelefono']);
+$router->post('/admin/editar-telefono', [DashboardAdminController::class, 'editarTelefono']);
+
 
 
 
