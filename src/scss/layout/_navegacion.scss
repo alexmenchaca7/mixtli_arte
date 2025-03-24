@@ -3,7 +3,7 @@
 
 /** Estilos para la barra nav de index.html **/
 .inicio {
-    background-color: v.$primario;
+    background-color: v.$dashboard;
 
     .barra {
         h2 {
@@ -13,6 +13,10 @@
         .enlaces {
             a {
                 color: v.$blanco;
+
+                &:hover {
+                    text-decoration: underline;
+                }
             }
         }
     }
