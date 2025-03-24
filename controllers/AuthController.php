@@ -278,4 +278,53 @@ class AuthController {
             'alertas' => Usuario::getAlertas()
         ]);
     }
+
+    public static function establecerPassword(Router $router) {
+
+        $inicio = true;
+        $alertas = [];
+        $token = isset($_GET['token']) ? $_GET['token'] : null;
+        $token_valido = true;
+
+        if(!$token) {
+            Usuario::setAlerta('error', 'Token no válido');
+            $token_valido = false;
+        } else {
+            $usuario = Usuario::where('token', $token);
+
+            if(empty($usuario)) {
+                Usuario::setAlerta('error', 'Token no válido');
+                $token_valido = false;
+            }
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $usuario->sincronizar($_POST);
+            $alertas = $usuario->validarPassword();
+
+            if($_POST['pass'] !== $_POST['pass2']) {
+                Usuario::setAlerta('error', 'Los passwords no coinciden');
+            }
+
+            if(empty($alertas)) {
+                $usuario->hashPassword();
+                $usuario->verificado = 1; // Confirmar la cuenta
+                $usuario->token = null;
+                $resultado = $usuario->guardar();
+
+                if($resultado) {
+                    header('Location: /login');
+                }
+            }
+        }
+
+        $alertas = Usuario::getAlertas();
+
+        $router->render('auth/establecer-password', [
+            'titulo' => 'Establecer Password',
+            'inicio' => $inicio,
+            'alertas' => $alertas,
+            'token_valido' => $token_valido
+        ]);
+    }
 }

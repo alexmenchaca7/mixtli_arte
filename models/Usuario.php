@@ -85,7 +85,7 @@ class Usuario extends ActiveRecord {
             self::$alertas['error'][] = 'El sexo es obligatorio';
         }
         if(!$this->rol) {
-            self::$alertas['error'][] = 'El rol es obligatorio. Por favor selecciona si deseas comprar o vender';
+            self::$alertas['error'][] = 'El rol es obligatorio';
         }
         if(!$this->email) {
             self::$alertas['error'][] = 'El email es obligatorio';
@@ -97,6 +97,38 @@ class Usuario extends ActiveRecord {
         }
         if($this->pass !== $this->pass2) {
             self::$alertas['error'][] = 'Los password son diferentes';
+        }
+        return self::$alertas;
+    }
+
+    // Validación para cuentas nuevas desde el dashboard
+    public function validar_cuenta_dashboard() {
+        if(!$this->nombre) {
+            self::$alertas['error'][] = 'El nombre es obligatorio';
+        }
+        if(!$this->apellido) {
+            self::$alertas['error'][] = 'El apellido es obligatorio';
+        }
+        if(!$this->fecha_nacimiento) {
+            self::$alertas['error'][] = 'La fecha de nacimiento es obligatoria';
+        } else {
+            // Validar que la edad sea mayor o igual a 18 años
+            $fecha_nacimiento = new \DateTime($this->fecha_nacimiento);
+            $hoy = new \DateTime();
+            $edad = $hoy->diff($fecha_nacimiento)->y;
+    
+            if ($edad < 18) {
+                self::$alertas['error'][] = 'Debes tener al menos 18 años para registrarte';
+            }
+        }
+        if(!$this->sexo) {
+            self::$alertas['error'][] = 'El sexo es obligatorio';
+        }
+        if(!$this->rol) {
+            self::$alertas['error'][] = 'El rol es obligatorio';
+        }
+        if(!$this->email) {
+            self::$alertas['error'][] = 'El email es obligatorio';
         }
         return self::$alertas;
     }

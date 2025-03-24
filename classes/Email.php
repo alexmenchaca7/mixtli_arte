@@ -48,6 +48,38 @@ class Email {
         $mail->send();
     }
 
+    public function enviarConfirmacionContraseña() {
+
+        // create a new object
+        $mail = new PHPMailer();
+        $mail->isSMTP();
+        $mail->Host = $_ENV['EMAIL_HOST'];
+        $mail->SMTPAuth = true;
+        $mail->Port = $_ENV['EMAIL_PORT'];
+        $mail->Username = $_ENV['EMAIL_USER'];
+        $mail->Password = $_ENV['EMAIL_PASS'];
+    
+        $mail->setFrom('noreply@mixtliarte.com');
+        $mail->addAddress($this->email, $this->nombre);
+        $mail->Subject = 'Establece tu Contraseña';
+
+        // Set HTML
+        $mail->isHTML(TRUE);
+        $mail->CharSet = 'UTF-8';
+
+        $contenido = '<html>';
+        $contenido .= "<h1>Hola " . $this->nombre .  ":</h1>";
+        $contenido .= "<p>Has registrado correctamente tu cuenta en MixtliArte, pero es necesario establecer tu contraseña...</p>";
+        $contenido .= "<p>Presiona aquí: <a href='" . $_ENV['HOST'] . "/establecer-password?token=" . $this->token . "'>Establecer Contraseña</a>";       
+        $contenido .= "<p>Si no creaste esta cuenta puedes ignorar el mensaje.</p>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        //Enviar el mail
+        $mail->send();
+    }
+
+
     public function enviarInstrucciones() {
 
         // create a new object

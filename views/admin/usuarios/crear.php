@@ -9,6 +9,10 @@
 
 <div class="dashboard__formulario">
     <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
+
+    <?php if(isset($_GET['confirmacion']) && $_GET['confirmacion'] == 1): ?>
+        <p class="alerta alerta__exito">Usuario registrado correctamente. Revisa el email para confirmar la cuenta</p>
+    <?php endif; ?>
     
     <form method="POST" action="/admin/usuarios/crear" enctype="multipart/form-data" class="formulario">
         <?php include_once __DIR__ . '/formulario.php'; ?>

@@ -32,6 +32,10 @@ $router->post('/olvide', [AuthController::class, 'olvide']);
 $router->get('/reestablecer', [AuthController::class, 'reestablecer']);
 $router->post('/reestablecer', [AuthController::class, 'reestablecer']);
 
+// Establecer password
+$router->get('/establecer-password', [AuthController::class, 'establecerPassword']);
+$router->post('/establecer-password', [AuthController::class, 'establecerPassword']);
+
 // Confirmación de Cuenta
 $router->get('/mensaje', [AuthController::class, 'mensaje']);
 $router->get('/confirmar-cuenta', [AuthController::class, 'confirmar']);
@@ -79,7 +83,7 @@ $router->get('/admin/usuarios/crear', [UsuariosController::class, 'crear']);
 $router->post('/admin/usuarios/crear', [UsuariosController::class, 'crear']);
 $router->get('/admin/usuarios/editar', [UsuariosController::class, 'editar']);
 $router->post('/admin/usuarios/editar', [UsuariosController::class, 'editar']);
-$router->get('/admin/usuarios/eliminar', [UsuariosController::class, 'eliminar']);
+$router->post('/admin/usuarios/eliminar', [UsuariosController::class, 'eliminar']);
 
 $router->get('/admin/productos', [ProductosController::class, 'index']);
 $router->get('/admin/productos/crear', [ProductosController::class, 'crear']);

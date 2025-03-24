@@ -28,7 +28,7 @@
                         <td class="table__td"><?php echo $usuario->email; ?></td>
                         <td class="table__td"><?php echo $usuario->telefono; ?></td>
                         <td class="table__td"><?php echo $usuario->rol; ?></td>
-                        <td class="table__td"><?php echo $usuario->verificado; ?></td>
+                        <td class="table__td"><?php echo $usuario->verificado ? 'Sí' : 'No'; ?></td>
 
                         <td class="table__td--acciones">
                             <a class="table__accion table__accion--editar" href="/admin/usuarios/editar?id=<?php echo $usuario->id; ?>">
