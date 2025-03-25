@@ -2,8 +2,11 @@
 
 namespace Controllers;
 
-use Model\Usuario;
 use MVC\Router;
+use Classes\Email;
+use Model\Usuario;
+use Model\Direccion;
+use Intervention\Image\ImageManagerStatic as Image;
 
 class DashboardVendedorController {
     public static function index(Router $router) {
@@ -24,58 +27,151 @@ class DashboardVendedorController {
         }
         
         $vendedor = Usuario::find($_SESSION['id']);
+        $vendedor->imagen_actual = $vendedor->imagen;
+        $direcciones = Direccion::whereField('usuarioId', $vendedor->id);
+        $alertas = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Asignar los valores
-            $args = $_POST['vendedor'] ?? [];
+            // Procesamiento de imagen
+            $carpeta_imagenes = '../public/img/usuarios';
+            $nombre_imagen = '';
 
-            // Sincronizar objeto en memoria con lo que el usuario escribió
-            $vendedor->sincronizar($args);
+            if(!empty($_FILES['imagen']['tmp_name'])) {
+                if(!is_dir($carpeta_imagenes)) {
+                    mkdir($carpeta_imagenes, 0755, true);
+                }
+
+                $imagen_png = Image::make($_FILES['imagen']['tmp_name'])->encode('png', 90);
+                $imagen_webp = Image::make($_FILES['imagen']['tmp_name'])->encode('webp', 90);
+
+                $nombre_imagen = md5(uniqid(rand(), true));
+                $_POST['imagen'] = $nombre_imagen;
+            }
+
+            // Manejar eliminación de imagen
+            if(isset($_POST['eliminar_imagen']) && $_POST['eliminar_imagen'] === 'on') {
+                if(!empty($vendedor->imagen_actual)) {
+                    if(file_exists("$carpeta_imagenes/$vendedor->imagen_actual.png")) {
+                        unlink("$carpeta_imagenes/$vendedor->imagen_actual.png");
+                    }
+                    if(file_exists("$carpeta_imagenes/$vendedor->imagen_actual.webp")) {
+                        unlink("$carpeta_imagenes/$vendedor->imagen_actual.webp");
+                    }
+                }
+                $_POST['imagen'] = '';
+            }
+
+            // Sincronizar con los datos del POST
+            $vendedor->sincronizar($_POST);
 
             // Validación
-            $errores = $vendedor->validar();
+            $alertas = $vendedor->validar_cuenta_dashboard();
 
-            if (empty($errores)) {
-                // Guardar en la base de datos
-                $vendedor->guardar();
+            if(empty($alertas)) {
+                // Guardar imagen si existe
+                if(!empty($_FILES['imagen']['tmp_name'])) {
+                    $imagen_png->save($carpeta_imagenes . '/' . $nombre_imagen . '.png');
+                    $imagen_webp->save($carpeta_imagenes . '/' . $nombre_imagen . '.webp');
+                }
+
+                // Si no se subió nueva imagen y no se elimina, mantener la anterior
+                if(empty($_FILES['imagen']['tmp_name']) && !isset($_POST['eliminar_imagen'])) {
+                    $vendedor->imagen = $vendedor->imagen_actual;
+                }
+
+                $resultado = $vendedor->guardar();
+
+                if($resultado) {
+                    // Eliminar direcciones existentes
+                    Direccion::eliminarPorUsuario($vendedor->id);
+
+                    // Guardar direcciones
+                    // Dirección residencial
+                    if(!empty($_POST['calle_residencial'])) {
+                        (new Direccion([
+                            'tipo' => 'residencial',
+                            'calle' => $_POST['calle_residencial'],
+                            'colonia' => $_POST['colonia_residencial'],
+                            'ciudad' => $_POST['ciudad_residencial'],
+                            'estado' => $_POST['estado_residencial'],
+                            'codigo_postal' => $_POST['codigo_postal_residencial'],
+                            'usuarioId' => $vendedor->id
+                        ]))->guardar();
+                    }
+
+                    // Dirección comercial
+                    if(!empty($_POST['calle_comercial'])) {
+                        (new Direccion([
+                            'tipo' => 'comercial',
+                            'calle' => $_POST['calle_comercial'],
+                            'colonia' => $_POST['colonia_comercial'],
+                            'ciudad' => $_POST['ciudad_comercial'],
+                            'estado' => $_POST['estado_comercial'],
+                            'codigo_postal' => $_POST['codigo_postal_comercial'],
+                            'usuarioId' => $vendedor->id
+                        ]))->guardar();
+                    }
+
+                    // Actualizar datos de sesión
+                    $_SESSION['nombre'] = $vendedor->nombre . ' ' . $vendedor->apellido;
+                    $_SESSION['imagen'] = $vendedor->imagen;
+
+                    Usuario::setAlerta('exito', 'Perfil actualizado correctamente');
+                    $alertas = Usuario::getAlertas();
+                }
             }
         }
 
         $router->render('vendedor/perfil/index', [
             'titulo' => 'Editar Perfil',
-            'vendedor' => $vendedor
+            'usuario' => $vendedor,
+            'direcciones' => $direcciones,
+            'alertas' => $alertas,
+            'fecha_hoy' => date('Y-m-d')
         ], 'vendedor-layout');
     }
 
-    public static function editarTelefono(Router $router) {
+    public static function cambiarPassword(Router $router) {
         if(!is_auth('vendedor')) {
             header('Location: /login');
             exit();
         }
 
-        $vendedor = Usuario::find($_SESSION['id']);
         $alertas = [];
+        $usuario = Usuario::find($_SESSION['id']);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $telefono = $_POST['telefono'];
-            $vendedor->telefono = $telefono;
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $usuario->sincronizar($_POST);
+            $alertas = $usuario->nuevo_password();
 
-            // Validar el teléfono
-            if (empty($telefono)) {
-                Usuario::setAlerta('error', 'El teléfono es obligatorio');
-            } else {
-                // Guardar el teléfono
-                $vendedor->guardar();
-                header('Location: /vendedor/perfil');
-                exit();
+            if(empty($alertas)) {
+                // Verificar que el password actual sea correcto
+                if($usuario->comprobar_password()) {
+                    // Asignar el nuevo password
+                    $usuario->pass = $usuario->password_nuevo;
+                    // Hashear el nuevo password
+                    $usuario->hashPassword();
+                    
+                    // Guardar en la BD
+                    $resultado = $usuario->guardar();
+
+                    if($resultado) {
+                        Usuario::setAlerta('exito', 'Password actualizado correctamente');
+                        $alertas = Usuario::getAlertas();
+                        
+                        // Enviar email de notificación
+                        $email = new Email($usuario->email, $usuario->nombre, '');
+                        $email->enviarNotificacionContraseña();
+                    }
+                } else {
+                    Usuario::setAlerta('error', 'El password actual es incorrecto');
+                    $alertas = Usuario::getAlertas();
+                }
             }
-
-            $alertas = Usuario::getAlertas();
         }
 
-        $router->render('vendedor/perfil/editar-telefono', [
-            'titulo' => 'Editar Teléfono',
-            'vendedor' => $vendedor,
+        $router->render('vendedor/perfil/cambiar-password', [
+            'titulo' => 'Cambiar Password',
             'alertas' => $alertas
         ], 'vendedor-layout');
     }

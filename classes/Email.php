@@ -17,9 +17,8 @@ class Email {
         $this->token = $token;
     }
 
-    public function enviarConfirmacion() {
 
-        // create a new object
+    private function configurarEmailBasico() {
         $mail = new PHPMailer();
         $mail->isSMTP();
         $mail->Host = $_ENV['EMAIL_HOST'];
@@ -27,14 +26,18 @@ class Email {
         $mail->Port = $_ENV['EMAIL_PORT'];
         $mail->Username = $_ENV['EMAIL_USER'];
         $mail->Password = $_ENV['EMAIL_PASS'];
-    
         $mail->setFrom('noreply@mixtliarte.com');
         $mail->addAddress($this->email, $this->nombre);
-        $mail->Subject = 'Confirma tu Cuenta';
-
-        // Set HTML
-        $mail->isHTML(TRUE);
+        $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
+        
+        return $mail;
+    }
+
+
+    public function enviarConfirmacion() {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Confirma tu Cuenta';
 
         $contenido = '<html>';
         $contenido .= "<h1>Hola " . $this->nombre .  ":</h1>";
@@ -49,23 +52,8 @@ class Email {
     }
 
     public function enviarConfirmacionContraseña() {
-
-        // create a new object
-        $mail = new PHPMailer();
-        $mail->isSMTP();
-        $mail->Host = $_ENV['EMAIL_HOST'];
-        $mail->SMTPAuth = true;
-        $mail->Port = $_ENV['EMAIL_PORT'];
-        $mail->Username = $_ENV['EMAIL_USER'];
-        $mail->Password = $_ENV['EMAIL_PASS'];
-    
-        $mail->setFrom('noreply@mixtliarte.com');
-        $mail->addAddress($this->email, $this->nombre);
+        $mail = $this->configurarEmailBasico();
         $mail->Subject = 'Establece tu Contraseña';
-
-        // Set HTML
-        $mail->isHTML(TRUE);
-        $mail->CharSet = 'UTF-8';
 
         $contenido = '<html>';
         $contenido .= "<h1>Hola " . $this->nombre .  ":</h1>";
@@ -80,24 +68,25 @@ class Email {
     }
 
 
+    public function enviarNotificacionContraseña() {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Cambiaste tu Contraseña';
+
+        $contenido = '<html>';
+        $contenido .= "<h1>Hola " . $this->nombre .  ":</h1>";
+        $contenido .= "<p>Tu contraseña en MixtliArte ha sido cambiada exitosamente.</p>";     
+        $contenido .= "<p>Si no realizaste este cambio, por favor contacta a soporte inmediatamente.</p>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        //Enviar el mail
+        $mail->send();
+    }
+
+
     public function enviarInstrucciones() {
-
-        // create a new object
-        $mail = new PHPMailer();
-        $mail->isSMTP();
-        $mail->Host = $_ENV['EMAIL_HOST'];
-        $mail->SMTPAuth = true;
-        $mail->Port = $_ENV['EMAIL_PORT'];
-        $mail->Username = $_ENV['EMAIL_USER'];
-        $mail->Password = $_ENV['EMAIL_PASS'];
-    
-        $mail->setFrom('noreply@mixtliarte.com');
-        $mail->addAddress($this->email, $this->nombre);
+        $mail = $this->configurarEmailBasico();
         $mail->Subject = 'Reestablece tu password';
-
-        // Set HTML
-        $mail->isHTML(TRUE);
-        $mail->CharSet = 'UTF-8';
 
         $contenido = '<html>';
         $contenido .= "<h1>Hola " . $this->nombre .  ":</h1>";

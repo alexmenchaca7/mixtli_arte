@@ -68,8 +68,8 @@ $router->get('/vendedor/productos/eliminar', [ProductosController::class, 'elimi
 $router->get('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']);
 $router->post('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']);
 
-$router->get('/vendedor/editar-telefono', [DashboardVendedorController::class, 'editarTelefono']);
-$router->post('/vendedor/editar-telefono', [DashboardVendedorController::class, 'editarTelefono']);
+$router->get('/vendedor/cambiar-password', [DashboardVendedorController::class, 'cambiarPassword']);
+$router->post('/vendedor/cambiar-password', [DashboardVendedorController::class, 'cambiarPassword']);
 
 $router->get('/vendedor/mensajes', [MensajesController::class, 'index']);
 
