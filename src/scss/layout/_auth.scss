@@ -10,3 +10,15 @@
         font-weight: v.$black;
     }
 }
+
+.configuracion-2fa {
+    &__qr {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__imagen {
+        width: 20rem;
+        align-self: center;
+    }
+}

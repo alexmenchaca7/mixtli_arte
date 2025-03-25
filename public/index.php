@@ -3,11 +3,12 @@
 require_once __DIR__ . '/../includes/app.php'; 
 
 use MVC\Router;
-use Controllers\UsuariosController;
 use Controllers\AuthController;
 use Controllers\PaginasController;
 use Controllers\MensajesController;
+use Controllers\UsuariosController;
 use Controllers\ProductosController;
+use Controllers\SeguridadController;
 use Controllers\MarketplaceController;
 use Controllers\DashboardAdminController;
 use Controllers\DashboardVendedorController;
@@ -39,6 +40,12 @@ $router->post('/establecer-password', [AuthController::class, 'establecerPasswor
 // Confirmación de Cuenta
 $router->get('/mensaje', [AuthController::class, 'mensaje']);
 $router->get('/confirmar-cuenta', [AuthController::class, 'confirmar']);
+
+// Rutas de seguridad
+$router->get('/seguridad/2fa', [SeguridadController::class, 'configurar2FA']);
+$router->post('/seguridad/2fa', [SeguridadController::class, 'configurar2FA']);
+$router->get('/verificar-2fa', [AuthController::class, 'verificar2FA']);
+$router->post('/verificar-2fa', [AuthController::class, 'verificar2FA']);
 
 
 

@@ -13,8 +13,13 @@ function obtenerDireccion($direcciones, $tipo, $campo) {
 <h2 class="dashboard__heading"><?php echo $titulo; ?></h2>
 
 <div class="dashboard__contenedor-boton">
+    <a class="dashboard__boton" href="/seguridad/2fa">
+        <i class="fa-solid fa-shield-halved"></i>
+        Seguridad de Cuenta (2FA)
+    </a>
+
     <a class="dashboard__boton" href="/vendedor/cambiar-password">
-        <i class="fa-solid fa-user-lock"></i>
+        <i class="fa-solid fa-key"></i>
         Cambiar Contraseña
     </a>
 </div>

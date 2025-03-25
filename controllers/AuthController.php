@@ -5,23 +5,22 @@ namespace Controllers;
 use MVC\Router;
 use Classes\Email;
 use Model\Usuario;
+use Model\Autenticacion;
+use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 
 class AuthController {
     public static function login(Router $router) {
-
         $inicio = true;
         $alertas = [];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
             $usuario = new Usuario($_POST);
-
             $alertas = $usuario->validarLogin();
             
             if(empty($alertas)) {
-
                 // Verificar que el usuario exista
                 $usuario = Usuario::where('email', $usuario->email);
+
                 if(!$usuario || !$usuario->verificado ) {
                     Usuario::setAlerta('error', 'El usuario no existe o no esta verificado');
                 } else {
@@ -29,26 +28,17 @@ class AuthController {
                     if( password_verify($_POST['pass'], $usuario->pass) ) {
                         // Verificar si la cuenta está confirmada
                         if($usuario->verificado === "1") {
-                            // Iniciar la sesión
-                            session_start();
-                            $_SESSION['id'] = $usuario->id;
-                            $_SESSION['nombre'] = $usuario->nombre;
-                            $_SESSION['apellido'] = $usuario->apellido;
-                            $_SESSION['email'] = $usuario->email;
-                            $_SESSION['verificado'] = $usuario->verificado;
-                            $_SESSION['rol'] = $usuario->rol;
-                            $_SESSION['login'] = true;
-
-                            // Redirección
-                            if($usuario->rol === 'comprador') {
-                                header('Location: /marketplace');
+                            // Verificar si tiene 2FA activado
+                            $usuario2fa = Autenticacion::findByUsuarioId($usuario->id);
+                            
+                            if($usuario2fa && $usuario2fa->auth_enabled) {
+                                $_SESSION['usuario_2fa'] = $usuario->id;
+                                $_SESSION['2fa_pending'] = true;
+                                header('Location: /verificar-2fa');
                                 exit();
-                            } else if($usuario->rol === 'vendedor') {
-                                header('Location: /vendedor/dashboard');
-                                exit();
-                            } else if($usuario->rol === 'admin') {
-                                header('Location: /admin/dashboard');
-                                exit();
+                            } else {
+                                // Iniciar sesión normalmente
+                                self::iniciarSesion($usuario);
                             }
                         } else {
                             Usuario::setAlerta('error', 'Tu cuenta no ha sido confirmada. Revisa tu correo');
@@ -58,17 +48,79 @@ class AuthController {
                     }
                 }
             }
-
-            $alertas = Usuario::getAlertas();
         }
 
-        // Render a la vista 
+        $alertas = Usuario::getAlertas();
         $router->render('auth/login', [
             'titulo' => 'Iniciar Sesión',
             'inicio' => $inicio,
             'alertas' => $alertas
         ]);
     }
+
+
+    public static function verificar2FA(Router $router) {
+        if(!isset($_SESSION['2fa_pending'])) {
+            header('Location: /login');
+            exit();
+        }
+
+        $inicio = true;
+        $alertas = [];
+        $usuario = Usuario::find($_SESSION['usuario_2fa']);
+        $usuario2fa = Autenticacion::findByUsuarioId($usuario->id);
+        $g = new GoogleAuthenticator();
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $codigo = $_POST['codigo'] ?? '';
+            
+            // Verificar código normal
+            if($g->checkCode($usuario2fa->auth_secret, $codigo)) {
+                unset($_SESSION['2fa_pending'], $_SESSION['usuario_2fa']);
+                self::iniciarSesion($usuario);
+            } 
+            // Verificar código de respaldo
+            elseif ($usuario2fa->verificarBackupCode($codigo)) {
+                $usuario2fa->guardar();
+                unset($_SESSION['2fa_pending'], $_SESSION['usuario_2fa']);
+                self::iniciarSesion($usuario);
+            } 
+            else {
+                Usuario::setAlerta('error', 'Código de verificación incorrecto');
+            }
+        }
+
+        $alertas = Usuario::getAlertas();
+        $router->render('auth/verificar-2fa', [
+            'titulo' => 'Verificación en dos pasos',
+            'inicio' => $inicio,
+            'alertas' => $alertas
+        ]);
+    }
+
+    
+
+    private static function iniciarSesion($usuario) {
+        session_start();
+        $_SESSION['id'] = $usuario->id;
+        $_SESSION['nombre'] = $usuario->nombre;
+        $_SESSION['apellido'] = $usuario->apellido;
+        $_SESSION['email'] = $usuario->email;
+        $_SESSION['verificado'] = $usuario->verificado;
+        $_SESSION['rol'] = $usuario->rol;
+        $_SESSION['login'] = true;
+
+        // Redirección según rol
+        if($usuario->rol === 'comprador') {
+            header('Location: /marketplace');
+        } elseif($usuario->rol === 'vendedor') {
+            header('Location: /vendedor/dashboard');
+        } elseif($usuario->rol === 'admin') {
+            header('Location: /admin/dashboard');
+        }
+        exit();
+    }
+
 
     public static function logout() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
