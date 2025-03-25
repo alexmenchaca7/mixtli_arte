@@ -1,6 +1,7 @@
 <?php
 
 namespace Model;
+#[\AllowDynamicProperties]
 
 // CLASE PADRE
 class ActiveRecord {

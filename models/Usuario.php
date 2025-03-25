@@ -7,7 +7,7 @@ use DateTime;
 class Usuario extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado'];
+    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen'];
     protected static $tabla = 'usuarios';  
 
 
@@ -24,6 +24,7 @@ class Usuario extends ActiveRecord {
     public $verificado;
     public $token;
     public $creado;
+    public $imagen;
 
     public $password_actual;
     public $password_nuevo; 
@@ -41,9 +42,10 @@ class Usuario extends ActiveRecord {
         $this->fecha_nacimiento = $args['fecha_nacimiento'] ?? NULL;
         $this->sexo = $args['sexo'] ?? '';
         $this->rol = $args['rol'] ?? '';
-        $this->verificado = $args['verificado'] ?? NULL;
+        $this->verificado = $args['verificado'] ?? 0;
         $this->token = $args['token'] ?? '';
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
+        $this->imagen = $args['imagen'] ?? '';
     }
 
 
