@@ -7,6 +7,13 @@
     display: flex;
     flex-direction: column;
 
+    &__contenedor-tabla {
+        width: 100%;
+        overflow-x: auto; // Scroll solo aquí
+        margin-bottom: 2rem;
+        @include m.shadow();
+    }
+
     &__header {
         background-color: v.$dashboard;
         padding: 2rem;
@@ -21,6 +28,12 @@
             justify-content: space-between;
             align-items: center;
         }
+    }
+
+    &__nav {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
     }
 
     &__logo {
@@ -117,15 +130,74 @@
         }
     }
 
+    // Ajustes para el contenedor de botones y búsqueda
     &__contenedor-boton {
         display: flex;
         flex-direction: column;
         gap: 2rem;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden; // Previene que los elementos hijos se salgan
 
         @include m.tablet {
             flex-direction: row;
             justify-content: flex-end;
+            align-items: center;
             margin-bottom: 5rem;
+            flex-wrap: nowrap; // Permite que los elementos se ajusten
+        }
+    }
+
+    &__busqueda {
+        display: flex;
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        background-color: v.$blanco;
+        border: 1px solid v.$gris-claro;
+        overflow: hidden;
+
+        @include m.tablet {
+            flex: 1;
+        }
+    }
+
+    .campo-busqueda {
+        display: flex;
+        width: 100%;
+        min-width: 0; // Permite que el input se reduzca
+    }
+
+    .input-busqueda {
+        flex: 1;
+        min-width: 0; // Importante para que funcione el text-overflow
+        padding: 1.4rem 1rem;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: v.$negro;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+
+        &::placeholder {
+            color: v.$gris;
+        }
+    }
+
+    .boton-busqueda {
+        background-color: v.$primario;
+        color: v.$blanco;
+        border: none;
+        padding: 0 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0; // Evita que el botón se reduzca
+
+        i {
+            font-size: 1.6rem;
         }
     }
 

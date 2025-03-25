@@ -21,6 +21,17 @@
         padding-left: 1rem;
     }
 
+    &__sublegend {
+        font-size: 1.6rem;
+        font-weight: v.$bold;
+        color: v.$primario;
+        margin: 2rem 0 1rem;
+        padding-left: 1rem;
+        border-left: 3px solid v.$primario;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     &__campo {
         display: flex;
         flex-direction: column;

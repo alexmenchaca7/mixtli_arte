@@ -1,8 +1,20 @@
+<?php
+// Función helper para obtener valores de dirección
+function obtenerDireccion($direcciones, $tipo, $campo) {
+    foreach($direcciones as $direccion) {
+        if($direccion->tipo === $tipo) {
+            return htmlspecialchars($direccion->$campo ?? '');
+        }
+    }
+    return '';
+}
+?>
+
 <fieldset class="formulario__fieldset">
     <legend class="formulario__legend">Información General</legend>
 
     <div class="formulario__campo">
-        <label for="nombre" class="formulario__label">Nombre</label>
+        <label for="nombre" class="formulario__label">Nombre*</label>
         <input 
             type="text"
             class="formulario__input"
@@ -14,7 +26,7 @@
     </div>
 
     <div class="formulario__campo">
-        <label for="apellido" class="formulario__label">Apellido</label>
+        <label for="apellido" class="formulario__label">Apellido*</label>
         <input 
             type="text"
             class="formulario__input"
@@ -26,7 +38,7 @@
     </div>
 
     <div class="formulario__campo">
-        <label for="fecha_nacimiento" class="formulario__label">Fecha de Nacimiento</label>
+        <label for="fecha_nacimiento" class="formulario__label">Fecha de Nacimiento*</label>
         <input 
             type="date"
             class="formulario__input"
@@ -38,7 +50,7 @@
     </div>
 
     <div class="formulario__campo">
-        <label for="sexo" class="formulario__label">Sexo</label>
+        <label for="sexo" class="formulario__label">Sexo*</label>
         <select class="formulario__input" name="sexo" id="sexo">
             <option value="" disabled <?php echo empty($usuario->sexo) ? 'selected' : ''; ?>>--Seleccione--</option>
             <option value="Femenino" <?php echo ($usuario->sexo === 'Femenino') ? 'selected' : ''; ?>>Femenino</option>
@@ -47,7 +59,7 @@
     </div>
 
     <div class="formulario__campo">
-        <label for="rol" class="formulario__label">Tipo de usuario</label>
+        <label for="rol" class="formulario__label">Tipo de usuario*</label>
         <select class="formulario__input" name="rol" id="rol">
             <option value="" disabled <?php echo empty($usuario->rol) ? 'selected' : ''; ?>>--Seleccione--</option>
             <option value="comprador" <?php echo ($usuario->rol === 'comprador') ? 'selected' : ''; ?>>Comprador</option>
@@ -98,7 +110,7 @@
     </div>
     
     <div class="formulario__campo">
-        <label for="email" class="formulario__label">Email</label>
+        <label for="email" class="formulario__label">Email*</label>
         <input 
             type="email"
             class="formulario__input"
@@ -119,6 +131,150 @@
             name="telefono"
             value="<?php echo $usuario->telefono; ?>"
         >
+    </div>
+
+    <div class="formulario__campo" id="campo-biografia" style="display: none;">
+        <label for="biografia" class="formulario__label">Biografía (solo para vendedores)</label>
+        <textarea 
+            class="formulario__input"
+            placeholder="Describe tu experiencia como vendedor"
+            id="biografia"
+            name="biografia"
+            rows="4"
+        ><?php echo $usuario->biografia; ?></textarea>
+    </div>
+</fieldset>
+
+<fieldset class="formulario__fieldset" id="fieldset-direcciones" style="display: none;">
+    <legend class="formulario__legend">Direcciones</legend>
+
+    <div id="direccion-residencial">
+        <h3 class="formulario__sublegend">Dirección Residencial</h3>
+        
+        <div class="formulario__campo">
+            <label for="calle_residencial" class="formulario__label">Calle y número</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: Av. Principal #123"
+                id="calle_residencial"
+                name="calle_residencial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'residencial', 'calle'); ?>"
+            >
+        </div>
+
+        <div class="formulario__campo">
+            <label for="colonia_residencial" class="formulario__label">Colonia</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: Centro"
+                id="colonia_residencial"
+                name="colonia_residencial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'residencial', 'colonia'); ?>"
+            >
+        </div>
+
+        <div class="formulario__campo">
+            <label for="codigo_postal_residencial" class="formulario__label">Código Postal</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: 06000"
+                id="codigo_postal_residencial"
+                name="codigo_postal_residencial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'residencial', 'codigo_postal'); ?>"
+            >
+        </div>
+
+        <div class="formulario__campo">
+            <label for="ciudad_residencial" class="formulario__label">Ciudad</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: Ciudad de México"
+                id="ciudad_residencial"
+                name="ciudad_residencial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'residencial', 'ciudad'); ?>"
+            >
+        </div>
+
+        <div class="formulario__campo">
+            <label for="estado_residencial" class="formulario__label">Estado</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: CDMX"
+                id="estado_residencial"
+                name="estado_residencial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'residencial', 'estado'); ?>"
+            >
+        </div>
+
+    </div>
+
+    <div id="direccion-comercial" style="display: none;">
+        <h3 class="formulario__sublegend">Dirección Comercial (solo vendedores)</h3>
+        
+        <div class="formulario__campo">
+            <label for="calle_comercial" class="formulario__label">Calle y número</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: Calle Comercial #456"
+                id="calle_comercial"
+                name="calle_comercial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'comercial', 'calle'); ?>"
+            >
+        </div>
+
+        <div class="formulario__campo">
+            <label for="colonia_comercial" class="formulario__label">Colonia</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: Zona Industrial"
+                id="colonia_comercial"
+                name="colonia_comercial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'comercial', 'colonia'); ?>"
+            >
+        </div>
+            
+        <div class="formulario__campo">
+            <label for="codigo_postal_comercial" class="formulario__label">Código Postal</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: 44100"
+                id="codigo_postal_comercial"
+                name="codigo_postal_comercial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'comercial', 'codigo_postal'); ?>"
+            >
+        </div>
+
+        <div class="formulario__campo">
+            <label for="ciudad_comercial" class="formulario__label">Ciudad</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: Guadalajara"
+                id="ciudad_comercial"
+                name="ciudad_comercial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'comercial', 'ciudad'); ?>"
+            >
+        </div>
+
+        <div class="formulario__campo">
+            <label for="estado_comercial" class="formulario__label">Estado</label>
+            <input 
+                type="text"
+                class="formulario__input"
+                placeholder="Ej: Jalisco"
+                id="estado_comercial"
+                name="estado_comercial"
+                value="<?php echo obtenerDireccion($direcciones ?? [], 'comercial', 'estado'); ?>"
+            >
+        </div>
     </div>
 </fieldset>
 
@@ -172,4 +328,51 @@
         this.style.opacity = '1';
         this.querySelector('.imagen-placeholder')?.style.setProperty('font-size', '3.5rem', 'important');
     });
+
+    // Mostrar/ocultar campo biografía según el rol seleccionado
+    document.getElementById('rol').addEventListener('change', function() {
+        const campoBiografia = document.getElementById('campo-biografia');
+        if (this.value === 'vendedor') {
+            campoBiografia.style.display = 'block';
+        } else {
+            campoBiografia.style.display = 'none';
+        }
+    });
+
+    // Verificar el rol al cargar la página y mostrar el campo si es necesario
+    document.addEventListener('DOMContentLoaded', function() {
+        const rolSelect = document.getElementById('rol');
+        const campoBiografia = document.getElementById('campo-biografia');
+        
+        if (rolSelect.value === 'vendedor') {
+            campoBiografia.style.display = 'block';
+        } else {
+            campoBiografia.style.display = 'none';
+        }
+    });
+
+    document.getElementById('rol').addEventListener('change', function() {
+        const fieldsetDirecciones = document.getElementById('fieldset-direcciones');
+        const direccionComercial = document.getElementById('direccion-comercial');
+        
+        if(this.value === 'comprador' || this.value === 'vendedor') {
+            fieldsetDirecciones.style.display = 'block';
+            direccionComercial.style.display = this.value === 'vendedor' ? 'block' : 'none';
+        } else {
+            fieldsetDirecciones.style.display = 'none';
+        }
+    });
+
+    // Mostrar campos según el rol al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+        const rolSelect = document.getElementById('rol');
+        const fieldsetDirecciones = document.getElementById('fieldset-direcciones');
+        const direccionComercial = document.getElementById('direccion-comercial');
+        
+        if(rolSelect.value === 'comprador' || rolSelect.value === 'vendedor') {
+            fieldsetDirecciones.style.display = 'block';
+            direccionComercial.style.display = rolSelect.value === 'vendedor' ? 'block' : 'none';
+        }
+    });
+
 </script>

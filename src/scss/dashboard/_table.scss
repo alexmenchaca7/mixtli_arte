@@ -6,6 +6,10 @@
     width: 100%;
     border-collapse: collapse;
 
+    @include m.tablet {
+        min-width: 100%; // En tablets/desktop ocupa el 100%
+    }
+
     &__thead {
         background-color: v.$dashboard;
         color: v.$blanco;

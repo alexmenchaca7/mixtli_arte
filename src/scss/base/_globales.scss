@@ -4,6 +4,8 @@ html {
     font-size: 62.5%;
     box-sizing: border-box;
     height: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
 }
 *, *:before, *:after {
     box-sizing: inherit;
@@ -12,6 +14,8 @@ body {
     font-family: v.$fuente_principal;
     font-size: 1.6rem;
     line-height: normal;
+    max-width: 100vw;
+    overflow-x: hidden;
 }
 p {
     color: v.$negro;

@@ -110,7 +110,7 @@ class ActiveRecord {
     // Registros - CRUD
     public function guardar() {
         $resultado = '';
-        if(!is_null($this->id)){ // is_null: Determina si una variable es null
+        if(!is_null($this->id)){ 
             // Actualizar registro
             $resultado = $this->actualizar();
         } else {
@@ -148,11 +148,18 @@ class ActiveRecord {
         return $resultado;
     }
 
-    // Busqueda Where con Columna 
+    // Método where que retorna un único objeto (el primero)
     public static function where($columna, $valor) {
         $query = "SELECT * FROM " . static::$tabla . " WHERE $columna = '$valor'";
         $resultado = self::consultarSQL($query);
-        return array_shift( $resultado ) ;
+        return array_shift($resultado);
+    }
+
+    // Método whereField que devuelve TODOS los objetos que cumplen la condición
+    public static function whereField($campo, $valor) {
+        $valor = self::$conexion->escape_string($valor);
+        $query = "SELECT * FROM " . static::$tabla . " WHERE $campo = '$valor'";
+        return self::consultarSQL($query);
     }
 
     // Busqueda Where con Múltiples opciones
@@ -234,10 +241,13 @@ class ActiveRecord {
 
         // Ejecutar la consulta
         $resultado = self::$conexion->query($query); 
-        return [
-            'resultado' =>  $resultado,
-            'id' => self::$conexion->insert_id
-        ];
+
+        if($resultado) {
+            // Asignar el id generado al objeto
+            $this->id = self::$conexion->insert_id;
+        }
+
+        return $resultado;
     }
 
     // Actualizar un registro
@@ -292,5 +302,48 @@ class ActiveRecord {
         if($existeArchivo) {
             unlink(CARPETA_IMAGENES . $this->imagen);
         }
+    }
+
+    public static function metodoSQL($params = []) {
+        $default = [
+            'condiciones' => [],
+            'orden' => 'id DESC',
+            'limite' => null,
+            'offset' => null
+        ];
+        
+        $params = array_merge($default, $params);
+    
+        $query = "SELECT * FROM " . static::$tabla;
+        
+        // Construir condiciones
+        if (!empty($params['condiciones'])) {
+            $query .= " WHERE " . implode(' AND ', $params['condiciones']);
+        }
+        
+        // Orden
+        $query .= " ORDER BY " . $params['orden'];
+        
+        // Límite y offset
+        if ($params['limite']) {
+            $query .= " LIMIT " . $params['limite'];
+            if ($params['offset']) {
+                $query .= " OFFSET " . $params['offset'];
+            }
+        }
+    
+        return self::consultarSQL($query);
+    }
+    
+    public static function totalCondiciones($condiciones = []) {
+        $query = "SELECT COUNT(*) as total FROM " . static::$tabla;
+        
+        if (!empty($condiciones)) {
+            $query .= " WHERE " . implode(' AND ', $condiciones);
+        }
+        
+        $resultado = self::$conexion->query($query);
+        $total = $resultado->fetch_assoc();
+        return (int)$total['total'];
     }
 }

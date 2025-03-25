@@ -7,7 +7,7 @@ use DateTime;
 class Usuario extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen'];
+    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia'];
     protected static $tabla = 'usuarios';  
 
 
@@ -25,6 +25,7 @@ class Usuario extends ActiveRecord {
     public $token;
     public $creado;
     public $imagen;
+    public $biografia;
 
     public $password_actual;
     public $password_nuevo; 
@@ -46,6 +47,7 @@ class Usuario extends ActiveRecord {
         $this->token = $args['token'] ?? '';
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
         $this->imagen = $args['imagen'] ?? '';
+        $this->biografia = $args['biografia'] ?? '';
     }
 
 
@@ -182,5 +184,18 @@ class Usuario extends ActiveRecord {
     // Generar un Token
     public function crearToken() : void {
         $this->token = uniqid();
+    }
+
+    // Busca usuarios por término en nombre, apellido, email o teléfono
+    public static function buscar($termino) {
+        if(empty($termino)) return [];
+
+        $termino = self::$conexion->escape_string($termino);
+        return [
+            "(CONCAT(nombre, ' ', apellido) LIKE '%$termino%' OR 
+             email LIKE '%$termino%' OR 
+             telefono LIKE '%$termino%' OR
+             rol LIKE '%$termino%')"
+        ];
     }
 }

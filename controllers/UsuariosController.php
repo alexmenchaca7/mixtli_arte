@@ -5,6 +5,8 @@ namespace Controllers;
 use MVC\Router;
 use Classes\Email;
 use Model\Usuario;
+use Model\Direccion;
+use Classes\Paginacion;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class UsuariosController {
@@ -14,13 +16,49 @@ class UsuariosController {
             exit();
         }
 
-        // Obtener todos los usuarios
-        $usuarios = Usuario::all();
+        // Obtener término de búsqueda si existe
+        $busqueda = $_GET['busqueda'] ?? '';
+        $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
+
+        if($pagina_actual < 1) {
+            header('Location: /admin/usuarios?page=1');
+            exit();
+        }
+
+        $registros_por_pagina = 5;
+        $condiciones = [];
+
+        if(!empty($busqueda)) {
+            $condiciones = Usuario::buscar($busqueda);
+        }
+
+        // Obtener total de registros
+        $total = Usuario::totalCondiciones($condiciones);
+        
+        // Crear instancia de paginación
+        $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total);
+        
+        if ($paginacion->total_paginas() < $pagina_actual && $pagina_actual > 1) {
+            header('Location: /admin/usuarios?page=1');
+            exit();
+        }
+
+        // Obtener usuarios
+        $params = [
+            'condiciones' => $condiciones,
+            'orden' => 'nombre ASC',
+            'limite' => $registros_por_pagina,
+            'offset' => $paginacion->offset()
+        ];
+        
+        $usuarios = Usuario::metodoSQL($params);
 
         // Pasar los usuarios a la vista
         $router->render('admin/usuarios/index', [
             'titulo' => 'Usuarios',
-            'usuarios' => $usuarios
+            'usuarios' => $usuarios,
+            'paginacion' => $paginacion->paginacion(),
+            'busqueda' => $busqueda
         ], 'admin-layout');
     }
 
@@ -39,10 +77,11 @@ class UsuariosController {
                 exit();
             }
 
+            $carpeta_imagenes = '../public/img/usuarios';
+            $nombre_imagen = '';
+
             // Leer la imagen
             if(!empty($_FILES['imagen']['tmp_name'])) {
-                
-                $carpeta_imagenes = '../public/img/usuarios';
 
                 // Crear la carpeta si no existe
                 if(!is_dir($carpeta_imagenes)) {
@@ -54,7 +93,6 @@ class UsuariosController {
 
                 // Generar nombre aleatorio
                 $nombre_imagen = md5(uniqid(rand(), true));
-
                 $_POST['imagen'] = $nombre_imagen;
             } 
 
@@ -71,9 +109,11 @@ class UsuariosController {
                     Usuario::setAlerta('error', 'El usuario ya esta registrado');
                     $alertas = Usuario::getAlertas();
                 } else {
-                    // Guardar las imagenes
-                    $imagen_png->save($carpeta_imagenes . '/' . $nombre_imagen . '.png');
-                    $imagen_webp->save($carpeta_imagenes . '/' . $nombre_imagen . '.webp');
+                    // Guardar las imagenes solo si se subió una imagen
+                    if(!empty($_FILES['imagen']['tmp_name'])) {
+                        $imagen_png->save($carpeta_imagenes . '/' . $nombre_imagen . '.png');
+                        $imagen_webp->save($carpeta_imagenes . '/' . $nombre_imagen . '.webp');
+                    }
 
                     // Generar el Token
                     $usuario->crearToken();
@@ -82,6 +122,35 @@ class UsuariosController {
                     $resultado =  $usuario->guardar();
 
                     if($resultado) {
+                        // Procesar direcciones
+                        if(in_array($usuario->rol, ['comprador', 'vendedor'])) {
+                            // Dirección residencial
+                            if(!empty($_POST['calle_residencial'])) {
+                                (new Direccion([
+                                    'tipo' => 'residencial',
+                                    'calle' => $_POST['calle_residencial'],
+                                    'colonia' => $_POST['colonia_residencial'],
+                                    'ciudad' => $_POST['ciudad_residencial'],
+                                    'estado' => $_POST['estado_residencial'],
+                                    'codigo_postal' => $_POST['codigo_postal_residencial'],
+                                    'usuarioId' => $usuario->id
+                                ]))->guardar();
+                            }
+
+                            // Dirección comercial (solo vendedores)
+                            if($usuario->rol === 'vendedor' && !empty($_POST['calle_comercial'])) {
+                                (new Direccion([
+                                    'tipo' => 'comercial',
+                                    'calle' => $_POST['calle_comercial'],
+                                    'colonia' => $_POST['colonia_comercial'],
+                                    'ciudad' => $_POST['ciudad_comercial'],
+                                    'estado' => $_POST['estado_comercial'],
+                                    'codigo_postal' => $_POST['codigo_postal_comercial'],
+                                    'usuarioId' => $usuario->id
+                                ]))->guardar();
+                            }
+                        }
+                        
                         // Enviar el email de configuración de contraseña
                         $email = new Email($usuario->email, $usuario->nombre, $usuario->token);
                         $email->enviarConfirmacionContraseña();
@@ -125,6 +194,9 @@ class UsuariosController {
         }
 
         $usuario->imagen_actual = $usuario->imagen;
+
+        // Obtener direcciones existentes
+        $direcciones = Direccion::whereField('usuarioId', $usuario->id);
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!is_auth('admin')) {
@@ -188,6 +260,38 @@ class UsuariosController {
                 $resultado = $usuario->guardar();
 
                 if($resultado) {
+                    // Eliminar direcciones existentes
+                    Direccion::eliminarPorUsuario($usuario->id);
+
+                    // Guardar nuevas direcciones si es comprador/vendedor
+                    if(in_array($usuario->rol, ['comprador', 'vendedor'])) {
+                        // Dirección residencial
+                        if(!empty($_POST['calle_residencial'])) {
+                            (new Direccion([
+                                'tipo' => 'residencial',
+                                'calle' => $_POST['calle_residencial'],
+                                'colonia' => $_POST['colonia_residencial'],
+                                'ciudad' => $_POST['ciudad_residencial'],
+                                'estado' => $_POST['estado_residencial'],
+                                'codigo_postal' => $_POST['codigo_postal_residencial'],
+                                'usuarioId' => $usuario->id
+                            ]))->guardar();
+                        }
+
+                        // Dirección comercial (solo vendedores)
+                        if($usuario->rol === 'vendedor' && !empty($_POST['calle_comercial'])) {
+                            (new Direccion([
+                                'tipo' => 'comercial',
+                                'calle' => $_POST['calle_comercial'],
+                                'colonia' => $_POST['colonia_comercial'],
+                                'ciudad' => $_POST['ciudad_comercial'],
+                                'estado' => $_POST['estado_comercial'],
+                                'codigo_postal' => $_POST['codigo_postal_comercial'],
+                                'usuarioId' => $usuario->id
+                            ]))->guardar();
+                        }
+                    }
+
                     header('Location: /admin/usuarios');
                 }
             }
@@ -198,7 +302,8 @@ class UsuariosController {
             'titulo' => 'Editar Usuario',
             'alertas' => $alertas,
             'usuario' => $usuario,
-            'fecha_hoy' => date('Y-m-d')
+            'fecha_hoy' => date('Y-m-d'),
+            'direcciones' => $direcciones
         ], 'admin-layout');
     }
 
@@ -221,6 +326,9 @@ class UsuariosController {
                 header('Location: /admin/usuarios');
             }
 
+            // Eliminando todas las direcciones asociadas
+            Direccion::eliminarPorUsuario($usuario->id);
+
             // Eliminando las imagenes del servidor
             if ($usuario->imagen) {
                 $carpeta_imagenes = '../public/img/usuarios';
@@ -228,6 +336,7 @@ class UsuariosController {
                 unlink($carpeta_imagenes . '/' . $usuario->imagen . ".webp");
             }
 
+            // Eliminando al usuario
             $resultado = $usuario->eliminar();
 
             if($resultado) {

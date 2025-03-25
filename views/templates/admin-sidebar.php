@@ -15,13 +15,5 @@
                 Usuarios
             </span>  
         </a>
-
-        <a href="/admin/perfil" class="dashboard__enlace <?php echo pagina_actual('/perfil') ? 'dashboard__enlace--actual' : ''; ?>">
-            <i class="fa-solid fa-user dashboard__icono"></i>
-
-            <span class="dashboard__menu-texto">
-                Perfil
-            </span>  
-        </a>
     </nav>
 </aside>

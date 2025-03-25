@@ -92,12 +92,6 @@ $router->get('/admin/productos/editar', [ProductosController::class, 'editar']);
 $router->post('/admin/productos/editar', [ProductosController::class, 'editar']);
 $router->get('/admin/productos/eliminar', [ProductosController::class, 'eliminar']);
 
-$router->get('/admin/perfil', [DashboardAdminController::class, 'perfil']);
-$router->post('/admin/perfil', [DashboardAdminController::class, 'perfil']);
-
-$router->get('/admin/editar-telefono', [DashboardAdminController::class, 'editarTelefono']);
-$router->post('/admin/editar-telefono', [DashboardAdminController::class, 'editarTelefono']);
-
 
 
 
