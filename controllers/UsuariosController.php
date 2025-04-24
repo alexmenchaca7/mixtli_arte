@@ -25,7 +25,7 @@ class UsuariosController {
             exit();
         }
 
-        $registros_por_pagina = 5;
+        $registros_por_pagina = 10;
         $condiciones = [];
 
         if(!empty($busqueda)) {

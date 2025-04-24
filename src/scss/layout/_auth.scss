@@ -12,13 +12,64 @@
 }
 
 .configuracion-2fa {
+    &__texto {
+        font-weight: v.$bold;
+        margin-bottom: 2rem;
+    }
+
+    &__activo {
+        color: v.$success;
+    }
+
+    &__inactivo {
+        color: v.$error;
+    }
+
     &__qr {
         display: flex;
         flex-direction: column;
+    }
+
+    &__instrucciones {
+        margin-top: 0;
+    }
+
+    &__codigo-secreto {
+        margin-top: 5rem;
+    }
+
+    &__secret {
+        font-weight: v.$bold;
+        display: block;
+        text-align: center;
     }
 
     &__imagen {
         width: 20rem;
         align-self: center;
     }
+
+    &__backup-codes {
+        margin-top: 5rem;
+
+        .backup-codes {
+            margin-bottom: 2rem;
+
+            @include m.grid(3, 5rem, 1rem);
+        
+            @include m.desktop {
+                @include m.grid(5, 5rem, 1rem);
+            }
+        
+            .backup-code {
+                font-weight: v.$bold;
+            }
+        }
+    }
+
+    &__subheading {
+        border-left: 5px solid v.$primario;
+        padding-left: 1rem;
+    }
+
 }

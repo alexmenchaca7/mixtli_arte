@@ -8,7 +8,10 @@ class Usuario extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
     protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia'];
-    protected static $tabla = 'usuarios';  
+    protected static $tabla = 'usuarios';
+
+    // Propiedad con las columnas a buscar
+    protected static $buscarColumns = ['nombre', 'apellido', 'email', 'telefono', 'rol'];
 
 
     public $id;

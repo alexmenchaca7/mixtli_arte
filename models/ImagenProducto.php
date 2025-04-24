@@ -22,4 +22,9 @@ class ImagenProducto extends ActiveRecord {
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
         $this->productoId = $args['productoId'] ?? '';
     }
+
+    public static function buscarPorProducto($productoId) {
+        $query = "SELECT * FROM " . static::$tabla . " WHERE productoId = {$productoId}";
+        return self::consultarSQL($query);
+    }
 }

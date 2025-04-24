@@ -195,6 +195,7 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0; // Evita que el botón se reduzca
+        cursor: pointer;
 
         i {
             font-size: 1.6rem;

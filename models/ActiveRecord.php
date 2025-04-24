@@ -346,4 +346,22 @@ class ActiveRecord {
         $total = $resultado->fetch_assoc();
         return (int)$total['total'];
     }
+
+    public static function buscar($termino) {
+        if(empty($termino)) return [];
+    
+        $condiciones = [];
+        $termino = self::$conexion->escape_string($termino);
+        
+        // Si el modelo define columnas específicas para buscar
+        if(property_exists(static::class, 'buscarColumns')) {
+            $buscarConditions = [];
+            foreach(static::$buscarColumns as $columna) {
+                $buscarConditions[] = "$columna LIKE '%$termino%'";
+            }
+            $condiciones[] = "(" . implode(' OR ', $buscarConditions) . ")";
+        }
+        
+        return $condiciones;
+    }
 }

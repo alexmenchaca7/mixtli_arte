@@ -170,3 +170,10 @@
         to { opacity: 1; transform: translateY(0); }
     }
 }
+
+.contenedor-imagenes-preview {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
