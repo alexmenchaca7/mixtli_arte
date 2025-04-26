@@ -8,6 +8,14 @@
             </span>  
         </a>
 
+        <a href="/admin/categorias" class="dashboard__enlace <?php echo pagina_actual('/categorias') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-th-large dashboard__icono"></i>
+
+            <span class="dashboard__menu-texto">
+                Categorias
+            </span>  
+        </a>
+
         <a href="/admin/usuarios" class="dashboard__enlace <?php echo pagina_actual('/usuarios') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-users dashboard__icono"></i>
 

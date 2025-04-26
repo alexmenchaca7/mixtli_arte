@@ -2,10 +2,14 @@
 
 namespace Controllers;
 
+use Exception;
 use MVC\Router;
 use Model\Producto;
+use Model\Categoria;
+use Classes\Paginacion;
 use Model\ImagenProducto;
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ProductosController {
     public static function index(Router $router) {
@@ -14,8 +18,58 @@ class ProductosController {
             exit();
         }
 
+        // Obtener término de búsqueda si existe
+        $busqueda = $_GET['busqueda'] ?? '';
+        $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
+
+        if($pagina_actual < 1) {
+            header('Location: /vendedor/productos?page=1');
+            exit();
+        }
+
+        $registros_por_pagina = 10;
+        $condiciones = [];
+
+        if(!empty($busqueda)) {
+            $condiciones = Producto::buscar($busqueda);
+        }
+
+        // Obtener total de registros
+        $total = Producto::totalCondiciones($condiciones);
+        
+        // Crear instancia de paginación
+        $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total);
+        
+        if ($paginacion->total_paginas() < $pagina_actual && $pagina_actual > 1) {
+            header('Location: /vendedor/productos?page=1');
+            exit();
+        }
+
+        // Obtener productos
+        $params = [
+            'condiciones' => $condiciones,
+            'orden' => 'nombre ASC',
+            'limite' => $registros_por_pagina,
+            'offset' => $paginacion->offset()
+        ];
+        
+        $productos = Producto::metodoSQL($params);
+
+        // Obtener las imagenes relacionadas para cada producto
+        foreach($productos as $producto) {
+            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id); 
+
+            // Asigna la URL a la propiedad 'imagen_principal' del objeto Producto
+            // Si no hay imagen, asigna null
+            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null; 
+        }
+
+        // Pasar los productos a la vista
         $router->render('vendedor/productos/index', [
-            'titulo' => 'Productos'
+            'titulo' => 'Productos',
+            'productos' => $productos,
+            'paginacion' => $paginacion->paginacion(),
+            'busqueda' => $busqueda
         ], 'vendedor-layout');
     }
 
@@ -25,12 +79,13 @@ class ProductosController {
             exit();
         }
 
-        // Creando una nueva instancia de Producto
         $producto = new Producto;
-
-        // Manejo de alertas
         $alertas = [];
         $imagenes = [];
+        $manager = new ImageManager(new Driver());
+
+        // Obtener categorias disponibles
+        $categorias = Categoria::all();
 
         // Ejecutar el código después de que el usuario envíe el formulario
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -42,46 +97,66 @@ class ProductosController {
             // Sincronizar datos del formulario
             $producto->sincronizar($_POST);
 
-            // Validar los datos del producto
-            $alertas = $producto->validar();
-
-            // Validar imágenes
-            $imagenes = $_FILES['imagenes'] ?? [];
-            $totalImagenes = count($imagenes['name'] ?? 0);
-            
-            if ($totalImagenes > 5) {
-                Producto::setAlerta('error', 'Máximo 5 imágenes permitidas');
-                $alertas = Producto::getAlertas();
+            // Forzar stock a 1 si es artículo único
+            if ($producto->estado === 'unico') {
+                $producto->stock = 1;
             }
 
-            if (empty($alertas)) {
+            $producto->usuarioId = $_SESSION['id']; 
+            $alertas = $producto->validar();
+
+            // Procesar imágenes nuevas
+            $imagenes_subidas = [];
+            if(!empty($_FILES['nuevas_imagenes']['tmp_name'][0])) {
+                foreach($_FILES['nuevas_imagenes']['tmp_name'] as $key => $tmp_name) {
+                    if($_FILES['nuevas_imagenes']['error'][$key] === UPLOAD_ERR_OK) {
+                        $imagen = new \stdClass();
+                        $imagen->tmp = $tmp_name;
+                        $imagen->name = $_FILES['nuevas_imagenes']['name'][$key];
+                        $imagenes_subidas[] = $imagen;
+                    }
+                }
+            }
+            
+            // Validar imágenes
+            $total_imagenes = count($imagenes_subidas);
+            if($total_imagenes > 5) {
+                $alertas['error'][] = "Máximo 5 imágenes permitidas";
+            }
+
+            if(empty($alertas['error'])) {
                 $resultado = $producto->guardar();
                 
-                if ($resultado) {
-                    // Procesar imágenes
-                    for ($i = 0; $i < $totalImagenes; $i++) {
-                        if ($imagenes['error'][$i] === 0) {
-                            $nombre_imagen = md5(uniqid(rand(), true));
-                            $carpeta_imagenes = '../public/img/productos';
+                if($resultado) {
+                    // Guardar imágenes
+                    $carpeta = '../public/img/productos';
+                    if(!is_dir($carpeta)) mkdir($carpeta, 0755, true);
+
+                    foreach($imagenes_subidas as $imagen_data) {
+                        try {
+                            $nombre_unico = md5(uniqid(rand(), true));
+                            $imagen = $manager->read($imagen_data->tmp);
+                            $imagen->contain(800, 800);
                             
-                            // Crear versiones
-                            $imagen_png = Image::make($imagenes['tmp_name'][$i])->fit(800, 800)->encode('png', 80);
-                            $imagen_webp = Image::make($imagenes['tmp_name'][$i])->fit(800, 800)->encode('webp', 80);
+                            // Guardar formatos
+                            $imagen->toWebp(85)->save("{$carpeta}/{$nombre_unico}.webp");
+                            $imagen->toPng()->save("{$carpeta}/{$nombre_unico}.png");
                             
-                            // Guardar imágenes
-                            $imagen_png->save("$carpeta_imagenes/$nombre_imagen.png");
-                            $imagen_webp->save("$carpeta_imagenes/$nombre_imagen.webp");
-                            
-                            // Guardar en BD
-                            (new ImagenProducto([
-                                'url' => $nombre_imagen,
+                            // Registrar en BD
+                            $imagen_producto = new ImagenProducto([
+                                'url' => $nombre_unico,
                                 'productoId' => $producto->id
-                            ]))->guardar();
+                            ]);
+                            $imagen_producto->guardar();
+                            
+                        } catch(Exception $e) {
+                            error_log("Error procesando imagen: " . $e->getMessage());
+                            $alertas['error'][] = 'Error al procesar una imagen';
                         }
                     }
                     
                     header('Location: /vendedor/productos');
-                    exit;
+                    exit();
                 }
             }
         }
@@ -91,12 +166,13 @@ class ProductosController {
             'titulo' => 'Registrar Producto',
             'alertas' => $alertas,
             'producto' => $producto,
-            'imagenes' => $imagenes
-        ], 'vendedor-layout');
+            'imagenes' => $imagenes,
+            'categorias' => $categorias
+         ], 'vendedor-layout');
     }
 
     public static function editar(Router $router) {
-        if(!is_auth('vendedor')) {
+        if (!is_auth('vendedor')) {
             header('Location: /login');
             exit();
         }
@@ -104,64 +180,103 @@ class ProductosController {
         $id = $_GET['id'];
         $producto = Producto::find($id);
         $alertas = [];
-        
+        $manager = new ImageManager(new Driver());
+
+        // Obtener categorias disponibles
+        $categorias = Categoria::all();
+
+        if (!$producto) {
+            header('Location: /vendedor/productos');
+            exit();
+        }
+
         // Obtener imágenes existentes
-        $imagenes_existentes = ImagenProducto::where('productoId', $producto->id);
-        
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $imagenes_existentes = ImagenProducto::whereField('productoId', $producto->id);
+        if (!is_array($imagenes_existentes)) {
+            $imagenes_existentes = []; // Aseguramos que sea un arreglo
+        }
+
+        // Pasar imágenes existentes a la vista
+        $imagenes = $imagenes_existentes;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $producto->sincronizar($_POST);
-            $alertas = $producto->validar();
-            
-            // Validar límite de imágenes
-            $nuevas_imagenes = count($_FILES['imagenes']['name'] ?? []);
-            $imagenes_a_eliminar = count($_POST['eliminar_imagenes'] ?? []);
-            $total_final = (count($imagenes_existentes) - $imagenes_a_eliminar) + $nuevas_imagenes;
-            
-            if($total_final > 5) {
-                Producto::setAlerta('error', 'El número total de imágenes no puede exceder 5');
-                $alertas = Producto::getAlertas();
+
+            // Forzar stock a 1 si es artículo único
+            if ($producto->estado === 'unico') {
+                $producto->stock = 1;
+            } else {
+                $producto->stock = (int)$_POST['stock'] ?? 0;
             }
 
-            if(empty($alertas)) {
-                // Procesar eliminación de imágenes
-                if(!empty($_POST['eliminar_imagenes'])) {
-                    foreach($_POST['eliminar_imagenes'] as $imagenId) {
-                        $imagen = ImagenProducto::find($imagenId);
-                        if($imagen) {
-                            // Eliminar archivos
-                            $carpeta = '../public/img/productos';
-                            if(file_exists("$carpeta/{$imagen->url}.png")) unlink("$carpeta/{$imagen->url}.png");
-                            if(file_exists("$carpeta/{$imagen->url}.webp")) unlink("$carpeta/{$imagen->url}.webp");
-                            $imagen->eliminar();
+            $alertas = $producto->validar();
+
+            // Procesar imágenes eliminadas
+            $imagenes_eliminadas = $_POST['imagenes_eliminadas'] ?? [];
+
+            // Procesar nuevas imágenes
+            $nuevas_imagenes = [];
+            if (!empty($_FILES['nuevas_imagenes']['tmp_name'][0])) {
+                foreach ($_FILES['nuevas_imagenes']['tmp_name'] as $key => $tmp_name) {
+                    if ($_FILES['nuevas_imagenes']['error'][$key] === UPLOAD_ERR_OK) {
+                        $imagen = new \stdClass();
+                        $imagen->tmp = $tmp_name;
+                        $imagen->name = $_FILES['nuevas_imagenes']['name'][$key];
+                        $nuevas_imagenes[] = $imagen;
+                    }
+                }
+            }
+
+            // Validar total
+            $total_final = (count($imagenes_existentes) - count($imagenes_eliminadas) + count($nuevas_imagenes));
+            if ($total_final > 5) {
+                $alertas['error'][] = "Máximo 5 imágenes permitidas";
+            }
+
+            if (empty($alertas['error'])) {
+                // Eliminar imágenes marcadas
+                foreach ($imagenes_eliminadas as $id_imagen) {
+                    $imagen = ImagenProducto::find($id_imagen);
+                    if ($imagen) {
+                        $carpeta = '../public/img/productos';
+                        if (file_exists("{$carpeta}/{$imagen->url}.png")) {
+                            unlink("{$carpeta}/{$imagen->url}.png");
+                        }
+                        if (file_exists("{$carpeta}/{$imagen->url}.webp")) {
+                            unlink("{$carpeta}/{$imagen->url}.webp");
+                        }
+                        $imagen->eliminar();
+                    }
+                }
+
+                // Procesar nuevas imágenes
+                if (!empty($nuevas_imagenes)) {
+                    $carpeta = '../public/img/productos';
+
+                    foreach ($nuevas_imagenes as $imagen_data) {
+                        try {
+                            $nombre_unico = md5(uniqid(rand(), true));
+                            $imagen = $manager->read($imagen_data->tmp);
+                            $imagen->contain(800, 800);
+
+                            $imagen->toWebp(85)->save("{$carpeta}/{$nombre_unico}.webp");
+                            $imagen->toPng()->save("{$carpeta}/{$nombre_unico}.png");
+
+                            $imagen_producto = new ImagenProducto([
+                                'url' => $nombre_unico,
+                                'productoId' => $producto->id
+                            ]);
+                            $imagen_producto->guardar();
+                        } catch (Exception $e) {
+                            error_log("Error procesando imagen: " . $e->getMessage());
+                            $alertas['error'][] = 'Error al procesar una imagen';
                         }
                     }
                 }
-                
-                // Procesar nuevas imágenes
-                if(!empty($_FILES['imagenes']['tmp_name'][0])) {
-                    foreach($_FILES['imagenes']['tmp_name'] as $key => $tmp_name) {
-                        $nombre_imagen = md5(uniqid(rand(), true));
-                        $carpeta = '../public/img/productos';
-                        
-                        // Crear versiones
-                        $imagen_png = Image::make($tmp_name)->fit(800, 800)->encode('png', 80);
-                        $imagen_webp = Image::make($tmp_name)->fit(800, 800)->encode('webp', 80);
-                        
-                        // Guardar
-                        $imagen_png->save("$carpeta/$nombre_imagen.png");
-                        $imagen_webp->save("$carpeta/$nombre_imagen.webp");
-                        
-                        // Registrar en BD
-                        (new ImagenProducto([
-                            'url' => $nombre_imagen,
-                            'productoId' => $producto->id
-                        ]))->guardar();
-                    }
-                }
-                
-                // Guardar cambios en el producto
+
                 $producto->guardar();
                 header('Location: /vendedor/productos');
+                exit();
             }
         }
 
@@ -169,7 +284,51 @@ class ProductosController {
             'titulo' => 'Editar Producto',
             'producto' => $producto,
             'alertas' => $alertas,
-            'imagenes_existentes' => $imagenes_existentes
+            'categorias' => $categorias,
+            'imagenes_existentes' => $imagenes_existentes,
+            'imagenes' => $imagenes,
+            'edicion' => true
         ], 'vendedor-layout');
+    }
+
+    public static function eliminar() {  
+        if (!is_auth('vendedor')) {
+            header('Location: /login');
+            exit();
+        }
+    
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!is_auth('vendedor')) {
+                header('Location: /login');
+                exit();
+            }
+            
+            $id = $_POST['id'];
+            $producto = Producto::find($id);
+    
+            if(!$producto) {
+                header('Location: /vendedor/productos');
+                exit;
+            }
+            
+            // Eliminar imágenes
+            $imagenes = ImagenProducto::whereField('productoId', $producto->id);
+            foreach($imagenes as $imagen) {
+                // Eliminar archivos físicos
+                if(file_exists("../public/img/productos/{$imagen->url}.png")) {
+                    unlink("../public/img/productos/{$imagen->url}.png");
+                    unlink("../public/img/productos/{$imagen->url}.webp");
+                }
+                $imagen->eliminar();
+            }
+            
+            // Eliminar producto
+            $resultado = $producto->eliminar();
+    
+            if($resultado) {
+                header('Location: /vendedor/productos');
+                exit;
+            }
+        }
     }
 }

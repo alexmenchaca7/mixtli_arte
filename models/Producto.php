@@ -6,8 +6,10 @@ class Producto extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
     protected static $columnasDB = ['id', 'nombre', 'descripcion', 'precio', 'stock', 'estado', 'creado', 'usuarioId', 'categoriaId'];
-    protected static $tabla = 'usuarios';  
+    protected static $tabla = 'productos';
 
+    // Propiedad con las columnas a buscar
+    protected static $buscarColumns = ['nombre', 'descripcion', 'estado'];
 
     public $id;
     public $nombre;

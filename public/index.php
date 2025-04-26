@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
 use Controllers\AuthController;
+use Controllers\CategoriasController;
 use Controllers\PaginasController;
 use Controllers\MensajesController;
 use Controllers\UsuariosController;
@@ -70,7 +71,7 @@ $router->get('/vendedor/productos/crear', [ProductosController::class, 'crear'])
 $router->post('/vendedor/productos/crear', [ProductosController::class, 'crear']);
 $router->get('/vendedor/productos/editar', [ProductosController::class, 'editar']);
 $router->post('/vendedor/productos/editar', [ProductosController::class, 'editar']);
-$router->get('/vendedor/productos/eliminar', [ProductosController::class, 'eliminar']);
+$router->post('/vendedor/productos/eliminar', [ProductosController::class, 'eliminar']);
 
 $router->get('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']);
 $router->post('/vendedor/perfil', [DashboardVendedorController::class, 'perfil']);
@@ -98,6 +99,13 @@ $router->post('/admin/productos/crear', [ProductosController::class, 'crear']);
 $router->get('/admin/productos/editar', [ProductosController::class, 'editar']);
 $router->post('/admin/productos/editar', [ProductosController::class, 'editar']);
 $router->get('/admin/productos/eliminar', [ProductosController::class, 'eliminar']);
+
+$router->get('/admin/categorias', [CategoriasController::class, 'index']);
+$router->get('/admin/categorias/crear', [CategoriasController::class, 'crear']);
+$router->post('/admin/categorias/crear', [CategoriasController::class, 'crear']);
+$router->get('/admin/categorias/editar', [CategoriasController::class, 'editar']);
+$router->post('/admin/categorias/editar', [CategoriasController::class, 'editar']);
+$router->post('/admin/categorias/eliminar', [CategoriasController::class, 'eliminar']);
 
 
 

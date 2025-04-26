@@ -1,3 +1,6 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
 .seccion {
     margin-top: 5rem;
     margin-bottom: 5rem;
@@ -14,6 +17,9 @@
 }
 .w-100 {
     width: 100%;
+}
+.texto-rojo {
+    color: v.$rojo;
 }
 
 

@@ -27,4 +27,11 @@ class ImagenProducto extends ActiveRecord {
         $query = "SELECT * FROM " . static::$tabla . " WHERE productoId = {$productoId}";
         return self::consultarSQL($query);
     }
+
+    public static function obtenerPrincipalPorProductoId(int $productoId) {
+        // Busca la primera imagen asociada a ese productoId, ordenada por ID
+        $query = "SELECT * FROM " . self::$tabla . " WHERE productoId = " . self::$conexion->escape_string($productoId) . " ORDER BY id ASC LIMIT 1";
+        $resultado = self::consultarSQL($query); // Usa el método heredado de ActiveRecord
+        return array_shift($resultado); // Devuelve el objeto ImagenProducto o null si no hay
+    }
 }

@@ -10,9 +10,9 @@
 <div class="dashboard__formulario">
     <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
     
-    <form method="POST" action="/vendedor/productos/crear" enctype="multipart/form-data" class="formulario">
+    <form method="POST" enctype="multipart/form-data" class="formulario">
         <?php include_once __DIR__ . '/formulario.php'; ?>
 
-        <input class="formulario__submit formulario__submit--registrar" type="submit" value="Registrar Producto">
+        <input class="formulario__submit formulario__submit--registrar" type="submit" value="Actualizar Producto">
     </form>
 </div>

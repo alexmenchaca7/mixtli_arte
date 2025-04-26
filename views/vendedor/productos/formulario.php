@@ -3,48 +3,43 @@
 
     <!-- Estado del producto -->
     <div class="formulario__campo">
-        <label for="estado" class="formulario__label">Tipo de Producto</label>
+        <label for="estado" class="formulario__label">Estado del Producto</label>
         <select class="formulario__input" name="estado" id="estado">
             <option value="" disabled selected>Selecciona un tipo</option>
             <option value="disponible" <?php echo ($producto->estado === 'disponible') ? 'selected' : ''; ?>>Disponible</option>
-            <option value="unico" <?php echo ($producto->estado === 'unico') ? 'selected' : ''; ?>>Articulo Unico</option>
+            <?php if(!isset($edicion) && !$edicion): ?>
+                <option value="unico" <?php echo ($producto->estado === 'unico') ? 'selected' : ''; ?>>Articulo Unico</option>
+            <?php endif; ?>
+            <?php if(isset($edicion) && $edicion): ?>
+                <option value="agotado" <?php echo ($producto->estado === 'agotado') ? 'selected' : ''; ?>>Agotado</option>
+            <?php endif; ?>
         </select>
     </div>
 
     <!-- Subir imágenes (máximo 5) -->
     <div class="formulario__campo">
         <label class="formulario__label">Imágenes del Producto (Máximo 5)</label>
-        <div class="contenedor-imagenes-preview" id="previewContainer">
-            <?php if(isset($imagenes_existentes) && !empty($imagenes_existentes)): ?>
-                <?php foreach($imagenes_existentes as $imagen): ?>
-                    <div class="imagen-preview">
-                        <picture>
-                            <source srcset="<?php echo $_ENV['HOST'] ?>/img/productos/<?php echo $imagen->url ?>.webp" type="image/webp">
-                            <img src="<?php echo $_ENV['HOST'] ?>/img/productos/<?php echo $imagen->url ?>.png" alt="Imagen del producto">
-                        </picture>
-                        <label class="eliminar-imagen">
-                            <input type="checkbox" name="eliminar_imagenes[]" value="<?php echo $imagen->id ?>"> Eliminar
-                        </label>
+        <div class="contenedor-imagenes" id="contenedor-imagenes">
+            <?php if (!empty($imagenes)): ?>
+                <?php foreach($imagenes as $imagen): ?>
+                    <div class="formulario__campo contenedor-imagen" data-existente="true">
+                        <div class="contenedor-imagen-preview">
+                            <div class="imagen-preview">
+                                <img src="/img/productos/<?php echo htmlspecialchars($imagen->url); ?>.webp" alt="Imagen del producto">
+                                <input type="hidden" name="imagenes_existentes[]" value="<?php echo $imagen->id; ?>">
+                            </div>
+                            <button type="button" class="formulario__accion--secundario eliminar-imagen">Eliminar</button>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
-            
-            <!-- Contenedor para nuevas imágenes -->
-            <div class="imagen-preview" id="imagenPreview">
-                <span class="imagen-placeholder">+</span>
-                <input 
-                    type="file"
-                    class="imagen-input"
-                    id="imagenes"
-                    name="imagenes[]"
-                    accept="image/*"
-                    multiple
-                    style="display: none;"
-                    onchange="previewImages(event)"
-                >
-            </div>
         </div>
+
+        <button type="button" class="formulario__accion" id="agregar-imagen">
+            <i class="fas fa-plus"></i> Añadir imagen
+        </button>
     </div>
+    
     
     <!-- Nombre del producto -->
     <div class="formulario__campo">
@@ -73,13 +68,29 @@
         >
     </div>
 
+    <div class="formulario__campo">
+        <label for="stock" class="formulario__label">Stock</label>
+        <input 
+            type="number"
+            class="formulario__input"
+            id="stock"
+            name="stock"
+            placeholder="Stock Disponible"
+            value="<?php echo $producto->stock ?? ''; ?>"
+            min="0"
+        >
+    </div>
+
     <!-- Selección de la categoría -->
     <div class="formulario__campo">
-        <label for="categoria" class="formulario__label">Categoría</label>
-        <select class="formulario__input" id="categoria" name="categoria">
+        <label for="categoriaId" class="formulario__label">Categoría</label>
+        <select class="formulario__input" id="categoriaId" name="categoriaId">
             <option value="" disabled selected>Selecciona una Categoría</option>
-
-            <!-- Aquí irían las categorías dinámicamente cargadas desde la base de datos -->
+            <?php foreach($categorias as $categoria): ?>
+            <option value="<?php echo $categoria->id; ?>" <?php echo ($producto->categoriaId == $categoria->id) ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($categoria->nombre); ?>
+            </option>
+        <?php endforeach; ?>
         </select>
     </div>
     
@@ -91,120 +102,146 @@
 </fieldset>
 
 <script>
-// Array para almacenar las imágenes seleccionadas
-let imagenesSeleccionadas = [];
+    document.addEventListener('DOMContentLoaded', function() {
+        const contenedorImagenes = document.getElementById('contenedor-imagenes');
+        const btnAgregarImagen = document.getElementById('agregar-imagen');
 
-function previewImages(event) {
-    const previewContainer = document.getElementById('previewContainer');
-    const files = event.target.files;
-    const maxFiles = 5;
-    const existingImages = document.querySelectorAll('.imagen-preview:not(#imagenPreview)').length;
-    
-    // Verificar límite de imágenes
-    if (files.length + existingImages > maxFiles) {
-        alert('Máximo 5 imágenes permitidas');
-        event.target.value = '';
-        return;
-    }
+        let imageCount = 0;
+        const maxImages = 5;
 
-    // Limpiar previsualizaciones temporales (no las existentes)
-    document.querySelectorAll('.nueva-imagen-preview').forEach(el => el.remove());
-    
-    // Procesar cada archivo
-    Array.from(files).forEach((file, index) => {
-        if (!file.type.startsWith('image/')) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Crear elemento para previsualización
-            const div = document.createElement('div');
-            div.className = 'imagen-preview nueva-imagen-preview';
-            div.dataset.index = imagenesSeleccionadas.length;
-            div.innerHTML = `
-                <img src="${e.target.result}" alt="Previsualización">
-                <button type="button" class="eliminar-previa" onclick="eliminarPrevia(${imagenesSeleccionadas.length})">×</button>
+        // ------------- Funciones para imágenes -------------
+        function crearNuevaImagen() {
+            const totalImagenes = document.querySelectorAll('.contenedor-imagen:not([data-existente="true"])').length;
+            if (totalImagenes >= maxImages) {
+                alert('Máximo de imágenes alcanzado');
+                return;
+            }
+            
+            const nuevoContenedor = document.createElement('div');
+            nuevoContenedor.className = 'formulario__campo contenedor-imagen';
+            
+            nuevoContenedor.innerHTML = `
+                <div class="contenedor-imagen-preview">
+                    <div class="imagen-preview">
+                        <span class="imagen-placeholder">+</span>
+                        <input 
+                            type="file"
+                            class="imagen-input"
+                            name="nuevas_imagenes[]"
+                            accept="image/*"
+                            style="display: none;"
+                        >
+                    </div>
+                    <button type="button" class="formulario__accion--secundario eliminar-imagen">Eliminar</button>
+                </div>
             `;
+
+            contenedorImagenes.appendChild(nuevoContenedor);
             
-            // Insertar antes del contenedor de añadir imágenes
-            previewContainer.insertBefore(div, document.getElementById('imagenPreview'));
+            // Configurar eventos
+            const previewElement = nuevoContenedor.querySelector('.imagen-preview');
+            const inputFile = nuevoContenedor.querySelector('input[type="file"]');
             
-            // Agregar al array de imágenes seleccionadas
-            imagenesSeleccionadas.push({
-                file: file,
-                preview: div
+            inputFile.addEventListener('change', previewImage);
+            previewElement.addEventListener('click', () => inputFile.click());
+
+            // Añadir evento de eliminación
+            nuevoContenedor.querySelector('.eliminar-imagen').addEventListener('click', removeImage);
+        }
+
+        function previewImage(e) {
+            const input = e.target;
+            const preview = input.closest('.contenedor-imagen-preview').querySelector('.imagen-preview');
+            const placeholder = preview.querySelector('.imagen-placeholder');
+            const file = input.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let img = preview.querySelector('img');
+                    if (!img) {
+                        img = document.createElement('img');
+                        img.classList.add('imagen-cargada');
+                        preview.insertBefore(img, placeholder);
+                    }
+                    img.src = e.target.result;
+                    img.alt = "Preview";
+                    placeholder.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage(e) {
+            const contenedor = e.target.closest('.formulario__campo');
+        
+            // Si es una imagen existente, marcar para eliminación
+            if (contenedor.dataset.existente) {
+                const inputId = contenedor.querySelector('input[type="hidden"]');
+                const nuevoInput = document.createElement('input');
+                nuevoInput.type = 'hidden';
+                nuevoInput.name = 'imagenes_eliminadas[]';
+                nuevoInput.value = inputId.value;
+                contenedorImagenes.appendChild(nuevoInput);
+            }
+            
+            contenedor.remove();
+        }
+
+        // ------------- Manejar lógica de estado y stock -------------
+        const estadoSelect = document.getElementById('estado');
+        const stockInput = document.getElementById('stock');
+
+        function actualizarCampoStock() {
+            if (estadoSelect.value === 'unico') {
+                stockInput.value = 1;
+                stockInput.disabled = true;
+            } else if (estadoSelect.value === 'agotado') {
+                stockInput.value = 0;
+                stockInput.disabled = false;
+            } else {
+                stockInput.disabled = false;
+            }
+        }
+
+        // Actualizar al cargar la página
+        actualizarCampoStock();
+
+        // Escuchar cambios en el estado
+        estadoSelect.addEventListener('change', actualizarCampoStock);
+
+
+        // ------------- Event Listeners -------------
+        btnAgregarImagen.addEventListener('click', crearNuevaImagen);
+
+        // Delegación de eventos
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('eliminar-imagen')) {
+                removeImage(e);
+            }
+        });
+
+        // ------------- Inicialización -------------
+        if (window.location.pathname.includes('/crear')) {
+            // Comportamiento para creación
+            if (imageCount === 0) crearNuevaImagen();
+        } else {
+            // Configurar imágenes existentes
+            document.querySelectorAll('.contenedor-imagen:not([data-existente="true"])').forEach(contenedor => {
+                const preview = contenedor.querySelector('.imagen-preview');
+                const input = contenedor.querySelector('input[type="file"]');
+                if (preview && input) {
+                    preview.addEventListener('click', () => input.click());
+                    input.addEventListener('change', previewImage);
+                }
             });
-        };
-        reader.readAsDataURL(file);
+        }
+
+        document.querySelectorAll('.contenedor-imagen[data-existente]').forEach(contenedor => {
+            const btnEliminar = contenedor.querySelector('.eliminar-imagen');
+            btnEliminar.addEventListener('click', function(e) {
+                contenedor.remove();
+            });
+        });
     });
-    
-    // Resetear el input para permitir nuevas selecciones
-    event.target.value = '';
-}
-
-function eliminarPrevia(index) {
-    // Eliminar del array
-    imagenesSeleccionadas.splice(index, 1);
-    
-    // Reindexar los elementos restantes
-    imagenesSeleccionadas.forEach((img, i) => {
-        img.preview.dataset.index = i;
-        img.preview.querySelector('button').setAttribute('onclick', `eliminarPrevia(${i})`);
-    });
-    
-    // Actualizar vista
-    actualizarVistaPrevia();
-}
-
-function actualizarVistaPrevia() {
-    const previewContainer = document.getElementById('previewContainer');
-    
-    // Eliminar todas las previsualizaciones temporales
-    document.querySelectorAll('.nueva-imagen-preview').forEach(el => el.remove());
-    
-    // Volver a agregar las imágenes del array
-    imagenesSeleccionadas.forEach((img, index) => {
-        const div = document.createElement('div');
-        div.className = 'imagen-preview nueva-imagen-preview';
-        div.dataset.index = index;
-        div.innerHTML = `
-            <img src="${URL.createObjectURL(img.file)}" alt="Previsualización">
-            <button type="button" class="eliminar-previa" onclick="eliminarPrevia(${index})">×</button>
-        `;
-        previewContainer.insertBefore(div, document.getElementById('imagenPreview'));
-    });
-}
-
-// Click abre el selector
-document.getElementById('imagenPreview').addEventListener('click', function() {
-    document.getElementById('imagenes').click();
-});
-
-// Efectos hover
-document.getElementById('imagenPreview').addEventListener('mouseenter', function() {
-    this.style.opacity = '0.8';
-    this.querySelector('.imagen-placeholder').style.fontSize = '4rem';
-});
-
-document.getElementById('imagenPreview').addEventListener('mouseleave', function() {
-    this.style.opacity = '1';
-    this.querySelector('.imagen-placeholder').style.fontSize = '3.5rem';
-});
-
-// Antes de enviar el formulario, crear un FormData con todas las imágenes
-document.querySelector('form').addEventListener('submit', function(e) {
-    const formData = new FormData(this);
-    
-    // Agregar todas las imágenes seleccionadas al FormData
-    imagenesSeleccionadas.forEach(img => {
-        formData.append('imagenes[]', img.file);
-    });
-    
-    // Aquí podrías hacer un envío AJAX o permitir que el formulario se envíe normalmente
-    // Para AJAX:
-    // e.preventDefault();
-    // fetch(this.action, {
-    //     method: 'POST',
-    //     body: formData
-    // }).then(...);
-});
 </script>
