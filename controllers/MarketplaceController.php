@@ -16,36 +16,66 @@ class MarketplaceController {
             exit();
         }
 
-        // Obtener categoria seleccionada
+        // Obtener término de búsqueda si existe
+        $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
         $categoriaId = filter_var($_GET['categoria'] ?? null, FILTER_VALIDATE_INT);
-        $condiciones = [];
-
-        if ($categoriaId) {
-            $categoria = Categoria::find($categoriaId);
-            if ($categoria) {
-                $condiciones[] = "categoriaId = '$categoriaId'";
-            }
-        }
-
-        // Obtener total de registros CON las condiciones
-        $total = Producto::totalCondiciones($condiciones); 
-
-        // Obtener categorias disponibles
-        $categorias = Categoria::all();
-
-        $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
-
-        if($pagina_actual < 1) {
-            header('Location: /vendedor/productos?page=1');
-            exit();
-        }
         
-        $registros_por_pagina = 10;
+        $condiciones = [];
+        $titulo = 'Para Ti';
 
-        // Obtener total de registros
+        // Lógica de búsqueda
+        if (!empty($busqueda)) {
+            // Buscar productos que coincidan directamente con el término
+            $condicionesProducto = Producto::buscar($busqueda);
+            
+            // Buscar vendedores que coincidan con el término
+            $usuarios = Usuario::whereArray([
+                'nombre LIKE' => "%{$busqueda}%",
+            ]);
+            $usuarioIds = $usuarios ? array_column($usuarios, 'id') : [];
+            
+            // Buscar categorías que coincidan con el término
+            $categorias = Categoria::whereArray([
+                'nombre LIKE' => "%{$busqueda}%",
+            ]);
+            $categoriaIds = $categorias ? array_column($categorias, 'id') : [];
+            
+            // Construir condiciones complejas
+            $condicionesComplejas = [];
+            if (!empty($condicionesProducto)) {
+                $condicionesComplejas[] = "(" . implode(' OR ', $condicionesProducto) . ")";
+            }
+            
+            if (!empty($usuarioIds)) {
+                $usuarioIdsStr = implode(',', $usuarioIds);
+                $condicionesComplejas[] = "usuarioId IN ($usuarioIdsStr)";
+            }
+            
+            if (!empty($categoriaIds)) {
+                $categoriaIdsStr = implode(',', $categoriaIds);
+                $condicionesComplejas[] = "categoriaId IN ($categoriaIdsStr)";
+            }
+            
+            if (!empty($condicionesComplejas)) {
+                $condiciones[] = "(" . implode(' OR ', $condicionesComplejas) . ")";
+            }
+            
+            $titulo = "Resultados para: '{$busqueda}'";
+        } elseif ($categoriaId) {
+            // Si no hay búsqueda pero sí categoría seleccionada
+            $condiciones[] = "categoriaId = '$categoriaId'";
+            $categoria = Categoria::find($categoriaId);
+            $titulo = $categoria ? $categoria->nombre : $titulo;
+        }
+
+        // Configuración de paginación
+        $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
+        $registros_por_pagina = 10;
+        
+        // Obtener total de registros con las condiciones
         $total = Producto::totalCondiciones($condiciones);
         
-        // Crear instancia de paginación
+        // Validar página actual
         $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total);
         
         if ($paginacion->total_paginas() < $pagina_actual && $pagina_actual > 1) {
@@ -53,7 +83,7 @@ class MarketplaceController {
             exit();
         }
 
-        // Obtener productos
+        // Obtener productos con paginación
         $params = [
             'condiciones' => $condiciones,
             'orden' => 'nombre ASC',
@@ -63,20 +93,10 @@ class MarketplaceController {
         
         $productos = Producto::metodoSQL($params);
 
-        // Obtener las imagenes relacionadas para cada producto
+        // Obtener imágenes principales para cada producto
         foreach($productos as $producto) {
             $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id); 
-
-            // Asigna la URL a la propiedad 'imagen_principal' del objeto Producto
-            // Si no hay imagen, asigna null
-            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null; 
-        }
-
-        // Obtener categoría seleccionada para el título
-        $titulo = 'Para Ti';
-        if ($categoriaId) {
-            $categoria = Categoria::find($categoriaId);
-            $titulo = $categoria ? $categoria->nombre : $titulo;
+            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
         }
 
         // Obtener favoritos del usuario
@@ -84,11 +104,11 @@ class MarketplaceController {
         if(is_auth('comprador')) {
             $usuarioId = $_SESSION['id'];
             $favoritos = Favorito::whereField('usuarioId', $usuarioId);
-            if (!is_array($favoritos)) {
-                $favoritos = $favoritos ? [$favoritos] : [];
-            }
-            $favoritosIds = array_column($favoritos, 'productoId');
+            $favoritosIds = $favoritos ? array_column($favoritos, 'productoId') : [];
         }
+        
+        // Obtener todas las categorías para el menú
+        $categorias = Categoria::all();
         
         $router->render('marketplace/index', [
             'titulo' => $titulo,
@@ -96,7 +116,8 @@ class MarketplaceController {
             'categorias' => $categorias,
             'paginacion' => $paginacion,
             'categoria_seleccionada' => $categoriaId,
-            'favoritosIds' => $favoritosIds
+            'favoritosIds' => $favoritosIds,
+            'busqueda' => $busqueda
         ]);
     }
 
@@ -129,5 +150,50 @@ class MarketplaceController {
             'categorias' => $categorias,
             'vendedor' => $vendedor
         ]);
+    }
+
+    public static function autocompletar() {
+        if (!is_auth('comprador')) {
+            http_response_code(401);
+            echo json_encode(['error' => 'No autenticado']);
+            exit();
+        }
+    
+        $termino = $_GET['q'] ?? '';
+        if (empty($termino)) {
+            echo json_encode([]);
+            exit();
+        }
+    
+        $termino = trim($termino);
+    
+        // Buscar productos
+        $productos = Producto::whereArray([
+            'nombre LIKE' => "%{$termino}%",
+        ]);
+    
+        // Buscar categorías
+        $categorias = Categoria::whereArray([
+            'nombre LIKE' => "%{$termino}%",
+        ]);
+    
+        // Buscar artesanos/artistas (usuarios)
+        $usuarios = Usuario::whereArray([
+            'nombre LIKE' => "%{$termino}%",
+        ]);
+    
+        // Formatear resultados
+        $resultados = [
+            'productos' => array_map(fn($producto) => ['id' => $producto->id, 'nombre' => $producto->nombre], $productos),
+            'categorias' => array_map(fn($categoria) => ['id' => $categoria->id, 'nombre' => $categoria->nombre], $categorias),
+            'usuarios' => array_map(fn($usuario) => [
+                'id' => $usuario->id,
+                'nombre' => $usuario->nombre,
+                'apellido' => $usuario->apellido // Asegúrate de incluir el apellido aquí
+            ], $usuarios),
+        ];
+    
+        echo json_encode($resultados);
+        exit();
     }
 }

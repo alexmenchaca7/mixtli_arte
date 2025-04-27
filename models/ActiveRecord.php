@@ -165,15 +165,20 @@ class ActiveRecord {
     // Busqueda Where con Múltiples opciones
     public static function whereArray($array = []) {
         $query = "SELECT * FROM " . static::$tabla . " WHERE ";
-        foreach($array as $key => $value) {
-            if($key == array_key_last($array)) {
-                $query .= " $key = '$value'";
+        $clauses = [];
+    
+        foreach ($array as $key => $value) {
+            if (preg_match('/\s*(LIKE|>|<|>=|<=|!=|=)\s*$/', $key, $matches)) {
+                $operator = $matches[1];
+                $field = trim(str_replace($operator, '', $key));
+                $clauses[] = "$field $operator '$value'";
             } else {
-                $query .= " $key = '$value' AND ";
+                $clauses[] = "$key = '$value'";
             }
         }
-        $resultado = self::consultarSQL($query);
-        return $resultado;
+    
+        $query .= implode(' AND ', $clauses);
+        return self::consultarSQL($query);
     }
 
     // Retornar los registros por un orden

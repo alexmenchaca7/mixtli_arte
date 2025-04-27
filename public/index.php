@@ -62,6 +62,7 @@ $router->get('/contacto', [PaginasController::class, 'contacto']);
 
 // Marketplace (VISTA COMPRADOR)
 $router->get('/marketplace', [MarketplaceController::class, 'index']);
+$router->get('/marketplace/autocompletar', [MarketplaceController::class, 'autocompletar']);
 $router->get('/marketplace/producto', [MarketplaceController::class, 'producto']);
 
 $router->get('/favoritos', [FavoritosController::class, 'index']);

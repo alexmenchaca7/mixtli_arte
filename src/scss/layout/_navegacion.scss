@@ -25,6 +25,7 @@
 
 /** Estilos generales para la barra nav **/
 .barra {
+    position: relative;
     display: flex;
     flex-direction: column;
     padding: 1rem 0;
@@ -36,12 +37,16 @@
     }
 
     .busqueda {
-        display: flex;
-        align-items: center;
+        position: relative;
         background: #f5f5f5;
         border-radius: 2.5rem;
         padding: 1rem;
         width: 29rem;
+
+        form {
+            display: flex;
+            align-items: center;
+        }
 
         input {
             border: none;
@@ -55,6 +60,37 @@
             background: transparent;
             cursor: pointer;
             opacity: 0.7;
+        }
+    }
+
+    .sugerencias {
+        position: absolute;
+        top: 100%; // Posiciona las sugerencias justo debajo del input
+        left: 0;
+        right: 0;
+        background-color: #fff;
+        border-radius: 5px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        z-index: 1000;
+        max-height: 200px; // Limita la altura máxima
+        overflow-y: auto; // Permite desplazamiento si hay muchas sugerencias
+
+        li {
+            padding: 0.8rem;
+            cursor: pointer;
+            font-size: 1.4rem;
+
+            &:hover {
+                background-color: #f4f4f4;
+            }
+        }
+
+        .sugerencia-header {
+            font-weight: bold;
+            padding: 0.8rem;
+            background-color: #f9f9f9;
         }
     }
 

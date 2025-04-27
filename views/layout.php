@@ -32,10 +32,21 @@
                     
                     <?php if(!$inicio): ?>
                         <div class="busqueda">
-                            <input type="text" placeholder="¿Que es lo que buscas hoy?" aria-label="Buscar productos">
-                            <button type="submit">
-                                <img src="../build/img/icon_search.svg" alt="Icono de busqueda">
-                            </button>
+                            <form action="/marketplace" method="GET">
+                                <input 
+                                    type="text" 
+                                    name="q" 
+                                    id="busqueda" 
+                                    placeholder="¿Qué es lo que buscas hoy?" 
+                                    aria-label="Buscar productos" 
+                                    value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>"
+                                    autocomplete="off"
+                                >
+                                <button type="submit">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </form>
+                            <ul id="sugerencias" class="sugerencias"></ul>
                         </div>
                     <?php endif; ?>
                     
@@ -155,5 +166,81 @@
     </div>
 
     <script src="/build/js/app.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputBusqueda = document.getElementById('busqueda');
+            const listaSugerencias = document.getElementById('sugerencias');
+
+            inputBusqueda.addEventListener('input', async (e) => {
+                let termino = e.target.value.trim();
+
+                // Eliminar caracteres no permitidos (solo letras, números y espacios)
+                termino = termino.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '');
+                e.target.value = termino;
+
+                if (termino.length < 2) {
+                    listaSugerencias.innerHTML = '';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/marketplace/autocompletar?q=${encodeURIComponent(termino)}`);
+                    const data = await response.json();
+
+                    listaSugerencias.innerHTML = '';
+
+                    if (data.productos.length > 0) {
+                        listaSugerencias.innerHTML += '<li class="sugerencia-header">Productos</li>';
+                        data.productos.forEach(producto => {
+                            const li = document.createElement('li');
+                            li.textContent = producto.nombre;
+                            li.classList.add('sugerencia-item');
+                            li.dataset.url = `/marketplace/producto?id=${producto.id}`;
+                            listaSugerencias.appendChild(li);
+                        });
+                    }
+
+                    if (data.categorias.length > 0) {
+                        listaSugerencias.innerHTML += '<li class="sugerencia-header">Categorías</li>';
+                        data.categorias.forEach(categoria => {
+                            const li = document.createElement('li');
+                            li.textContent = categoria.nombre;
+                            li.classList.add('sugerencia-item');
+                            li.dataset.url = `/marketplace?categoria=${categoria.id}`;
+                            listaSugerencias.appendChild(li);
+                        });
+                    }
+
+                    if (data.usuarios.length > 0) {
+                        listaSugerencias.innerHTML += '<li class="sugerencia-header">Artistas</li>';
+                        data.usuarios.forEach(usuario => {
+                            const li = document.createElement('li');
+                            li.textContent = usuario.nombre + ' ' + usuario.apellido;
+                            li.classList.add('sugerencia-item');
+                            li.dataset.url = `/perfil?id=${usuario.id}`;
+                            listaSugerencias.appendChild(li);
+                        });
+                    }
+
+                    // Asignar eventos de clic a los elementos de sugerencia
+                    document.querySelectorAll('.sugerencia-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            window.location.href = item.dataset.url;
+                        });
+                    });
+
+                } catch (error) {
+                    console.error('Error al obtener sugerencias:', error);
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.busqueda')) {
+                    listaSugerencias.innerHTML = '';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
