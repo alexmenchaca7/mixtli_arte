@@ -1,7 +1,12 @@
 <?php
+    use Model\Categoria;
+
     if(!isset($inicio)) {
         $inicio = false;
     }
+
+    // Obtener todas las categorías con sus subcategorías
+    $categorias = Categoria::all();
 ?>
 
 <!DOCTYPE html>
@@ -10,7 +15,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MixtliArte | <?php echo $titulo; ?></title>
-    <link rel="stylesheet" href="../build/css/app.css">
+    <link rel="stylesheet" href="/build/css/app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body class="layout">
     <div class="layout__header">
@@ -19,7 +25,7 @@
                 <nav class="barra">
                     <a class="logo" href="<?php echo $inicio ? '/' : '/marketplace'; ?>">
                         <?php if(!$inicio): ?>
-                            <img src="../build/img/logo.png" alt="Logo de Mixtli Arte">
+                            <img src="/build/img/logo.png" alt="Logo de Mixtli Arte">
                         <?php endif; ?>
                         <h2>MixtliArte</h2>
                     </a>
@@ -46,12 +52,17 @@
                             <button id="categorias-btn" class="categorias-btn">Categorías</button>
                             
                             <a href="/marketplace">Para Ti</a>
+
+                            <a href="/mensajes">
+                                <i class="fa-regular fa-comment"></i>
+                            </a>
+
                             <a href="/favoritos">
-                                <img class="icono_favorito" src="../build/img/icon_heart.svg" alt="Icono de favoritos">
+                                <i class="fa-regular fa-heart"></i>
                             </a>
             
                             <a href="/perfil">
-                                <img class="icono_perfil" src="../build/img/icon_user.svg" alt="Icono de perfil">
+                                <img class="icono_perfil" src="/build/img/icon_user.svg" alt="Icono de perfil">
                             </a>
                         </div>
                     <?php endif; ?>
@@ -64,11 +75,9 @@
                             <span class="close">&times;</span>
                             <h2>Categorías</h2>
                             <ul>
-                                <li><a href="/categoria">Pinturas</a></li>
-                                <li><a href="/categoria">Esculturas</a></li>
-                                <li><a href="/categoria">Textiles</a></li>
-                                <li><a href="/categoria">Cerámica</a></li>
-                                <li><a href="/categoria">Joyería</a></li>
+                            <?php foreach($categorias as $categoria): ?>
+                                <li><a href="/marketplace?categoria=<?= $categoria->id; ?>"><?=$categoria->nombre;?></a></li>
+                            <?php endforeach; ?>
                             </ul>
                         </div>
                     </div>
@@ -78,7 +87,7 @@
             <?php if(!$inicio): ?>
                 <div class="hero">
                     <section class="contenido-header contenedor">
-                        <h1>Para ti</h1>
+                        <h1><?php echo $titulo; ?></h1>
                     </section>
                 </div>
             <?php endif; ?>
@@ -99,9 +108,9 @@
                     <p>Todos los derechos reservados</p>
     
                     <div class="footer-social">
-                        <a href="#"><img src="../build/img/icon_instagram.svg" alt="Instagram"></a>
-                        <a href="#"><img src="../build/img/icon_facebook.svg" alt="Facebook"></a>
-                        <a href="#"><img src="../build/img/icon_youtube.svg" alt="YouTube"></a>
+                        <a href="#"><img src="/build/img/icon_instagram.svg" alt="Instagram"></a>
+                        <a href="#"><img src="/build/img/icon_facebook.svg" alt="Facebook"></a>
+                        <a href="#"><img src="/build/img/icon_youtube.svg" alt="YouTube"></a>
                     </div>
                 </div>
     
@@ -137,7 +146,7 @@
                     <form action="/subscribe" method="POST">
                         <input type="email" name="email" placeholder="Tu correo electrónico" required>
                         <button type="submit">
-                            <img src="../build/img/icon_send.svg" alt="Enviar">
+                            <img src="/build/img/icon_send.svg" alt="Enviar">
                         </button>
                     </form>
                 </div>
@@ -145,6 +154,6 @@
         </footer>
     </div>
 
-    <script src="../build/js/app.js"></script>
+    <script src="/build/js/app.js"></script>
 </body>
 </html>

@@ -136,7 +136,12 @@ class ProductosController {
                         try {
                             $nombre_unico = md5(uniqid(rand(), true));
                             $imagen = $manager->read($imagen_data->tmp);
-                            $imagen->contain(800, 800);
+
+                            // Redimensionar la imagen manteniendo el aspecto
+                            $imagen->resize(800, 800, function ($constraint) {
+                                $constraint->aspectRatio(); // Mantener la proporción
+                                $constraint->upsize(); // Evitar que se escale hacia arriba si la imagen es más pequeña
+                            });
                             
                             // Guardar formatos
                             $imagen->toWebp(85)->save("{$carpeta}/{$nombre_unico}.webp");
@@ -257,9 +262,14 @@ class ProductosController {
                         try {
                             $nombre_unico = md5(uniqid(rand(), true));
                             $imagen = $manager->read($imagen_data->tmp);
-                            $imagen->contain(800, 800);
 
-                            $imagen->toWebp(85)->save("{$carpeta}/{$nombre_unico}.webp");
+                            // Redimensionar la imagen manteniendo proporciones
+                            $imagen->resize(800, 800, function ($constraint) {
+                                $constraint->aspectRatio(); // Mantener la proporción
+                                $constraint->upsize(); // Evitar que se escale hacia arriba si la imagen es más pequeña
+                            });
+
+                            $imagen->toWebp(90)->save("{$carpeta}/{$nombre_unico}.webp");
                             $imagen->toPng()->save("{$carpeta}/{$nombre_unico}.png");
 
                             $imagen_producto = new ImagenProducto([

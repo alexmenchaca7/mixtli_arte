@@ -95,7 +95,11 @@ function obtenerDireccion($direcciones, $tipo, $campo) {
                                     class="imagen-cargada">
                             </picture>
                         <?php else: ?>
-                            <span class="imagen-placeholder">+</span>
+                            <img 
+                                src="<?php echo $_ENV['HOST'] ?>/img/usuarios/default.png" 
+                                alt="Imagen actual del usuario"
+                                id="imagenActual"
+                                class="imagen-cargada">
                         <?php endif; ?>
                         <input 
                             type="file"

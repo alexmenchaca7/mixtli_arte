@@ -13,11 +13,12 @@ use Controllers\SeguridadController;
 use Controllers\MarketplaceController;
 use Controllers\DashboardAdminController;
 use Controllers\DashboardVendedorController;
+use Controllers\FavoritosController;
 
 $router = new Router();
 
 
-// Login
+// Login 
 $router->get('/login', [AuthController::class, 'login']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->post('/logout', [AuthController::class, 'logout']);
@@ -51,7 +52,7 @@ $router->post('/verificar-2fa', [AuthController::class, 'verificar2FA']);
 
 
 
-// Pagina de Inicio
+// Pagina de Inicio (VISTA PRINCIPAL)
 $router->get('/', [PaginasController::class, 'index']);
 $router->get('/nosotros', [PaginasController::class, 'nosotros']);
 $router->get('/contacto', [PaginasController::class, 'contacto']);
@@ -61,6 +62,12 @@ $router->get('/contacto', [PaginasController::class, 'contacto']);
 
 // Marketplace (VISTA COMPRADOR)
 $router->get('/marketplace', [MarketplaceController::class, 'index']);
+$router->get('/marketplace/producto', [MarketplaceController::class, 'producto']);
+
+$router->get('/favoritos', [FavoritosController::class, 'index']);
+$router->post('/favoritos/toggle', [FavoritosController::class, 'toggle']);
+
+
 
 
 // Dashboard del Artesano (VISTA VENDEDOR)
@@ -80,6 +87,7 @@ $router->get('/vendedor/cambiar-password', [DashboardVendedorController::class, 
 $router->post('/vendedor/cambiar-password', [DashboardVendedorController::class, 'cambiarPassword']);
 
 $router->get('/vendedor/mensajes', [MensajesController::class, 'index']);
+
 
 
 

@@ -43,7 +43,7 @@
                 </div><!-- producto -->
             <?php endforeach; ?>
         <?php else: ?>
-            <p>No hay productos disponibles en este momento.</p>
+            <p>No tienes productos en favoritos</p>
         <?php endif; ?>
     </div>
 </main>
