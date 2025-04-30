@@ -68,6 +68,7 @@ $router->get('/marketplace/producto', [MarketplaceController::class, 'producto']
 $router->get('/favoritos', [FavoritosController::class, 'index']);
 $router->post('/favoritos/toggle', [FavoritosController::class, 'toggle']);
 
+$router->get('/mensajes', [MensajesController::class, 'index']);
 
 
 

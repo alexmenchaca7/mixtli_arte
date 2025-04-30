@@ -6,13 +6,13 @@ use MVC\Router;
 
 class MensajesController {
     public static function index(Router $router) {
-        if(!is_auth('vendedor')) {
+        if(!is_auth('comprador')) {
             header('Location: /login');
             exit();
         }
 
-        $router->render('vendedor/mensajes/index', [
+        $router->render('marketplace/mensajes', [
             'titulo' => 'Mensajes'
-        ], 'vendedor-layout');
+        ], 'layout');
     }
 }

@@ -110,7 +110,7 @@
     </div>
 
     <div class="layout__foter">
-        <footer class="footer seccion">
+        <footer class="footer">
             <div class="contenedor footer-contenedor">
                 <!-- Sección del logo y derechos de autor -->
                 <div class="footer-logo">
