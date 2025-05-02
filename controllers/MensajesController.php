@@ -9,12 +9,14 @@ use Model\Producto;
 
 class MensajesController {
     public static function index(Router $router) {
-        if(!is_auth('comprador')) {
+        if(!is_auth()) {
             header('Location: /login');
             exit();
         }
-    
+
         $usuarioId = $_SESSION['id'];
+        $rol = $_SESSION['rol'] ?? '';
+
         $mensajes = [];
         $productoChat = null;
         $contactoChat = null;
@@ -45,6 +47,16 @@ class MensajesController {
         foreach ($conversacionesRaw as $conv) {
             $contacto = Usuario::find($conv['contactoId']);
             $producto = Producto::find($conv['productoId']);
+
+            // Determinar el contacto real
+            if($producto->usuarioId == $usuarioId) {
+                // Si es vendedor, el contacto es el comprador (siempre el otro participante)
+                $contacto = Usuario::find($conv['contactoId'] == $usuarioId ? $producto->usuarioId : $conv['contactoId']);
+            } else {
+                // Si es comprador, el contacto es el vendedor del producto
+                $vendedor = Usuario::find($producto->usuarioId);
+                $contacto = $vendedor ?? $contacto;
+            }
                 
             if($contacto && $producto) {
                 $conversacionesCompletas[] = [
@@ -55,14 +67,25 @@ class MensajesController {
                 ];
             }
         }
-    
-        $router->render('marketplace/mensajes', [
-            'titulo' => 'Mensajes',
-            'conversaciones' => $conversacionesCompletas,
-            'mensajes' => $mensajes,
-            'productoChat' => $productoChat,
-            'contactoChat' => $contactoChat
-        ], 'layout');
+
+        // Determinar qué vista y layout usar
+        if ($rol === 'comprador') {
+            $router->render('marketplace/mensajes', [
+                'titulo' => 'Mensajes',
+                'conversaciones' => $conversacionesCompletas,
+                'mensajes' => $mensajes,
+                'productoChat' => $productoChat,
+                'contactoChat' => $contactoChat
+            ], 'layout');
+        } else if ($rol === 'vendedor') {
+            $router->render('vendedor/mensajes', [
+                'titulo' => 'Mensajes',
+                'conversaciones' => $conversacionesCompletas,
+                'mensajes' => $mensajes,
+                'productoChat' => $productoChat,
+                'contactoChat' => $contactoChat
+            ], 'vendedor-layout');
+        }
     }
 
     public static function chat(Router $router) {
@@ -101,7 +124,7 @@ class MensajesController {
     public static function enviar(Router $router) {
         date_default_timezone_set('America/Mexico_City');
     
-        if (!is_auth('comprador')) {
+        if (!is_auth()) {
             http_response_code(401);
             exit(json_encode(['error' => 'No autenticado']));
         }
@@ -235,6 +258,27 @@ class MensajesController {
         }
         
         echo json_encode(['success' => false, 'errores' => $errores]);
+        exit();
+    }
+
+    public static function obtenerNuevosMensajes(Router $router) {
+        if (!is_auth()) {
+            http_response_code(401);
+            exit(json_encode(['error' => 'No autenticado']));
+        }
+    
+        $usuarioId = $_SESSION['id'];
+        $productoId = $_GET['productoId'] ?? '';
+        $contactoId = $_GET['contactoId'] ?? '';
+        $ultimoId = $_GET['ultimoId'] ?? 0;
+    
+        $mensajes = Mensaje::obtenerMensajesNuevos($productoId, $usuarioId, $contactoId, $ultimoId);
+    
+        echo json_encode([
+            'success' => true,
+            'mensajes' => $mensajes,
+            'ultimoId' => end($mensajes)->id ?? $ultimoId
+        ]);
         exit();
     }
 }

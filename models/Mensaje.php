@@ -46,6 +46,26 @@ class Mensaje extends ActiveRecord {
     
         return self::consultarSQL($query);
     }
+
+    public static function obtenerMensajesNuevos($productoId, $usuarioId, $contactoId, $ultimoId) {
+        $productoId = self::$conexion->escape_string($productoId);
+        $usuarioId = self::$conexion->escape_string($usuarioId);
+        $contactoId = self::$conexion->escape_string($contactoId);
+        $ultimoId = self::$conexion->escape_string($ultimoId);
+    
+        $query = "SELECT * FROM mensajes 
+                WHERE productoId = '$productoId' 
+                AND id > '$ultimoId'
+                AND (
+                    (remitenteId = '$usuarioId' AND destinatarioId = '$contactoId') 
+                    OR 
+                    (remitenteId = '$contactoId' AND destinatarioId = '$usuarioId')
+                )
+                AND creado >= DATE_SUB(NOW(), INTERVAL 2 HOUR) // Limitar ventana temporal
+                ORDER BY id ASC";  // Cambiar a ORDER BY id ASC para mejor consistencia
+        
+        return self::consultarSQL($query);
+    }    
     
     public static function obtenerConversacionActual($productoId, $usuarioId, $contactoId) {
         $producto = Producto::find($productoId);
@@ -65,34 +85,51 @@ class Mensaje extends ActiveRecord {
     public static function obtenerConversaciones($usuarioId) {
         $usuarioId = self::$conexion->escape_string($usuarioId);
     
-        $query = "SELECT m1.*,
-                  CONVERT_TZ(m1.creado, '+00:00', '-06:00') as creado_mexico 
-                  FROM mensajes m1
-                  WHERE m1.id = (
-                      SELECT MAX(m2.id)
-                      FROM mensajes m2
-                      WHERE m2.productoId = m1.productoId
-                      AND (
-                          (m2.remitenteId = '$usuarioId' AND m2.destinatarioId = m1.destinatarioId) OR
-                          (m2.remitenteId = m1.destinatarioId AND m2.destinatarioId = '$usuarioId')
-                      )
-                  )
-                  AND (m1.remitenteId = '$usuarioId' OR m1.destinatarioId = '$usuarioId')
-                  ORDER BY m1.creado DESC";
+        $query = "SELECT m1.*
+                FROM mensajes m1
+                INNER JOIN productos p ON m1.productoId = p.id
+                WHERE m1.id = (
+                    SELECT MAX(m2.id)
+                    FROM mensajes m2
+                    WHERE m2.productoId = m1.productoId
+                    AND (
+                        (m2.remitenteId = m1.remitenteId AND m2.destinatarioId = m1.destinatarioId) OR
+                        (m2.remitenteId = m1.destinatarioId AND m2.destinatarioId = m1.remitenteId)
+                    )
+                )
+                AND (
+                    m1.remitenteId = '$usuarioId' 
+                    OR m1.destinatarioId = '$usuarioId'
+                    OR p.usuarioId = '$usuarioId'
+                )
+                ORDER BY m1.creado DESC";
     
         $mensajes = self::consultarSQL($query);
-    
-        // Procesar para agrupar conversaciones
+        
         $conversaciones = [];
     
         foreach($mensajes as $mensaje) {
-            $key = $mensaje->productoId . '-' . 
-                  ($mensaje->remitenteId == $usuarioId ? $mensaje->destinatarioId : $mensaje->remitenteId);
+            // Obtener producto relacionado
+            $producto = Producto::find($mensaje->productoId);
+            
+            // Determinar contacto
+            $contactoId = ($mensaje->remitenteId == $usuarioId) 
+                ? $mensaje->destinatarioId 
+                : $mensaje->remitenteId;
+            
+            // Si es vendedor del producto
+            if($producto->usuarioId == $usuarioId) {
+                $contactoId = ($mensaje->remitenteId == $usuarioId) 
+                    ? $mensaje->destinatarioId 
+                    : $mensaje->remitenteId;
+            }
+    
+            $key = $mensaje->productoId . '-' . $contactoId;
             
             if(!isset($conversaciones[$key])) {
                 $conversaciones[$key] = [
                     'productoId' => $mensaje->productoId,
-                    'contactoId' => $mensaje->remitenteId == $usuarioId ? $mensaje->destinatarioId : $mensaje->remitenteId,
+                    'contactoId' => $contactoId,
                     'ultimoMensaje' => $mensaje,
                     'fecha' => $mensaje->creado
                 ];
@@ -100,7 +137,7 @@ class Mensaje extends ActiveRecord {
         }
         
         return array_values($conversaciones);
-    }
+    } 
     
     public function guardar() {
         $resultado = parent::guardar();

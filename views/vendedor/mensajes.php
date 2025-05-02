@@ -1,31 +1,29 @@
 <div class="mensajeria">
     <!-- Lista de contactos -->
     <div class="mensajeria__contactos">
-        <!-- Header y buscador -->
         <div class="contactos__header">
             <h2 class="contactos__titulo">Chats</h2>
             <div class="contactos__busqueda">
                 <input type="text" 
-                       class="contactos__campo-busqueda" 
-                       placeholder="Buscar conversaciones...">
+                     class="contactos__campo-busqueda" 
+                     placeholder="Buscar conversaciones...">
                 <i class="fa-solid fa-magnifying-glass contactos__icono-busqueda"></i>
             </div>
         </div>
 
-        <!-- Lista de contactos -->
         <div class="contactos__lista">
-            <?php foreach ($conversaciones as $conv):
+            <?php foreach ($conversaciones as $conv): 
                 $contacto = $conv['contacto'];
                 $producto = $conv['producto'];
                 $mensaje = $conv['ultimoMensaje'];
             ?>
                 <div class="contacto" 
-                     data-producto-id="<?= $producto->id ?>"
-                     data-contacto-id="<?= $contacto->id ?>">
+                    data-producto-id="<?= $producto->id ?>"
+                    data-contacto-id="<?= $contacto->id ?>">
                     <picture>
                         <img src="/img/usuarios/<?php echo isset($contacto->imagen) && $contacto->imagen ? $contacto->imagen . '.png' : 'default.png'; ?>" 
-                             alt="<?= $contacto->nombre ?>"
-                             class="contacto__imagen">
+                                alt="<?= $contacto->nombre ?>"
+                                class="contacto__imagen">
                     </picture>
                     <div class="contacto__info">
                         <div class="contacto__titulo">
