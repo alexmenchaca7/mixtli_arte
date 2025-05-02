@@ -4,6 +4,7 @@
 
 .auth {
     @include m.contenedor-sm();
+    margin-bottom: 5rem;
 
     &__heading {
         text-align: center;
