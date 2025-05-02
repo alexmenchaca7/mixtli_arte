@@ -16,7 +16,7 @@
                 include_once __DIR__ .'/templates/vendedor-sidebar.php';  
             ?>
 
-            <main class="dashboard__contenido">
+            <main class="dashboard__contenido <?php echo $titulo === 'Mensajes' ? 'vendedor-mensajes' : ''; ?>">
                 <?php 
                     echo $contenido; 
                 ?> 

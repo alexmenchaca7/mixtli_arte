@@ -130,6 +130,13 @@
         }
     }
 
+
+    .vendedor-mensajes {
+        &.dashboard__contenido {
+            padding: 0; // Eliminar padding
+        }
+    }
+
     // Ajustes para el contenedor de botones y búsqueda
     &__contenedor-boton {
         display: flex;
