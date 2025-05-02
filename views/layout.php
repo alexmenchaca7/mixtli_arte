@@ -1,5 +1,6 @@
 <?php
     use Model\Categoria;
+    use Model\Usuario;
 
     if(!isset($inicio)) {
         $inicio = false;
@@ -7,6 +8,14 @@
 
     // Obtener todas las categorías con sus subcategorías
     $categorias = Categoria::all();
+
+    // Obtener información del usuario logueado
+    if (isset($_SESSION['id'])) {
+        $usuario = Usuario::find($_SESSION['id']);
+        if ($usuario && !empty($usuario->imagen)) {
+            $usuarioImagen = "$usuario->imagen";
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -71,9 +80,17 @@
                             <a href="/favoritos">
                                 <i class="fa-regular fa-heart"></i>
                             </a>
+
+                            <a href="/notificaciones">
+                                <i class="fa-regular fa-bell"></i>
+                            </a>
             
                             <a href="/perfil">
-                                <img class="icono_perfil" src="/build/img/icon_user.svg" alt="Icono de perfil">
+                                <?php if(isset($usuarioImagen)): ?>
+                                    <img class="icono_perfil" src="/img/usuarios/<?=$usuarioImagen;?>.png" alt="Icono de perfil">
+                                <?php else: ?>
+                                    <img class="icono_perfil" src="/img/usuarios/default.png" alt="Icono de perfil">
+                                <?php endif; ?>
                             </a>
                         </div>
                     <?php endif; ?>

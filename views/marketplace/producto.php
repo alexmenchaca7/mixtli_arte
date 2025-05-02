@@ -65,34 +65,62 @@
         <!-- Contacto con el Vendedor -->
         <h2>Contacto</h2>
         <div class="producto-contacto">
-            <textarea placeholder="Hola. ¿Sigue disponible?" rows="3"></textarea>
-            <button class="boton-rosa-block">Enviar mensaje</button>
+            <form id="form-mensaje" method="POST" action="/mensajes/enviar">
+                <input type="hidden" name="productoId" value="<?= $producto->id ?>">
+                <input type="hidden" name="destinatarioId" value="<?= $vendedor->id ?>">
+                <textarea name="mensaje" placeholder="Hola. ¿Sigue disponible?" rows="3" required></textarea>
+                <button type="submit" class="boton-rosa-block">
+                    <span class="texto-boton">Enviar mensaje</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+            <div id="mensaje-exito" class="mensaje-exito" style="display: none;"></div>
+            <div id="mensaje-error" class="mensaje-error" style="display: none;"></div>
         </div>
     </div>
 </main>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const slider = document.querySelector('.slider__contenedor');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        let currentIndex = 0;
-
-        function updateSlider() {
-            const width = slider.clientWidth;
-            slider.style.transform = `translateX(-${currentIndex * width}px)`;
+document.getElementById('form-mensaje').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    const successDiv = document.getElementById('mensaje-exito');
+    const errorDiv = document.getElementById('mensaje-error');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Enviando...';
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {'Accept': 'application/json'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            successDiv.textContent = '✓ Mensaje enviado!';
+            successDiv.style.display = 'block';
+            form.reset();
+            
+            // Redirigir al índice de mensajes después de 1 segundo
+            setTimeout(() => {
+                window.location.href = '/mensajes';
+            }, 1000);
+        } else {
+            errorDiv.textContent = 'Error: ' + (data.errores?.join(', ') || 'Error al enviar');
+            errorDiv.style.display = 'block';
         }
-
-        prevBtn.addEventListener('click', () => {
-            currentIndex = (currentIndex > 0) ? currentIndex - 1 : slider.children.length - 1;
-            updateSlider();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            currentIndex = (currentIndex < slider.children.length - 1) ? currentIndex + 1 : 0;
-            updateSlider();
-        });
-
-        window.addEventListener('resize', updateSlider);
+    })
+    .catch(error => {
+        errorDiv.textContent = 'Error de conexión';
+        errorDiv.style.display = 'block';
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Enviar mensaje';
     });
+});
 </script>

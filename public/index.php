@@ -69,6 +69,9 @@ $router->get('/favoritos', [FavoritosController::class, 'index']);
 $router->post('/favoritos/toggle', [FavoritosController::class, 'toggle']);
 
 $router->get('/mensajes', [MensajesController::class, 'index']);
+$router->post('/mensajes/enviar', [MensajesController::class, 'enviar']);
+$router->post('/mensajes/upload', [MensajesController::class, 'subirArchivo']);
+$router->get('/mensajes/chat', [MensajesController::class, 'chat']);
 
 
 

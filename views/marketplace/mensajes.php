@@ -14,192 +14,326 @@
 
         <!-- Lista de contactos -->
         <div class="contactos__lista">
-            <div class="contacto">
-                <picture>
-                    <source srcset="/img/usuarios/default.png" type="image/png">
-                    <img loading="lazy" src="/img/usuarios/default.png" class="contacto__imagen" alt="Perfil">
-                </picture>
-                <div class="contacto__info">
-                    <h3 class="contacto__nombre">Juan Pérez</h3>
-                    <p class="contacto__estado">En línea</p>
+            <?php foreach ($conversaciones as $conv):
+                $contacto = $conv['contacto'];
+                $producto = $conv['producto'];
+                $mensaje = $conv['ultimoMensaje'];
+            ?>
+                <div class="contacto" 
+                     data-producto-id="<?= $producto->id ?>"
+                     data-contacto-id="<?= $contacto->id ?>">
+                    <picture>
+                        <img src="/img/usuarios/<?php echo isset($contacto->imagen) && $contacto->imagen ? $contacto->imagen . '.png' : 'default.png'; ?>" 
+                             alt="<?= $contacto->nombre ?>"
+                             class="contacto__imagen">
+                    </picture>
+                    <div class="contacto__info">
+                        <div class="contacto__titulo">
+                            <h3><?php echo $contacto->nombre . ' • ' . $producto->nombre; ?></h3>
+                        </div>
+                        <?php if ($mensaje): ?>
+                            <?php $prefix = ($mensaje->remitenteId === $_SESSION['id']) ? 'Tú: ' : ''; ?>
+                            <small class="mensaje-preview">
+                                <?php if($mensaje->tipo === 'imagen'): ?>
+                                    <i class="fa-regular fa-image"></i> <?= $prefix ?>Imagen
+                                <?php elseif($mensaje->tipo === 'documento'): ?>
+                                    <i class="fa-regular fa-file-pdf"></i> <?= $prefix ?>Documento
+                                <?php else: ?>
+                                    <?= $prefix . ((strlen($mensaje->contenido) > 30) ? (substr($mensaje->contenido, 0, 30) . '...') : $mensaje->contenido) ?>
+                                <?php endif; ?>
+                            </small>
+                        <?php endif; ?>
+                    </div>
+                    <span class="contacto__fecha">
+                        <?= date('h:i a', strtotime($conv['fecha'])) ?>
+                    </span>
                 </div>
-                <span class="contacto__fecha">15:32</span>
-            </div>
-            <div class="contacto">
-                <picture>
-                    <source srcset="/img/usuarios/default.png" type="image/png">
-                    <img loading="lazy" src="/img/usuarios/default.png" class="contacto__imagen" alt="Perfil">
-                </picture>
-                <div class="contacto__info">
-                    <h3 class="contacto__nombre">Juan Pérez</h3>
-                    <p class="contacto__estado">En línea</p>
-                </div>
-                <span class="contacto__fecha">15:32</span>
-            </div>
-            <div class="contacto">
-                <picture>
-                    <source srcset="/img/usuarios/default.png" type="image/png">
-                    <img loading="lazy" src="/img/usuarios/default.png" class="contacto__imagen" alt="Perfil">
-                </picture>
-                <div class="contacto__info">
-                    <h3 class="contacto__nombre">Juan Pérez</h3>
-                    <p class="contacto__estado">En línea</p>
-                </div>
-                <span class="contacto__fecha">15:32</span>
-            </div>
-            <!-- Repetir más contactos -->
+            <?php endforeach; ?>
         </div>
     </div>
 
     <!-- Área de chat -->
-    <div class="chat">
-        <!-- Cabecera -->
-        <div class="chat__header">
-            <picture>
-                <source srcset="/img/usuarios/default.png" type="image/png">
-                <img loading="lazy" src="/img/usuarios/default.png" class="chat__imagen" alt="Perfil">
-            </picture>
-            <div class="chat__info">
-                <h3 class="chat__nombre">Juan Pérez</h3>
-                <p class="chat__estado">En línea</p>
-            </div>
-        </div>
-
-        <!-- Mensajes -->
-        <div class="chat__mensajes">
-            <!-- Mensaje del sistema -->
-            <div class="mensaje-sistema">
-                <div class="mensaje-sistema__contenido">
-                    <i class="fa-solid fa-shield-halved mensaje-sistema__icono"></i>
-                    <div class="mensaje-sistema__texto">
-                        <strong>Chat seguro con cifrado de extremo a extremo</strong>
-                        <p>• Evite realizar pagos en efectivo en lugares públicos<br>
-                        • No compartimos su información personal<br>
-                        • Mensajes cifrados con protocolo TLS/SSL</p>
-                        <small>Última actualización: 01/01/2024</small>
-                    </div>
+    <div class="chat" id="chat-activo">
+        <?php if(isset($productoChat) && isset($contactoChat)): ?>
+            <!-- Cabecera dinámica -->
+            <div class="chat__header">
+                <picture>
+                    <img src="/img/usuarios/<?php echo isset($contactoChat->imagen) && $contactoChat->imagen ? $contactoChat->imagen . '.png' : 'default.png'; ?>"
+                         class="chat__imagen" 
+                         alt="<?= $contactoChat->nombre ?>">
+                </picture>
+                <div class="chat__info">
+                    <h3><?= $contactoChat->nombre . ' • ' . $productoChat->nombre ?></h3>
                 </div>
             </div>
 
-            <!-- Mensaje recibido -->
-            <div class="mensaje mensaje--recibido">
-                <div class="mensaje__burbuja">
-                    ¡Hola! ¿Cómo estás?
-                    <span class="mensaje__fecha mensaje__fecha--recibido">15:30</span>
-                </div>
-            </div>
-
-            <!-- Mensaje enviado -->
-            <div class="mensaje mensaje--enviado">
-                <div class="mensaje__burbuja">
-                    ¡Hola! Estoy bien, gracias.
-                    <span class="mensaje__fecha mensaje__fecha--enviado">15:32</span>
-                </div>
-            </div>
-
-            <!-- Mensaje con imagen recibido -->
-            <div class="mensaje mensaje--recibido">
-                <div class="mensaje__burbuja mensaje--contenido-especial">
-                    <picture>
-                        <source srcset="/img/productos/c951c15d407ba02e2d56faecf74a2631.webp" type="image/webp">
-                        <source srcset="/img/productos/c951c15d407ba02e2d56faecf74a2631.png" type="image/png">
-                        <img
-                            loading="lazy"
-                            src="/img/productos/c951c15d407ba02e2d56faecf74a2631.png" 
-                            class="mensaje__imagen" 
-                            alt="Imagen compartida">
-                    </picture>
-                    <span class="mensaje__fecha mensaje__fecha--recibido">15:34</span>
-                </div>
-            </div>
-
-            <!-- Mensaje con PDF enviado -->
-            <div class="mensaje mensaje--enviado">
-                <div class="mensaje__burbuja mensaje--contenido-especial">
-                    <a href="/documentos/reporte.pdf" 
-                    class="mensaje__documento"
-                    download>
-                        <i class="fa-regular fa-file-pdf mensaje__icono-documento mensaje__icono-documento--enviado"></i>
-                        <div class="mensaje__archivo-info">
-                            <div class="mensaje__nombre-archivo">Reporte-final.pdf</div>
-                            <div class="mensaje__tamaño-archivo">2.4 MB</div>
-                        </div>
-                    </a>
-                    <span class="mensaje__fecha mensaje__fecha--enviado">15:35</span>
-                </div>
-            </div>
-
-            <!-- Mensaje con imagen enviada -->
-            <div class="mensaje mensaje--enviado">
-                <div class="mensaje__burbuja mensaje--contenido-especial">
-                    <picture>
-                        <source srcset="/img/productos/c951c15d407ba02e2d56faecf74a2631.webp" type="image/webp">
-                        <source srcset="/img/productos/c951c15d407ba02e2d56faecf74a2631.png" type="image/png">
-                        <img
-                            loading="lazy"
-                            src="/img/productos/c951c15d407ba02e2d56faecf74a2631.png" 
-                            class="mensaje__imagen" 
-                            alt="Foto vacaciones">
-                    </picture>
-                    <span class="mensaje__fecha mensaje__fecha--enviado">15:36</span>
-                </div>
-            </div>
-
-            <!-- Mensaje con PDF recibido -->
-            <div class="mensaje mensaje--recibido">
-                <div class="mensaje__burbuja mensaje--contenido-especial">
-                    <a href="/documentos/reporte.pdf" 
-                    class="mensaje__documento"
-                    download>
-                        <i class="fa-regular fa-file-pdf mensaje__icono-documento mensaje__icono-documento--recibido"></i>
-                        <div class="mensaje__archivo-info">
-                            <div class="mensaje__nombre-archivo">Reporte-final.pdf</div>
-                            <div class="mensaje__tamaño-archivo">2.4 MB</div>
-                        </div>
-                    </a>
-                    <span class="mensaje__fecha mensaje__fecha--recibido">15:38</span>
-                </div>
-            </div>
-
-            <!-- Ejemplo de mensaje de contacto en la conversación -->
-            <div class="mensaje mensaje--recibido">
-                <div class="mensaje__burbuja">
-                    <div class="mensaje__contacto-info">
-                        <div class="mensaje__contacto-item">
-                            <i class="fa-solid fa-map-marker-alt"></i>
-                            <span>Av. Principal 123, Ciudad</span>
-                        </div>
-                        <div class="mensaje__contacto-item">
-                            <i class="fa-solid fa-phone"></i>
-                            <span>+52 55 1234 5678</span>
-                        </div>
-                        <div class="mensaje__contacto-item">
-                            <i class="fa-solid fa-envelope"></i>
-                            <span>contacto@empresa.com</span>
+            <!-- Mensajes -->
+            <div class="chat__mensajes" id="mensajes-container">
+                <?php foreach($mensajes as $mensaje): ?>
+                    <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>">
+                        <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
+                            <?php switch($mensaje->tipo):
+                                case 'imagen': ?>
+                                    <picture>
+                                        <source srcset="<?= $mensaje->contenido ?>.webp" type="image/webp">
+                                        <img loading="lazy" src="/mensajes/img/<?= $mensaje->contenido ?>" 
+                                             class="mensaje__imagen" 
+                                             alt="Imagen enviada">
+                                    </picture>
+                                    <?php break; ?>
+                                <?php case 'documento': ?>
+                                    <a href="/mensajes/pdf/<?= $mensaje->contenido ?>" 
+                                       class="mensaje__documento"
+                                       download>
+                                        <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
+                                        <div class="mensaje__archivo-info">
+                                            <div class="mensaje__nombre-archivo">
+                                                <?= basename($mensaje->contenido) ?>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <?php break; ?>
+                                <?php default: ?>
+                                    <?= htmlspecialchars($mensaje->contenido) ?>
+                            <?php endswitch; ?>
+                            <span class="mensaje__fecha">
+                                <?= date('h:i a', strtotime($mensaje->creado)) ?>
+                            </span>
                         </div>
                     </div>
-                    <span class="mensaje__fecha mensaje__fecha--enviado">15:40</span>
-                </div>
+                <?php endforeach; ?>
             </div>
-        </div>
 
-        <!-- Entrada de mensajes -->
-        <div class="chat__entrada">
-            <button class="chat__adjuntar">
-                <i class="fa-regular fa-file"></i>
-                <input type="file" class="chat__input-archivo" accept="image/*,.pdf" multiple>
-            </button>
-            
-            <!-- Nuevo botón para información de contacto -->
-            <button class="chat__contacto">
-                <i class="fa-regular fa-address-card"></i>
-            </button>
-            
-            <input type="text" class="chat__campo" placeholder="Escribe un mensaje...">
-            <button class="chat__boton">
-                <i class="fa-regular fa-paper-plane"></i>
-                Enviar
-            </button>
-        </div>
+            <!-- Formulario de envío -->
+            <form class="chat__entrada" id="form-chat" enctype="multipart/form-data">
+                <input type="hidden" name="productoId" value="<?= $productoChat->id ?>">
+                <input type="hidden" name="destinatarioId" value="<?= $contactoChat->id ?>">
+
+                <div class="preview-archivo" id="preview-archivo">
+                    <div class="preview-archivo-contenido">
+                        <div class="preview-archivo-imagen"></div>
+                        <div class="preview-archivo-documento">
+                            <i class="fa-regular fa-file-pdf"></i>
+                            <span class="preview-archivo-nombre"></span>
+                        </div>
+                        <span class="preview-archivo-cerrar">&times;</span>
+                    </div>
+                </div>
+                
+                <button type="button" class="chat__adjuntar">
+                    <i class="fa-regular fa-file"></i>
+                    <input type="file" 
+                           class="chat__input-archivo" 
+                           accept="image/*,.pdf"
+                           name="archivo"
+                           id="input-archivo">
+                </button>
+                
+                <input type="text" 
+                       class="chat__campo" 
+                       name="mensaje" 
+                       placeholder="Escribe un mensaje...">
+                <button type="submit" class="chat__boton">
+                    <i class="fa-regular fa-paper-plane"></i>
+                </button>
+            </form>
+        <?php else: ?>
+            <div class="chat__vacio">
+                Selecciona una conversación para comenzar a chatear
+            </div>
+        <?php endif; ?>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const chatActivo = document.getElementById('chat-activo');
+    const formChat = document.getElementById('form-chat');
+    
+    // Cargar conversación al hacer clic en contacto
+    document.querySelectorAll('.contacto').forEach(contacto => {
+        contacto.addEventListener('click', async () => {
+            const productoId = contacto.dataset.productoId;
+            const contactoId = contacto.dataset.contactoId;
+            
+            try {
+                const response = await fetch(`/mensajes/chat?productoId=${productoId}&contactoId=${contactoId}`);
+                const data = await response.json();
+                
+                // Actualizar solo la sección del chat
+                document.getElementById('chat-activo').innerHTML = data.html;
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error cargando el chat:', error);
+            }
+        });
+    });
+
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'input-archivo') {
+            const file = e.target.files[0];
+            const preview = document.getElementById('preview-archivo');
+            const previewImagen = preview.querySelector('.preview-archivo-imagen');
+            const previewDocumento = preview.querySelector('.preview-archivo-documento');
+            
+            preview.style.display = 'block';
+            previewImagen.style.display = 'none';
+            previewDocumento.style.display = 'none';
+
+            if (file) {
+                if (file.type.startsWith('image/')) {
+                    previewImagen.innerHTML = `<img src="${URL.createObjectURL(file)}">`;
+                    previewImagen.style.display = 'block';
+                } else if (file.type === 'application/pdf') {
+                    previewDocumento.querySelector('.preview-archivo-nombre').textContent = file.name;
+                    previewDocumento.style.display = 'flex';
+                }
+            }
+        }
+    });
+
+    // Función cerrar preview actualizada
+    function cerrarPreview() {
+        const preview = document.getElementById('preview-archivo');
+        preview.style.display = 'none';
+        preview.querySelector('.preview-archivo-imagen').innerHTML = '';
+        preview.querySelector('.preview-archivo-nombre').textContent = '';
+        document.getElementById('input-archivo').value = '';
+    }
+
+    // Enviar mensaje
+    function manejarEnvio(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        
+        // Validar que haya contenido
+        if (!formData.get('mensaje') && !formData.get('archivo').size > 0) {
+            return;
+        }
+
+        // Enviar la solicitud
+        fetch(formData.get('archivo').size > 0 ? '/mensajes/upload' : '/mensajes/enviar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                cerrarPreview(); // Resetear preview
+                form.reset();
+                if(data.mensaje) {
+                    // Añadir verificación de contenido
+                    if (!data.mensaje.contenido) {
+                        console.error('Mensaje sin contenido:', data.mensaje);
+                        return;
+                    }
+                    appendMessage(data.mensaje);
+                    scrollToBottom();
+                    actualizarListaConversaciones(data.mensaje);
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Agregar este nuevo método para actualizar conversaciones
+    function actualizarListaConversaciones(nuevoMensaje) {
+        const contacto = document.querySelector(`.contacto[data-producto-id="${nuevoMensaje.productoId}"][data-contacto-id="${nuevoMensaje.destinatarioId}"]`);
+        
+        if (contacto) {
+            const esUsuarioActual = nuevoMensaje.remitenteId == <?= $_SESSION['id'] ?? 0 ?>;
+            const prefix = esUsuarioActual ? 'Tú: ' : '';
+            let contenido = '';
+
+            if (nuevoMensaje.tipo === 'texto') {
+                contenido = nuevoMensaje.contenido.length > 30 
+                    ? prefix + nuevoMensaje.contenido.substring(0, 30) + '...' 
+                    : prefix + nuevoMensaje.contenido;
+            } else {
+                const icono = nuevoMensaje.tipo === 'imagen' 
+                    ? '<i class="fa-regular fa-image"></i>' 
+                    : '<i class="fa-regular fa-file-pdf"></i>';
+                
+                contenido = `${icono} ${prefix}${nuevoMensaje.tipo.charAt(0).toUpperCase() + nuevoMensaje.tipo.slice(1)}`;
+            }
+
+            contacto.querySelector('.mensaje-preview').innerHTML = contenido;
+            contacto.querySelector('.contacto__fecha').textContent = 
+                new Date(nuevoMensaje.creado).toLocaleTimeString('es-MX', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+        }
+    }
+
+    // Auto-scroll al final
+    function scrollToBottom() {
+        const container = document.getElementById('mensajes-container');
+        if(container) {
+            // Usar comportamiento smooth para casos de actualización dinámica
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // Agregar mensaje al DOM
+    function appendMessage(mensaje) {
+        const container = document.getElementById('mensajes-container');
+        const isEnviado = mensaje.remitenteId == <?= $_SESSION['id'] ?? 0 ?>;
+
+        const messageHtml = `
+            <div class="mensaje mensaje--${isEnviado ? 'enviado' : 'recibido'}">
+                <div class="mensaje__burbuja ${mensaje.tipo !== 'texto' ? 'mensaje--contenido-especial' : ''}">
+                    ${renderContent(mensaje)}
+                    <span class="mensaje__fecha">
+                        ${new Date(mensaje.creado).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', messageHtml); // Añadir al final
+        scrollToBottom(); // Asegurar scroll al final
+    }
+
+    function renderContent(mensaje) {
+        switch(mensaje.tipo) {
+            case 'imagen':
+                return `
+                    <picture>
+                        <source srcset="${mensaje.contenido}.webp" type="image/webp">
+                        <img loading="lazy" src="${mensaje.contenido}" 
+                             class="mensaje__imagen" 
+                             alt="Imagen enviada">
+                    </picture>
+                `;
+            case 'documento':
+                return `
+                    <a href="${mensaje.contenido}" 
+                       class="mensaje__documento"
+                       download>
+                        <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
+                        <div class="mensaje__archivo-info">
+                            <div class="mensaje__nombre-archivo">
+                                ${mensaje.contenido.split('/').pop()}
+                            </div>
+                        </div>
+                    </a>
+                `;
+            default:
+                return mensaje.contenido ? mensaje.contenido : '';
+        }
+    }
+
+    // Usar delegación de eventos para el formulario
+    document.addEventListener('submit', (e) => {
+        if (e.target && e.target.matches('#form-chat')) {
+            manejarEnvio(e);
+        }
+    });
+
+});
+</script>

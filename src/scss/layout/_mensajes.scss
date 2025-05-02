@@ -5,7 +5,8 @@
 .mensajeria {
     display: flex;
     max-height: 60rem;
-    height: 100vh; // Cambio importante para ocupar altura completa
+    height: calc(100vh - 6rem);
+    position: relative;
 
     &__contactos {
         display: flex;
@@ -101,6 +102,7 @@
         }
 
         p {
+            margin: 0.3rem 0 0 0;
             font-size: 1.4rem;
             color: v.$gris;
         }
@@ -140,19 +142,10 @@
     }
 
     &__info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-
         h3 {
             font-size: 1.6rem;
             margin: 0;
             cursor: pointer;
-        }
-
-        p {
-            font-size: 1.4rem;
-            color: v.$gris;
         }
     }
 
@@ -165,6 +158,15 @@
         padding: 2rem;
         overflow-y: auto;
         background: #fff;
+    }
+
+    &__vacio {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: v.$gris;
+        font-style: italic;
     }
 
     &__entrada {
@@ -275,40 +277,37 @@
     margin: 2rem 0;
     
     &__contenido {
+        background-color: v.$dashboard;
         display: inline-flex;
         align-items: center;
-        background: #f0f4ff;
-        border: 1px solid v.$dashboard;
         border-radius: 1.5rem;
         padding: 1.5rem;
         max-width: 80%;
     }
 
     &__icono {
-        color: v.$dashboard;
+        color: v.$blanco;
         font-size: 2rem;
         margin-right: 1.5rem;
     }
 
     &__texto {
+        display: flex;
+        flex-direction: column;
         text-align: left;
         font-size: 1.2rem;
-        color: v.$gris-oscuro;
+        color: v.$blanco;
         
         strong {
             display: block;
             margin-bottom: 0.5rem;
-            color: v.$dashboard;
+            color: v.$blanco;
         }
         
         p {
             margin: 0.5rem 0;
             line-height: 1.4;
-        }
-        
-        small {
-            color: v.$gris;
-            font-size: 1rem;
+            color: v.$blanco;
         }
     }
 }
@@ -471,5 +470,64 @@
 
     .mensaje--recibido .mensaje__contacto-info {
         background: rgba(0, 0, 0, 0.15);
+    }
+}
+
+.preview-archivo {
+    position: asbolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: v.$blanco;
+    padding: 1rem;
+    border-bottom: 1px solid v.$gris-claro;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    display: none;
+    z-index: 100;
+
+    &-contenido {
+        position: relative;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    &-cerrar {
+        background: v.$gris-oscuro;
+        color: v.$blanco;
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-left: auto;
+    }
+
+    &-imagen {
+        max-width: 100px;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    }
+
+    &-documento {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
+        background: #f0f0f0;
+        border-radius: 0.5rem;
+        
+        i {
+            color: v.$gris-oscuro;
+            font-size: 1.8rem;
+        }
     }
 }
