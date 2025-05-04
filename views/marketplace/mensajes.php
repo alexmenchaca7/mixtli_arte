@@ -70,7 +70,7 @@
             <!-- Mensajes -->
             <div class="chat__mensajes" id="mensajes-container">
                 <?php foreach($mensajes as $mensaje): ?>
-                    <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>">
+                    <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
                         <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
                             <?php switch($mensaje->tipo):
                                 case 'imagen': ?>
@@ -146,6 +146,9 @@
 </div>
 
 <script>
+let pollingInterval;
+let currentUltimoId = 0;
+
 document.addEventListener('DOMContentLoaded', () => {
     const chatActivo = document.getElementById('chat-activo');
     const formChat = document.getElementById('form-chat');
@@ -160,9 +163,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch(`/mensajes/chat?productoId=${productoId}&contactoId=${contactoId}`);
                 const data = await response.json();
                 
-                // Actualizar solo la sección del chat
                 document.getElementById('chat-activo').innerHTML = data.html;
                 scrollToBottom();
+
+                // Usar el último ID del servidor
+                currentUltimoId = data.ultimoId;
+                inicializarPolling(productoId, contactoId);
             } catch (error) {
                 console.error('Error cargando el chat:', error);
             }
@@ -191,6 +197,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    function inicializarPolling(productoId, contactoId) {
+        if (pollingInterval) clearInterval(pollingInterval);
+        
+        const fetchMensajes = async () => {
+            try {
+                const response = await fetch(
+                    `/mensajes/nuevos?productoId=${productoId}&contactoId=${contactoId}&ultimoId=${currentUltimoId}`
+                );
+                const data = await response.json();
+                
+                if (data.success && data.mensajes.length > 0) {
+                    data.mensajes.forEach(mensaje => {
+                        const existe = document.querySelector(`.mensaje[data-id="${mensaje.id}"]`);
+                        if (!existe) {
+                            appendMessage(mensaje);
+                        }
+                    });
+                    // Actualizar el último ID con el máximo recibido
+                    currentUltimoId = Math.max(currentUltimoId, ...data.mensajes.map(m => m.id));
+                    scrollToBottom();
+                }
+            } catch (error) {
+                console.error('Error obteniendo nuevos mensajes:', error);
+            }
+        };
+
+        // Ejecutar inmediatamente y luego cada 3 segundos
+        fetchMensajes();
+        pollingInterval = setInterval(fetchMensajes, 3000);
+    }
 
     // Función cerrar preview actualizada
     function cerrarPreview() {
@@ -223,12 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 cerrarPreview(); // Resetear preview
                 form.reset();
                 if(data.mensaje) {
-                    // Añadir verificación de contenido
-                    if (!data.mensaje.contenido) {
-                        console.error('Mensaje sin contenido:', data.mensaje);
-                        return;
-                    }
                     appendMessage(data.mensaje);
+                    currentUltimoId = data.mensaje.id; // Actualizar último ID aquí
                     scrollToBottom();
                     actualizarListaConversaciones(data.mensaje);
                 }
@@ -297,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isEnviado = mensaje.remitenteId == <?= $_SESSION['id'] ?? 0 ?>;
 
         const messageHtml = `
-            <div class="mensaje mensaje--${isEnviado ? 'enviado' : 'recibido'}">
+            <div class="mensaje mensaje--${isEnviado ? 'enviado' : 'recibido'}" data-id="${mensaje.id}">
                 <div class="mensaje__burbuja ${mensaje.tipo !== 'texto' ? 'mensaje--contenido-especial' : ''}">
                     ${renderContent(mensaje)}
                     <span class="mensaje__fecha">

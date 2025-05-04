@@ -42,7 +42,7 @@ class Mensaje extends ActiveRecord {
                       OR 
                       (remitenteId = '$contactoId' AND destinatarioId = '$usuarioId')
                   )
-                  ORDER BY creado ASC, id ASC"; 
+                  ORDER BY id ASC"; 
     
         return self::consultarSQL($query);
     }
@@ -61,8 +61,7 @@ class Mensaje extends ActiveRecord {
                     OR 
                     (remitenteId = '$contactoId' AND destinatarioId = '$usuarioId')
                 )
-                AND creado >= DATE_SUB(NOW(), INTERVAL 2 HOUR) // Limitar ventana temporal
-                ORDER BY id ASC";  // Cambiar a ORDER BY id ASC para mejor consistencia
+                ORDER BY id ASC";
         
         return self::consultarSQL($query);
     }    
@@ -146,4 +145,16 @@ class Mensaje extends ActiveRecord {
         }
         return $resultado;
     }
+
+    public function toArray() {
+        return [
+            'id' => $this->id,
+            'contenido' => $this->contenido,
+            'tipo' => $this->tipo,
+            'creado' => $this->creado,
+            'remitenteId' => $this->remitenteId,
+            'destinatarioId' => $this->destinatarioId,
+            'productoId' => $this->productoId
+        ];
+    }    
 }

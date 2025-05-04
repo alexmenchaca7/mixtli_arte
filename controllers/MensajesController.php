@@ -116,7 +116,12 @@ class MensajesController {
         include '../views/marketplace/partials/chat.php'; // Asegúrate de que esta vista renderiza los mensajes correctamente
         $html = ob_get_clean();
     
-        echo json_encode(['html' => $html]);
+        $ultimoId = !empty($mensajes) ? end($mensajes)->id : 0;
+    
+        echo json_encode([
+            'html' => $html,
+            'ultimoId' => $ultimoId
+        ]);
         exit();
     }
     
@@ -273,11 +278,12 @@ class MensajesController {
         $ultimoId = $_GET['ultimoId'] ?? 0;
     
         $mensajes = Mensaje::obtenerMensajesNuevos($productoId, $usuarioId, $contactoId, $ultimoId);
-    
+
         echo json_encode([
             'success' => true,
-            'mensajes' => $mensajes,
-            'ultimoId' => end($mensajes)->id ?? $ultimoId
+            'mensajes' => array_map(function($m) {
+                return $m->toArray();
+            }, $mensajes)
         ]);
         exit();
     }
