@@ -13,6 +13,19 @@
 
     <!-- Mensajes -->
     <div class="chat__mensajes" id="mensajes-container">
+        <!-- Mensaje del sistema -->
+        <div class="mensaje-sistema">
+            <div class="mensaje-sistema__contenido">
+                <i class="fa-solid fa-shield-halved mensaje-sistema__icono"></i>
+                <div class="mensaje-sistema__texto">
+                    <strong>Chat seguro con cifrado de extremo a extremo</strong>
+                    <p>• Evite realizar pagos en efectivo en lugares públicos<br>
+                    • No compartimos su información personal<br>
+                    • Mensajes cifrados con protocolo TLS/SSL</p>
+                </div>
+            </div>
+        </div>
+
         <?php foreach($mensajes as $mensaje): ?>
             <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>">
                 <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
