@@ -155,26 +155,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const formChat = document.getElementById('form-chat');
     
     // Cargar conversación al hacer clic en contacto
-    document.querySelectorAll('.contacto').forEach(contacto => {
-        contacto.addEventListener('click', async () => {
-            const productoId = contacto.dataset.productoId;
-            const contactoId = contacto.dataset.contactoId;
-            
-            try {
-                const response = await fetch(`/mensajes/chat?productoId=${productoId}&contactoId=${contactoId}`);
-                const data = await response.json();
-                
-                document.getElementById('chat-activo').innerHTML = data.html;
-                scrollToBottom();
+    document.querySelector('.contactos__lista').addEventListener('click', async (e) => {
+        const contacto = e.target.closest('.contacto');
+        if (!contacto) return;
 
-                // Usar el último ID del servidor
-                currentUltimoId = data.ultimoId;
-                inicializarPolling(productoId, contactoId);
-            } catch (error) {
-                console.error('Error cargando el chat:', error);
-            }
-        });
-    });
+        const productoId = contacto.dataset.productoId;
+        const contactoId = contacto.dataset.contactoId;
+        
+        try {
+            const response = await fetch(`/mensajes/chat?productoId=${productoId}&contactoId=${contactoId}`);
+            const data = await response.json();
+            
+            document.getElementById('chat-activo').innerHTML = data.html;
+            scrollToBottom();
+
+            currentUltimoId = data.ultimoId;
+            inicializarPolling(productoId, contactoId);
+        } catch (error) {
+            console.error('Error cargando el chat:', error);
+        }
+    }); 
 
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'input-archivo') {

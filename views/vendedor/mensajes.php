@@ -6,7 +6,8 @@
             <h2 class="contactos__titulo">Chats</h2>
             <div class="contactos__busqueda">
                 <input type="text" 
-                       class="contactos__campo-busqueda" 
+                       class="contactos__campo-busqueda"
+                       id="input-busqueda"
                        placeholder="Buscar conversaciones...">
                 <i class="fa-solid fa-magnifying-glass contactos__icono-busqueda"></i>
             </div>
@@ -154,26 +155,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const formChat = document.getElementById('form-chat');
     
     // Cargar conversación al hacer clic en contacto
-    document.querySelectorAll('.contacto').forEach(contacto => {
-        contacto.addEventListener('click', async () => {
-            const productoId = contacto.dataset.productoId;
-            const contactoId = contacto.dataset.contactoId;
-            
-            try {
-                const response = await fetch(`/mensajes/chat?productoId=${productoId}&contactoId=${contactoId}`);
-                const data = await response.json();
-                
-                document.getElementById('chat-activo').innerHTML = data.html;
-                scrollToBottom();
+    document.querySelector('.contactos__lista').addEventListener('click', async (e) => {
+        const contacto = e.target.closest('.contacto');
+        if (!contacto) return;
 
-                // Usar el último ID del servidor
-                currentUltimoId = data.ultimoId;
-                inicializarPolling(productoId, contactoId);
-            } catch (error) {
-                console.error('Error cargando el chat:', error);
-            }
-        });
-    });
+        const productoId = contacto.dataset.productoId;
+        const contactoId = contacto.dataset.contactoId;
+        
+        try {
+            const response = await fetch(`/mensajes/chat?productoId=${productoId}&contactoId=${contactoId}`);
+            const data = await response.json();
+            
+            document.getElementById('chat-activo').innerHTML = data.html;
+            scrollToBottom();
+
+            currentUltimoId = data.ultimoId;
+            inicializarPolling(productoId, contactoId);
+        } catch (error) {
+            console.error('Error cargando el chat:', error);
+        }
+    }); 
 
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'input-archivo') {
@@ -270,46 +271,50 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error:', error));
     }
 
-    // Agregar este nuevo método para actualizar conversaciones
-    function actualizarListaConversaciones(nuevoMensaje) {
-        const currentUserId = <?= $_SESSION['id'] ?? 0 ?>;
-        const esVendedor = <?= $_SESSION['rol'] === 'vendedor' ? 'true' : 'false' ?>;
-        
-        // Determinar el contacto correcto
-        const contactoId = nuevoMensaje.remitenteId == currentUserId 
-            ? nuevoMensaje.destinatarioId 
-            : nuevoMensaje.remitenteId;
+    // Método para actualizar conversaciones
+    function actualizarListaConversaciones(conversaciones) {
+        const lista = document.querySelector('.contactos__lista');
+        lista.innerHTML = ''; // Limpiar lista actual
 
-        // Buscar por producto y contacto real
-        const contacto = document.querySelector(`.contacto[data-producto-id="${nuevoMensaje.productoId}"][data-contacto-id="${contactoId}"]`);
-        
-        if (contacto) {
-            const esUsuarioActual = nuevoMensaje.remitenteId == <?= $_SESSION['id'] ?? 0 ?>;
-            const prefix = esUsuarioActual ? 'Tú: ' : '';
-            let contenido = '';
-
-            if (nuevoMensaje.tipo === 'texto') {
-                contenido = nuevoMensaje.contenido.length > 30 
-                    ? prefix + nuevoMensaje.contenido.substring(0, 30) + '...' 
-                    : prefix + nuevoMensaje.contenido;
-            } else {
-                const icono = nuevoMensaje.tipo === 'imagen' 
-                    ? '<i class="fa-regular fa-image"></i>' 
-                    : '<i class="fa-regular fa-file-pdf"></i>';
-                
-                contenido = `${icono} ${prefix}${nuevoMensaje.tipo.charAt(0).toUpperCase() + nuevoMensaje.tipo.slice(1)}`;
-            }
-
-            contacto.querySelector('.mensaje-preview').innerHTML = contenido;
-            contacto.querySelector('.contacto__fecha').textContent = 
-                new Date(nuevoMensaje.creado).toLocaleTimeString('es-MX', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-        } else {
-            // Si es una nueva conversación, recargar la lista completa
-            window.location.reload();
-        }
+        conversaciones.forEach(conv => {
+            const contacto = conv.contacto;
+            const producto = conv.producto;
+            const mensaje = conv.ultimoMensaje;
+            
+            const contactoHTML = `
+                <div class="contacto" 
+                    data-producto-id="${producto.id}"
+                    data-contacto-id="${contacto.id}">
+                    <picture>
+                        <img src="/img/usuarios/${contacto.imagen ? contacto.imagen + '.png' : 'default.png'}" 
+                            alt="${contacto.nombre}"
+                            class="contacto__imagen">
+                    </picture>
+                    <div class="contacto__info">
+                        <div class="contacto__titulo">
+                            <h3>${contacto.nombre} • ${producto.nombre}</h3>
+                        </div>
+                        ${mensaje ? `
+                            <small class="mensaje-preview">
+                                ${mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : ''}
+                                ${mensaje.tipo === 'imagen' ? 
+                                    '<i class="fa-regular fa-image"></i> Imagen' : 
+                                mensaje.tipo === 'documento' ? 
+                                    '<i class="fa-regular fa-file-pdf"></i> Documento' : 
+                                mensaje.contenido.length > 30 ? 
+                                    mensaje.contenido.substring(0, 30) + '...' : 
+                                    mensaje.contenido}
+                            </small>
+                        ` : ''}
+                    </div>
+                    <span class="contacto__fecha">
+                        ${new Date(conv.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                </div>
+            `;
+            
+            lista.insertAdjacentHTML('beforeend', contactoHTML);
+        });
     }
 
     // Auto-scroll al final
@@ -371,6 +376,23 @@ document.addEventListener('DOMContentLoaded', () => {
             default:
                 return mensaje.contenido ? mensaje.contenido : '';
         }
+    }
+
+    const searchInput = document.getElementById('input-busqueda');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', async function(e) {
+            const searchTerm = e.target.value.trim();
+            
+            try {
+                const response = await fetch(`/mensajes/buscar?term=${encodeURIComponent(searchTerm)}`);
+                const data = await response.json();
+                
+                actualizarListaConversaciones(data.conversaciones);
+            } catch (error) {
+                console.error('Error buscando conversaciones:', error);
+            }
+        });
     }
 
     // Usar delegación de eventos para el formulario
