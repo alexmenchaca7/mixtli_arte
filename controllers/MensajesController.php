@@ -287,4 +287,49 @@ class MensajesController {
         ]);
         exit();
     }
+
+    public static function buscarConversaciones(Router $router) {
+        if (!is_auth()) {
+            http_response_code(401);
+            exit(json_encode(['error' => 'No autenticado']));
+        }
+    
+        $termino = $_GET['term'] ?? '';
+        $usuarioId = $_SESSION['id'];
+    
+        $conversacionesIds = Mensaje::buscarEnConversaciones($usuarioId, $termino);
+        
+        $conversacionesCompletas = [];
+        foreach ($conversacionesIds as $conv) {
+            // Validar IDs antes de buscar
+            if(empty($conv['contactoId']) || empty($conv['productoId'])) {
+                continue; // Saltar entradas inválidas
+            }
+
+            $contacto = Usuario::find($conv['contactoId']);
+            $producto = Producto::find($conv['productoId']);
+
+            if (!$contacto || !$producto) {
+                continue; // Saltar si no existen
+            }
+            
+            if ($contacto && $producto) {
+                $ultimoMensaje = Mensaje::obtenerUltimoMensajeConversacion(
+                    $conv['productoId'],
+                    $usuarioId,
+                    $conv['contactoId']
+                );
+                
+                $conversacionesCompletas[] = [
+                    'contacto' => $contacto,
+                    'producto' => $producto,
+                    'ultimoMensaje' => $ultimoMensaje,
+                    'fecha' => $ultimoMensaje->creado ?? date('Y-m-d H:i:s')
+                ];
+            }
+        }
+    
+        echo json_encode(['conversaciones' => $conversacionesCompletas]);
+        exit();
+    }
 }

@@ -73,6 +73,7 @@ $router->post('/mensajes/enviar', [MensajesController::class, 'enviar']);
 $router->post('/mensajes/upload', [MensajesController::class, 'subirArchivo']);
 $router->get('/mensajes/chat', [MensajesController::class, 'chat']);
 $router->get('/mensajes/nuevos', [MensajesController::class, 'obtenerNuevosMensajes']);
+$router->get('/mensajes/buscar', [MensajesController::class, 'buscarConversaciones']);
 
 
 

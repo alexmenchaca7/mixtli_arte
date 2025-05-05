@@ -129,6 +129,10 @@ class ActiveRecord {
 
     // Busca un registro por su ID
     public static function find($id) {
+        if (!$id || !is_numeric($id)) { // Validar ID
+            return null;
+        }
+        
         $query = "SELECT * FROM " . static::$tabla . " WHERE id = $id";
         $resultado = self::consultarSQL($query);
         return array_shift($resultado); // Retorna el primer objeto del arreglo de objetos

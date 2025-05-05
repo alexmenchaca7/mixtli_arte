@@ -136,7 +136,87 @@ class Mensaje extends ActiveRecord {
         }
         
         return array_values($conversaciones);
-    } 
+    }
+
+    public static function buscarEnConversaciones($usuarioId, $termino) {
+        $usuarioId = self::$conexion->escape_string($usuarioId);
+        $termino = self::$conexion->escape_string("%$termino%");
+    
+        $query = "SELECT DISTINCT m.productoId, 
+                    CASE 
+                        WHEN m.remitenteId = '$usuarioId' THEN m.destinatarioId
+                        ELSE m.remitenteId
+                    END AS contactoId
+                  FROM mensajes m
+                  INNER JOIN productos p ON m.productoId = p.id
+                  INNER JOIN usuarios u ON (m.remitenteId = u.id OR m.destinatarioId = u.id)
+                  WHERE (m.contenido LIKE '$termino'
+                         OR p.nombre LIKE '$termino'
+                         OR u.nombre LIKE '$termino')
+                    AND (m.remitenteId = '$usuarioId' 
+                         OR m.destinatarioId = '$usuarioId'
+                         OR p.usuarioId = '$usuarioId')";
+
+        $resultado = self::$conexion->query($query); // Ejecutar directamente
+        
+        $conversaciones = [];
+        if($resultado) {
+            while($fila = $resultado->fetch_assoc()) { // Leer como array asociativo
+                $conversaciones[] = [
+                    'productoId' => $fila['productoId'],
+                    'contactoId' => $fila['contactoId']
+                ];
+            }
+            $resultado->free();
+        }
+        
+        return $conversaciones;
+    }
+
+    public static function buscarMensajes($usuarioId, $termino) {
+        $usuarioId = self::$conexion->escape_string($usuarioId);
+        $termino = self::$conexion->escape_string("%$termino%");
+    
+        $query = "SELECT m.id as mensajeId, m.productoId, 
+                    CASE 
+                        WHEN m.remitenteId = '$usuarioId' THEN m.destinatarioId
+                        ELSE m.remitenteId
+                    END AS contactoId
+                  FROM mensajes m
+                  INNER JOIN productos p ON m.productoId = p.id
+                  INNER JOIN usuarios u ON (m.remitenteId = u.id OR m.destinatarioId = u.id)
+                  WHERE (m.contenido LIKE '$termino'
+                         OR p.nombre LIKE '$termino'
+                         OR u.nombre LIKE '$termino')
+                    AND (m.remitenteId = '$usuarioId' 
+                         OR m.destinatarioId = '$usuarioId'
+                         OR p.usuarioId = '$usuarioId')";
+    
+        $resultado = self::$conexion->query($query);
+        
+        $resultados = [];
+        while($fila = $resultado->fetch_assoc()) {
+            $resultados[] = $fila;
+        }
+        
+        return $resultados;
+    }
+
+    // Helper
+    public static function obtenerUltimoMensajeConversacion($productoId, $usuarioId, $contactoId) {
+        $query = "SELECT * FROM mensajes 
+                  WHERE productoId = '$productoId' 
+                  AND (
+                      (remitenteId = '$usuarioId' AND destinatarioId = '$contactoId') 
+                      OR 
+                      (remitenteId = '$contactoId' AND destinatarioId = '$usuarioId')
+                  )
+                  ORDER BY id DESC
+                  LIMIT 1";
+        
+        $result = self::consultarSQL($query);
+        return $result[0] ?? null;
+    }
     
     public function guardar() {
         $resultado = parent::guardar();
