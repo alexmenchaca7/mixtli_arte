@@ -82,7 +82,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <?php foreach($mensajes as $mensaje): ?>
                     <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
                         <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
@@ -277,7 +277,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     appendMessage(data.mensaje);
                     currentUltimoId = data.mensaje.id; // Actualizar último ID aquí
                     scrollToBottom();
-                    actualizarListaConversaciones(data.mensaje);
+
+                    // Obtener conversaciones actualizadas del servidor
+                    fetch(`/mensajes/buscar?term=`)
+                        .then(response => response.json())
+                        .then(data => {
+                            actualizarListaConversaciones(data.conversaciones);
+                        })
+                        .catch(error => console.error('Error actualizando conversaciones:', error));
                 }
             }
         })

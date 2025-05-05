@@ -277,7 +277,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     appendMessage(data.mensaje);
                     currentUltimoId = data.mensaje.id; // Actualizar último ID aquí
                     scrollToBottom();
-                    actualizarListaConversaciones(data.mensaje);
+
+                    // Obtener conversaciones actualizadas del servidor
+                    fetch(`/mensajes/buscar?term=`)
+                        .then(response => response.json())
+                        .then(data => {
+                            actualizarListaConversaciones(data.conversaciones);
+                        })
+                        .catch(error => console.error('Error actualizando conversaciones:', error));
                 }
             }
         })
