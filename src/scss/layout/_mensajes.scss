@@ -349,10 +349,12 @@
     &__burbuja {
         display: flex;
         flex-direction: column;
-        margin-bottom: 0.5rem;
         max-width: 70%;
+        min-width: 8rem;
         padding: 1rem 1.5rem;
         border-radius: 2rem;
+        word-wrap: break-word; // Romper palabras largas
+        overflow-wrap: anywhere; // Forzar ruptura en cualquier parte
     }
 
     &__fecha {

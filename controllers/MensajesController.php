@@ -20,6 +20,9 @@ class MensajesController {
         $mensajes = [];
         $productoChat = null;
         $contactoChat = null;
+        $vendedor = null;
+        $direccionComercial = [];
+
     
         // Si hay parámetros de chat en la URL
         if(isset($_GET['productoId']) && isset($_GET['contactoId'])) {
@@ -36,6 +39,9 @@ class MensajesController {
             if($conversacion) {
                 $productoChat = $conversacion['producto'];
                 $contactoChat = $conversacion['contacto'];
+                $vendedor = Usuario::find($productoChat->usuarioId);
+                $direccionComercial = $vendedor->obtenerDireccionComercial();
+
                 $mensajes = $conversacion['mensajes'];
             }
         }
@@ -75,7 +81,7 @@ class MensajesController {
                 'conversaciones' => $conversacionesCompletas,
                 'mensajes' => $mensajes,
                 'productoChat' => $productoChat,
-                'contactoChat' => $contactoChat
+                'contactoChat' => $contactoChat,
             ], 'layout');
         } else if ($rol === 'vendedor') {
             $router->render('vendedor/mensajes', [
@@ -83,7 +89,9 @@ class MensajesController {
                 'conversaciones' => $conversacionesCompletas,
                 'mensajes' => $mensajes,
                 'productoChat' => $productoChat,
-                'contactoChat' => $contactoChat
+                'contactoChat' => $contactoChat,
+                'vendedor' => $vendedor ?? new Usuario(),
+                'direccionComercial' => $direccionComercial ?? []
             ], 'vendedor-layout');
         }
     }
@@ -109,11 +117,28 @@ class MensajesController {
         // Variables para la vista
         $productoChat = $conversacion['producto'];
         $contactoChat = $conversacion['contacto'];
+
+        // Obtener el vendedor (dueño del producto)
+        $vendedor = Usuario::find($productoChat->usuarioId);
+        $direccionComercial = $vendedor->obtenerDireccionComercial();
+        
         $mensajes = $conversacion['mensajes']; 
     
         // Renderizar solo la parte del chat
         ob_start();
-        include '../views/marketplace/partials/chat.php'; // Asegúrate de que esta vista renderiza los mensajes correctamente
+        extract([
+            'productoChat' => $productoChat,
+            'contactoChat' => $contactoChat,
+            'vendedor' => $vendedor,
+            'direccionComercial' => $direccionComercial,
+            'mensajes' => $mensajes
+        ]);
+        
+        if ($_SESSION['rol'] === 'comprador') {
+            include '../views/marketplace/partials/chat.php'; // Vista para compradores
+        } else if ($_SESSION['rol'] === 'vendedor') {
+            include '../views/vendedor/partials/chat.php'; // Vista para vendedores
+        }
         $html = ob_get_clean();
     
         $ultimoId = !empty($mensajes) ? end($mensajes)->id : 0;
@@ -140,11 +165,17 @@ class MensajesController {
             $mensajeTexto = trim($_POST['mensaje'] ?? '');
             $productoId = $_POST['productoId'] ?? '';
             $destinatarioId = $_POST['destinatarioId'] ?? '';
+            $tipo = $_POST['tipo'] ?? 'texto';
     
             // Validar datos
             $errores = [];
-            
-            if (empty($mensajeTexto)) {
+
+            // Validación simplificada para contacto
+            if ($tipo === 'contacto') {
+                $mensajeTexto = filter_var($mensajeTexto, FILTER_UNSAFE_RAW); // Permitir JSON
+            }
+
+            if (empty($mensajeTexto) && !isset($_FILES['archivo'])) {
                 $errores[] = 'El mensaje no puede estar vacío';
             }
     
@@ -153,9 +184,13 @@ class MensajesController {
             }
     
             if (empty($errores)) {
+                // Detectar si es un mensaje de contacto
+                $esContacto = json_decode($mensajeTexto, true);
+                $esFormatoValido = $esContacto && isset($esContacto['tipo']) && $esContacto['tipo'] === 'contacto';
+    
                 $args = [
-                    'contenido' => $mensajeTexto,
-                    'tipo' => 'texto',
+                    'contenido' => json_encode($esContacto, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                    'tipo' => $tipo, 
                     'remitenteId' => $usuarioId,
                     'destinatarioId' => $destinatarioId,
                     'productoId' => $productoId
@@ -165,22 +200,20 @@ class MensajesController {
                 $resultado = $mensaje->guardar();
                 
                 if ($resultado) {
-                    // Obtener el mensaje recién creado desde la base de datos
                     $mensajeGuardado = Mensaje::find($mensaje->id);
-    
-                    // Devolver el mensaje completo con todos los datos
+                
                     echo json_encode([
                         'success' => true,
                         'mensaje' => [
                             'id' => $mensajeGuardado->id,
-                            'contenido' => $mensajeGuardado->contenido,
+                            'contenido' => $mensajeGuardado->contenido, 
                             'tipo' => $mensajeGuardado->tipo,
                             'creado' => $mensajeGuardado->creado,
                             'remitenteId' => $mensajeGuardado->remitenteId,
                             'destinatarioId' => $mensajeGuardado->destinatarioId,
                             'productoId' => $mensajeGuardado->productoId
                         ]
-                    ]);
+                    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                     exit();
                 }
             }

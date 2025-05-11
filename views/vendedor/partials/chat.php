@@ -27,19 +27,19 @@
         </div>
 
         <?php foreach($mensajes as $mensaje): ?>
-            <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>">
+            <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
                 <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
                     <?php switch($mensaje->tipo):
                         case 'imagen': ?>
                             <picture>
                                 <source srcset="<?= $mensaje->contenido ?>.webp" type="image/webp">
-                                <img loading="lazy" src="<?= $mensaje->contenido ?>" 
+                                <img loading="lazy" src="/mensajes/img/<?= $mensaje->contenido ?>" 
                                         class="mensaje__imagen" 
                                         alt="Imagen enviada">
                             </picture>
                         <?php break; ?>
                         <?php case 'documento': ?>
-                            <a href="<?= $mensaje->contenido ?>" 
+                            <a href="/mensajes/pdf/<?= $mensaje->contenido ?>" 
                                 class="mensaje__documento"
                                 download>
                                 <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
@@ -51,8 +51,13 @@
                             </a>
                         <?php break; ?>
                         <?php case 'contacto': 
+                            // Limpiar escapes y parsear
                             $contenidoLimpio = stripslashes($mensaje->contenido);
                             $contactoData = json_decode($contenidoLimpio);
+                            
+                            if (json_last_error() !== JSON_ERROR_NONE) {
+                                $contactoData = null; // Manejar error si es necesario
+                            }
                             ?>
                             <div class="mensaje__contacto-info">
                                 <?php if ($contactoData && isset($contactoData->direccion) && isset($contactoData->direccion->calle)): ?>
@@ -90,6 +95,13 @@
     <form class="chat__entrada" id="form-chat" enctype="multipart/form-data">
         <input type="hidden" name="productoId" value="<?= $productoChat->id ?>">
         <input type="hidden" name="destinatarioId" value="<?= $contactoChat->id ?>">
+        <input type="hidden" id="vendedorId" value="<?= $productoChat->usuarioId ?>">
+        <input type="hidden" name="tipo" id="input-tipo" value="texto">
+
+        <!-- Campos ocultos con datos del VENDEDOR -->
+        <input type="hidden" id="vendedorTelefono" value="<?= $vendedor->telefono ?? '' ?>">
+        <input type="hidden" id="vendedorEmail" value="<?= $vendedor->email ?? '' ?>">
+        <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial ?? []), ENT_QUOTES) ?>">
 
         <div class="preview-archivo" id="preview-archivo">
             <div class="preview-archivo-contenido">
@@ -109,6 +121,10 @@
                     accept="image/*,.pdf"
                     name="archivo"
                     id="input-archivo">
+        </button>
+
+        <button type="button" class="chat__contacto" id="btn-contacto">
+            <i class="fa-regular fa-address-card"></i>
         </button>
         
         <input type="text" 

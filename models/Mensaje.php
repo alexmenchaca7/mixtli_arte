@@ -23,7 +23,7 @@ class Mensaje extends ActiveRecord {
         date_default_timezone_set('America/Mexico_City'); // Establecer zona horaria de México
         $this->id = $args['id'] ?? NULL;
         $this->contenido = $args['contenido'] ?? '';
-        $this->tipo = $args['tipo'] ?? '';
+        $this->tipo = $args['tipo'] ?? 'texto';
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
         $this->remitenteId = $args['remitenteId'] ?? '';
         $this->destinatarioId = $args['destinatarioId'] ?? '';
@@ -69,6 +69,7 @@ class Mensaje extends ActiveRecord {
     public static function obtenerConversacionActual($productoId, $usuarioId, $contactoId) {
         $producto = Producto::find($productoId);
         $contacto = Usuario::find($contactoId);
+        $direccionComercial = $contacto->obtenerDireccionComercial();
         
         if(!$producto || !$contacto) {
             return null;
@@ -77,6 +78,7 @@ class Mensaje extends ActiveRecord {
         return [
             'producto' => $producto,
             'contacto' => $contacto,
+            'direccionComercial' => $direccionComercial,
             'mensajes' => self::obtenerMensajesChat($productoId, $usuarioId, $contactoId)
         ];
     }

@@ -94,7 +94,7 @@
                                              class="mensaje__imagen" 
                                              alt="Imagen enviada">
                                     </picture>
-                                    <?php break; ?>
+                                <?php break; ?>
                                 <?php case 'documento': ?>
                                     <a href="/mensajes/pdf/<?= $mensaje->contenido ?>" 
                                        class="mensaje__documento"
@@ -106,7 +106,37 @@
                                             </div>
                                         </div>
                                     </a>
-                                    <?php break; ?>
+                                <?php break; ?>
+                                <?php case 'contacto': 
+                                    // Limpiar escapes y parsear
+                                    $contenidoLimpio = stripslashes($mensaje->contenido);
+                                    $contactoData = json_decode($contenidoLimpio);
+                                    
+                                    if (json_last_error() !== JSON_ERROR_NONE) {
+                                        $contactoData = null; // Manejar error si es necesario
+                                    }
+                                    ?>
+                                    <div class="mensaje__contacto-info">
+                                        <?php if ($contactoData && isset($contactoData->direccion) && isset($contactoData->direccion->calle)): ?>
+                                            <div class="mensaje__contacto-item">
+                                                <i class="fa-solid fa-map-marker-alt"></i>
+                                                <span><?= htmlspecialchars($contactoData->direccion->calle) ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if ($contactoData && !empty($contactoData->telefono)): ?>
+                                            <div class="mensaje__contacto-item">
+                                                <i class="fa-solid fa-phone"></i>
+                                                <span><?= htmlspecialchars($contactoData->telefono) ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if ($contactoData && !empty($contactoData->email)): ?>
+                                            <div class="mensaje__contacto-item">
+                                                <i class="fa-solid fa-envelope"></i>
+                                                <span><?= htmlspecialchars($contactoData->email) ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php break; ?>
                                 <?php default: ?>
                                     <?= htmlspecialchars($mensaje->contenido) ?>
                             <?php endswitch; ?>
@@ -122,6 +152,13 @@
             <form class="chat__entrada" id="form-chat" enctype="multipart/form-data">
                 <input type="hidden" name="productoId" value="<?= $productoChat->id ?>">
                 <input type="hidden" name="destinatarioId" value="<?= $contactoChat->id ?>">
+                <input type="hidden" id="vendedorId" value="<?= $productoChat->usuarioId ?>">
+                <input type="hidden" name="tipo" id="input-tipo" value="texto">
+
+                <!-- Campos ocultos con datos del VENDEDOR -->
+                <input type="hidden" id="vendedorTelefono" value="<?= $vendedor->telefono ?? '' ?>">
+                <input type="hidden" id="vendedorEmail" value="<?= $vendedor->email ?? '' ?>">
+                <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial ?? []), ENT_QUOTES) ?>">
 
                 <div class="preview-archivo" id="preview-archivo">
                     <div class="preview-archivo-contenido">
@@ -141,6 +178,10 @@
                            accept="image/*,.pdf"
                            name="archivo"
                            id="input-archivo">
+                </button>
+
+                <button type="button" class="chat__contacto" id="btn-contacto">
+                    <i class="fa-regular fa-address-card"></i>
                 </button>
                 
                 <input type="text" 
@@ -212,6 +253,74 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.addEventListener('click', (e) => {
+        // Corregir detección del botón
+        const btnContacto = e.target.closest('#btn-contacto');
+        if (!btnContacto) return;
+
+        const direccionComercialInput = document.getElementById('direccionComercial');
+        const direcciones = JSON.parse(direccionComercialInput.value) || []; 
+        const telefono = document.getElementById('vendedorTelefono').value.trim();
+        const email = document.getElementById('vendedorEmail').value.trim();
+        const direccion = direcciones.length > 0 ? direcciones[0] : {};
+
+        // Validar estructura mínima
+        const contactoData = {
+            tipo: 'contacto',
+            direccion: direccion && direccion.calle ? direccion : null,
+            telefono: telefono,
+            email: email
+        };
+
+        console.log('Datos a enviar:', contactoData); // Verificar en consola
+
+        // Configurar el formulario
+        const form = document.getElementById('form-chat');
+        const formData = new FormData(form);
+        
+        // Establecer valores específicos para contacto
+        formData.set('tipo', 'contacto');
+        formData.set('mensaje', JSON.stringify(contactoData));
+
+        // Realizar petición
+        fetch('/mensajes/enviar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error en la respuesta');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Restablecer valores
+                document.getElementById('input-tipo').value = 'texto';
+                form.reset();
+                
+                // Agregar mensaje al chat
+                if(data.mensaje) {
+                    appendMessage(data.mensaje);
+                    currentUltimoId = data.mensaje.id;
+                    scrollToBottom();
+
+                    // Actualizar lista de conversaciones
+                    fetch(`/mensajes/buscar?term=`)
+                        .then(response => response.json())
+                        .then(data => actualizarListaConversaciones(data.conversaciones))
+                        .catch(error => console.error('Error actualizando conversaciones:', error));
+                }
+            } else {
+                console.error('Error del servidor:', data.errores);
+            }
+        })
+        .catch(error => {
+            console.error('Error en la petición:', error);
+            // Restablecer tipo en caso de error
+            document.getElementById('input-tipo').value = 'texto';
+        });
+    });
+
+
     function inicializarPolling(productoId, contactoId) {
         if (pollingInterval) clearInterval(pollingInterval);
         
@@ -257,14 +366,21 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
+
+        // Restablecer tipo a 'texto' después de enviar
+        document.getElementById('input-tipo').value = 'texto';
+
+        // Obtener el archivo y validar sin errores
+        const archivo = formData.get('archivo');
+        const tieneArchivo = archivo && archivo.size > 0;
         
         // Validar que haya contenido
-        if (!formData.get('mensaje') && !formData.get('archivo').size > 0) {
+        if (!formData.get('mensaje') && !tieneArchivo) {
             return;
         }
 
         // Enviar la solicitud
-        fetch(formData.get('archivo').size > 0 ? '/mensajes/upload' : '/mensajes/enviar', {
+        fetch(tieneArchivo ? '/mensajes/upload' : '/mensajes/enviar', {
             method: 'POST',
             body: formData
         })
@@ -370,6 +486,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderContent(mensaje) {
+        if (mensaje.tipo === 'contacto') {
+            console.log('Contenido crudo:', mensaje.contenido);
+            try {
+                // Paso 1: Eliminar TODOS los escapes
+                const contenidoLimpio = mensaje.contenido
+                    .replace(/\\"/g, '"')  // Remover \" por "
+                    .replace(/\\\\/g, '\\'); // Remover \\ por \
+
+                // Paso 2: Parsear el JSON limpio
+                const contactoData = JSON.parse(contenidoLimpio);
+                
+                // Generar HTML
+                let html = `<div class="mensaje__contacto-info">`;
+                
+                if (contactoData.direccion?.calle) {
+                    html += `
+                        <div class="mensaje__contacto-item">
+                            <i class="fa-solid fa-map-marker-alt"></i>
+                            <span>${contactoData.direccion.calle}</span>
+                        </div>`;
+                }
+
+                if (contactoData.telefono) {
+                    html += `
+                        <div class="mensaje__contacto-item">
+                            <i class="fa-solid fa-phone"></i>
+                            <span>${contactoData.telefono}</span>
+                        </div>`;
+                }
+
+                if (contactoData.email) {
+                    html += `
+                        <div class="mensaje__contacto-item">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>${contactoData.email}</span>
+                        </div>`;
+                }
+
+                return html + `</div>`;
+            } catch (e) {
+                console.error('Error al parsear contacto:', e);
+                return 'Información de contacto no válida';
+            }
+        }
+
         switch(mensaje.tipo) {
             case 'imagen':
                 return `

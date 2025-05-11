@@ -203,4 +203,11 @@ class Usuario extends ActiveRecord {
              rol LIKE '%$termino%')"
         ];
     }
+
+    public function obtenerDireccionComercial() {
+        return Direccion::whereArray([
+            'usuarioId' => $this->id,
+            'tipo' => 'comercial'
+        ]);
+    }    
 }
