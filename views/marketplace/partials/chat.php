@@ -27,25 +27,25 @@
         </div>
 
         <?php foreach($mensajes as $mensaje): ?>
-            <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>">
+            <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
                 <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
                     <?php switch($mensaje->tipo):
                         case 'imagen': ?>
                             <picture>
-                                <source srcset="<?= $mensaje->contenido ?>.webp" type="image/webp">
-                                <img loading="lazy" src="<?= $mensaje->contenido ?>" 
-                                        class="mensaje__imagen" 
-                                        alt="Imagen enviada">
+                                <img loading="lazy" src="/<?= htmlspecialchars($mensaje->contenido) ?>" 
+                                    class="mensaje__imagen" 
+                                    alt="Imagen enviada">
                             </picture>
                         <?php break; ?>
+
                         <?php case 'documento': ?>
-                            <a href="<?= $mensaje->contenido ?>" 
-                                class="mensaje__documento"
-                                download>
+                            <a href="/<?= htmlspecialchars($mensaje->contenido) ?>" 
+                            class="mensaje__documento"
+                            download> 
                                 <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
                                 <div class="mensaje__archivo-info">
                                     <div class="mensaje__nombre-archivo">
-                                        <?= basename($mensaje->contenido) ?>
+                                        <?= htmlspecialchars(basename($mensaje->contenido)) ?>
                                     </div>
                                 </div>
                             </a>
@@ -53,27 +53,44 @@
                         <?php case 'contacto': 
                             $contenidoLimpio = stripslashes($mensaje->contenido);
                             $contactoData = json_decode($contenidoLimpio);
-                            ?>
+                            
+                            if (json_last_error() === JSON_ERROR_NONE):
+                        ?>
                             <div class="mensaje__contacto-info">
-                                <?php if ($contactoData && isset($contactoData->direccion) && isset($contactoData->direccion->calle)): ?>
+                                <?php if (!empty($contactoData->direccion)): ?>
                                     <div class="mensaje__contacto-item">
                                         <i class="fa-solid fa-map-marker-alt"></i>
-                                        <span><?= htmlspecialchars($contactoData->direccion->calle) ?></span>
+                                        <span>
+                                            <?= htmlspecialchars($contactoData->direccion->calle) ?>
+                                            <?= !empty($contactoData->direccion->colonia) ? ', ' . htmlspecialchars($contactoData->direccion->colonia) : '' ?>
+                                        </span>
                                     </div>
+                                    <?php if (!empty($contactoData->direccion->ciudad) || !empty($contactoData->direccion->estado) || !empty($contactoData->direccion->codigo_postal)): ?>
+                                        <div class="direccion-completa">
+                                            <?= htmlspecialchars($contactoData->direccion->ciudad) ?>
+                                            <?= !empty($contactoData->direccion->estado) ? ', ' . htmlspecialchars($contactoData->direccion->estado) : '' ?>
+                                            <?= !empty($contactoData->direccion->codigo_postal) ? ' • ' . htmlspecialchars($contactoData->direccion->codigo_postal) : '' ?>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php endif; ?>
-                                <?php if ($contactoData && !empty($contactoData->telefono)): ?>
+                                
+                                <?php if (!empty($contactoData->telefono)): ?>
                                     <div class="mensaje__contacto-item">
                                         <i class="fa-solid fa-phone"></i>
                                         <span><?= htmlspecialchars($contactoData->telefono) ?></span>
                                     </div>
                                 <?php endif; ?>
-                                <?php if ($contactoData && !empty($contactoData->email)): ?>
+                                
+                                <?php if (!empty($contactoData->email)): ?>
                                     <div class="mensaje__contacto-item">
                                         <i class="fa-solid fa-envelope"></i>
                                         <span><?= htmlspecialchars($contactoData->email) ?></span>
                                     </div>
                                 <?php endif; ?>
                             </div>
+                        <?php else: ?>
+                            <div class="error-datos">Información de contacto no válida</div>
+                        <?php endif; ?>
                         <?php break; ?>
                         <?php default: ?>
                             <?= htmlspecialchars($mensaje->contenido) ?>
@@ -90,6 +107,13 @@
     <form class="chat__entrada" id="form-chat" enctype="multipart/form-data">
         <input type="hidden" name="productoId" value="<?= $productoChat->id ?>">
         <input type="hidden" name="destinatarioId" value="<?= $contactoChat->id ?>">
+        <input type="hidden" id="vendedorId" value="<?= $productoChat->usuarioId ?>">
+        <input type="hidden" name="tipo" id="input-tipo" value="texto">
+
+        <!-- Campos ocultos con datos del VENDEDOR -->
+        <input type="hidden" id="vendedorTelefono" value="<?= $vendedor->telefono ?? '' ?>">
+        <input type="hidden" id="vendedorEmail" value="<?= $vendedor->email ?? '' ?>">
+        <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial ?? []), ENT_QUOTES) ?>">
 
         <div class="preview-archivo" id="preview-archivo">
             <div class="preview-archivo-contenido">

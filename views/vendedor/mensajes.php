@@ -89,20 +89,20 @@
                             <?php switch($mensaje->tipo):
                                 case 'imagen': ?>
                                     <picture>
-                                        <source srcset="<?= $mensaje->contenido ?>.webp" type="image/webp">
-                                        <img loading="lazy" src="/mensajes/img/<?= $mensaje->contenido ?>" 
-                                             class="mensaje__imagen" 
-                                             alt="Imagen enviada">
+                                        <img loading="lazy" src="/<?= htmlspecialchars($mensaje->contenido) ?>" 
+                                            class="mensaje__imagen" 
+                                            alt="Imagen enviada">
                                     </picture>
                                 <?php break; ?>
+
                                 <?php case 'documento': ?>
-                                    <a href="/mensajes/pdf/<?= $mensaje->contenido ?>" 
-                                       class="mensaje__documento"
-                                       download>
+                                    <a href="/<?= htmlspecialchars($mensaje->contenido) ?>" 
+                                    class="mensaje__documento"
+                                    download>
                                         <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
                                         <div class="mensaje__archivo-info">
                                             <div class="mensaje__nombre-archivo">
-                                                <?= basename($mensaje->contenido) ?>
+                                                <?= htmlspecialchars(basename($mensaje->contenido)) ?>
                                             </div>
                                         </div>
                                     </a>
@@ -158,7 +158,7 @@
                 <!-- Campos ocultos con datos del VENDEDOR -->
                 <input type="hidden" id="vendedorTelefono" value="<?= $vendedor->telefono ?? '' ?>">
                 <input type="hidden" id="vendedorEmail" value="<?= $vendedor->email ?? '' ?>">
-                <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial ?? []), ENT_QUOTES) ?>">
+                <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial[0] ?? []), ENT_QUOTES) ?>">
 
                 <div class="preview-archivo" id="preview-archivo">
                     <div class="preview-archivo-contenido">
@@ -207,6 +207,12 @@ let currentUltimoId = 0;
 document.addEventListener('DOMContentLoaded', () => {
     const chatActivo = document.getElementById('chat-activo');
     const formChat = document.getElementById('form-chat');
+
+    let sidebarPollingInterval;
+    const SIDEBAR_POLLING_RATE = 7000; // Consultar cada 7 segundos (ajusta según necesidad)
+
+    // Iniciar el polling para la barra lateral cuando la página carga
+    inicializarSidebarPolling();
     
     // Cargar conversación al hacer clic en contacto
     document.querySelector('.contactos__lista').addEventListener('click', async (e) => {
@@ -320,6 +326,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    function inicializarSidebarPolling() {
+        if (sidebarPollingInterval) clearInterval(sidebarPollingInterval);
+
+        const fetchListaConversaciones = async () => {
+            try {
+                // Solo hacer fetch si la ventana está visible para ahorrar recursos
+                if (document.hidden) {
+                    return;
+                }
+                const response = await fetch('/mensajes/lista-conversaciones');
+                if (!response.ok) {
+                    // Si no está autenticado o hay otro error, detener el polling
+                    if (response.status === 401 || response.status === 403) {
+                        clearInterval(sidebarPollingInterval);
+                        console.warn('Polling de sidebar detenido por error de autenticación o autorización.');
+                    }
+                    throw new Error(`Error en la respuesta del servidor: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.conversaciones) {
+                    actualizarListaConversaciones(data.conversaciones);
+                }
+            } catch (error) {
+                console.error('Error obteniendo lista de conversaciones para sidebar:', error);
+                // Podrías querer detener el polling aquí también si el error es persistente
+                // clearInterval(sidebarPollingInterval);
+            }
+        };
+
+        // Ejecutar inmediatamente la primera vez
+        fetchListaConversaciones();
+        // Luego, establecer el intervalo
+        sidebarPollingInterval = setInterval(fetchListaConversaciones, SIDEBAR_POLLING_RATE);
+    }
+
 
     function inicializarPolling(productoId, contactoId) {
         if (pollingInterval) clearInterval(pollingInterval);
@@ -339,8 +381,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                     // Actualizar el último ID con el máximo recibido
-                    currentUltimoId = Math.max(currentUltimoId, ...data.mensajes.map(m => m.id));
+                    currentUltimoId = Math.max(...data.mensajes.map(m => m.id), currentUltimoId);
                     scrollToBottom();
+
+                    // Actualizar lista de conversaciones
+                    fetch(`/mensajes/buscar?term=`)
+                        .then(response => response.json())
+                        .then(data => actualizarListaConversaciones(data.conversaciones))
+                        .catch(error => console.error('Error actualizando conversaciones:', error));
                 }
             } catch (error) {
                 console.error('Error obteniendo nuevos mensajes:', error);
@@ -410,12 +458,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // Método para actualizar conversaciones
     function actualizarListaConversaciones(conversaciones) {
         const lista = document.querySelector('.contactos__lista');
+        if (!lista) return; // Salir si no se encuentra la lista
         lista.innerHTML = ''; // Limpiar lista actual
+
+        // Ordenar conversaciones por fecha más reciente primero
+        // conversaciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Opcional si el backend ya ordena
 
         conversaciones.forEach(conv => {
             const contacto = conv.contacto;
             const producto = conv.producto;
             const mensaje = conv.ultimoMensaje;
+
+            let preview = '';
+            if (mensaje) {
+                const prefix = mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : '';
+                
+                if (mensaje.tipo === 'contacto') {
+                    // Para el preview de 'contacto', podrías necesitar parsear el contenido si es un JSON string
+                    // o simplemente mostrar un texto genérico como antes.
+                    // Por simplicidad, si el backend ya no lo procesa, hacemos un texto genérico.
+                    let contenidoContacto = mensaje.contenido;
+                    try {
+                        // Si el contenido es un string JSON, intenta parsearlo
+                        if (typeof contenidoContacto === 'string') {
+                            const parsedContent = JSON.parse(stripslashes(contenidoContacto)); // stripslashes por si acaso
+                            if (parsedContent && parsedContent.direccion && parsedContent.direccion.calle) {
+                                contenidoContacto = `${parsedContent.direccion.calle}`;
+                                if(parsedContent.direccion.colonia) contenidoContacto += `, ${parsedContent.direccion.colonia}`;
+                            } else {
+                                contenidoContacto = "Información de contacto"; // Fallback
+                            }
+                        } else if (typeof contenidoContacto === 'object' && contenidoContacto !== null) {
+                            // Si ya es un objeto (por ejemplo, si toArray() lo devuelve así)
+                            if (contenidoContacto.direccion && contenidoContacto.direccion.calle) {
+                                contenidoContacto = `${contenidoContacto.direccion.calle}`;
+                                if(contenidoContacto.direccion.colonia) contenidoContacto += `, ${contenidoContacto.direccion.colonia}`;
+                            } else {
+                                 contenidoContacto = "Información de contacto"; // Fallback
+                            }
+                        } else {
+                             contenidoContacto = "Información de contacto"; // Fallback
+                        }
+
+                    } catch(e) {
+                        console.warn("Error parsing contact preview:", e, mensaje.contenido);
+                        contenidoContacto = "Información de contacto"; // Fallback
+                    }
+                    preview = `${prefix}📌 ${ (contenidoContacto.length > 20) ? (contenidoContacto.substring(0, 20) + '...') : contenidoContacto }`;
+
+                } else if (mensaje.tipo === 'imagen') {
+                    preview = `${prefix}<i class="fa-regular fa-image"></i> Imagen`;
+                } else if (mensaje.tipo === 'documento') {
+                    preview = `${prefix}<i class="fa-regular fa-file-pdf"></i> Documento`;
+                } else {
+                    preview = prefix + ((mensaje.contenido.length > 30) ? (mensaje.contenido.substring(0, 30) + '...') : mensaje.contenido);
+                }
+            }
             
             const contactoHTML = `
                 <div class="contacto" 
@@ -432,14 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         ${mensaje ? `
                             <small class="mensaje-preview">
-                                ${mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : ''}
-                                ${mensaje.tipo === 'imagen' ? 
-                                    '<i class="fa-regular fa-image"></i> Imagen' : 
-                                mensaje.tipo === 'documento' ? 
-                                    '<i class="fa-regular fa-file-pdf"></i> Documento' : 
-                                mensaje.contenido.length > 30 ? 
-                                    mensaje.contenido.substring(0, 30) + '...' : 
-                                    mensaje.contenido}
+                                ${preview}
                             </small>
                         ` : ''}
                     </div>
@@ -450,6 +541,22 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             
             lista.insertAdjacentHTML('beforeend', contactoHTML);
+        });
+    }
+
+    // Para manejar JSON con escapes en el cliente
+    function stripslashes(str) {
+        return (str + '').replace(/\\(.?)/g, function (s, n1) {
+            switch (n1) {
+                case '\\':
+                    return '\\';
+                case '0':
+                    return '\u0000';
+                case '':
+                    return '';
+                default:
+                    return n1;
+            }
         });
     }
 
@@ -487,25 +594,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderContent(mensaje) {
         if (mensaje.tipo === 'contacto') {
-            console.log('Contenido crudo:', mensaje.contenido);
             try {
-                // Paso 1: Eliminar TODOS los escapes
-                const contenidoLimpio = mensaje.contenido
-                    .replace(/\\"/g, '"')  // Remover \" por "
-                    .replace(/\\\\/g, '\\'); // Remover \\ por \
+                // Limpiar y parsear el contenido
+                let contenido = mensaje.contenido;
 
-                // Paso 2: Parsear el JSON limpio
-                const contactoData = JSON.parse(contenidoLimpio);
+                // Eliminar escapes adicionales enviados por PHP
+                if (typeof contenido === 'string') {
+                    contenido = contenido.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                }
                 
-                // Generar HTML
-                let html = `<div class="mensaje__contacto-info">`;
+                const contactoData = JSON.parse(contenido);
                 
-                if (contactoData.direccion?.calle) {
-                    html += `
-                        <div class="mensaje__contacto-item">
-                            <i class="fa-solid fa-map-marker-alt"></i>
-                            <span>${contactoData.direccion.calle}</span>
-                        </div>`;
+                // Construir HTML
+                let html = '<div class="mensaje__contacto-info">';
+                
+                if (contactoData.direccion) {
+                    const dir = contactoData.direccion;
+                    if (dir.calle) {
+                        html += `
+                            <div class="mensaje__contacto-item">
+                                <i class="fa-solid fa-map-marker-alt"></i>
+                                <span>${dir.calle}${dir.colonia ? ', ' + dir.colonia : ''}</span>
+                            </div>
+                            <div class="mensaje__contacto-item direccion-completa">
+                                ${dir.ciudad ? dir.ciudad + ', ' : ''}
+                                ${dir.estado ? dir.estado + ', ' : ''}
+                                ${dir.codigo_postal || ''}
+                            </div>`;
+                    }
                 }
 
                 if (contactoData.telefono) {
@@ -526,8 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 return html + `</div>`;
             } catch (e) {
-                console.error('Error al parsear contacto:', e);
-                return 'Información de contacto no válida';
+                return '📌 Información de contacto';
             }
         }
 
@@ -535,28 +650,41 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'imagen':
                 return `
                     <picture>
-                        <source srcset="${mensaje.contenido}.webp" type="image/webp">
-                        <img loading="lazy" src="${mensaje.contenido}" 
-                             class="mensaje__imagen" 
-                             alt="Imagen enviada">
+                        <img loading="lazy" src="/${mensaje.contenido}" 
+                            class="mensaje__imagen" 
+                            alt="Imagen enviada">
                     </picture>
                 `;
             case 'documento':
+                const nombreArchivo = mensaje.contenido.split('/').pop(); // Obtiene "archivo.pdf"
                 return `
-                    <a href="${mensaje.contenido}" 
-                       class="mensaje__documento"
-                       download>
+                    <a href="/${mensaje.contenido}" 
+                    class="mensaje__documento"
+                    download>
                         <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
                         <div class="mensaje__archivo-info">
                             <div class="mensaje__nombre-archivo">
-                                ${mensaje.contenido.split('/').pop()}
+                                ${escapeHTML(nombreArchivo)}
                             </div>
                         </div>
                     </a>
                 `;
             default:
-                return mensaje.contenido ? mensaje.contenido : '';
+                return mensaje.contenido ? escapeHTML(mensaje.contenido) : '';
         }
+    }
+
+    function escapeHTML(str) {
+        if (typeof str !== 'string') return '';
+        return str.replace(/[&<>"']/g, function (match) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[match];
+        });
     }
 
     const searchInput = document.getElementById('input-busqueda');
@@ -565,11 +693,20 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('input', async function(e) {
             const searchTerm = e.target.value.trim();
             
+            if (sidebarPollingInterval) clearInterval(sidebarPollingInterval);
+
+            if (searchTerm === "") {
+                inicializarSidebarPolling(); // Si se borra el término, reiniciar polling normal
+                return;
+            }
+            
             try {
                 const response = await fetch(`/mensajes/buscar?term=${encodeURIComponent(searchTerm)}`);
                 const data = await response.json();
                 
-                actualizarListaConversaciones(data.conversaciones);
+                if (data.conversaciones) {
+                    actualizarListaConversaciones(data.conversaciones);
+                }
             } catch (error) {
                 console.error('Error buscando conversaciones:', error);
             }

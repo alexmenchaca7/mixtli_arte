@@ -14,6 +14,11 @@ class ActiveRecord {
     // ALERTAS Y MENSAJES
     protected static $alertas = []; 
 
+    // MÉTODO PÚBLICO PARA OBTENER EL NOMBRE DE LA TABLA
+    public static function getTablaNombre() {
+        return static::$tabla;
+    }
+
     // Definir la conexion a la base de datos
     public static function setDB($database) {
         self::$conexion = $database; // Self hace referencia a los atributos estaticos de esta misma clase
@@ -372,5 +377,36 @@ class ActiveRecord {
         }
         
         return $condiciones;
+    }
+
+    public function toArray(): array {
+        $array = [];
+
+        // Primero, intentar con $columnasDB si están definidas y no vacías
+        if (!empty(static::$columnasDB)) {
+            foreach (static::$columnasDB as $columna) {
+                if (property_exists($this, $columna)) {
+                    $array[$columna] = $this->$columna;
+                }
+            }
+            // Asegurarse de que el ID esté, ya que a veces se omite en $columnasDB para el método atributos()
+            if (property_exists($this, 'id') && !array_key_exists('id', $array) && $this->id !== null) {
+                $array['id'] = $this->id;
+            }
+        } else {
+            // Fallback: tomar todas las propiedades públicas si $columnasDB no está bien definida
+            // Esto es menos preciso que usar $columnasDB, pero es un buen fallback.
+            // Usar get_object_vars para obtener todas las propiedades accesibles (incluyendo public).
+            // Luego filtrar para mantener solo las que no empiezan con '_' (convención para privadas/protegidas no deseadas)
+            // y que no sean estáticas.
+            $reflection = new \ReflectionObject($this);
+            foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+                if (!$property->isStatic()) {
+                    $array[$property->getName()] = $property->getValue($this);
+                }
+            }
+        }
+        
+        return $array;
     }
 }

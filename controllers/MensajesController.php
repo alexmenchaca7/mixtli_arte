@@ -16,14 +16,12 @@ class MensajesController {
 
         $usuarioId = $_SESSION['id'];
         $rol = $_SESSION['rol'] ?? '';
-
         $mensajes = [];
         $productoChat = null;
         $contactoChat = null;
         $vendedor = null;
         $direccionComercial = [];
 
-    
         // Si hay parámetros de chat en la URL
         if(isset($_GET['productoId']) && isset($_GET['contactoId'])) {
             $productoId = $_GET['productoId'];
@@ -39,8 +37,24 @@ class MensajesController {
             if($conversacion) {
                 $productoChat = $conversacion['producto'];
                 $contactoChat = $conversacion['contacto'];
+
+                // Obtener datos del vendedor relacionado al producto
                 $vendedor = Usuario::find($productoChat->usuarioId);
-                $direccionComercial = $vendedor->obtenerDireccionComercial();
+                
+                // Obtener dirección comercial completa
+                if($vendedor) {
+                    $direcciones = $vendedor->obtenerDireccionComercial();
+                    $direccionComercial = $direcciones[0] ?? [];
+                    
+                    // Asegurar estructura completa
+                    $direccionComercial = array_merge([
+                        'calle' => '',
+                        'colonia' => '',
+                        'ciudad' => '',
+                        'estado' => '',
+                        'codigo_postal' => ''
+                    ], (array)$direccionComercial);
+                }
 
                 $mensajes = $conversacion['mensajes'];
             }
@@ -56,44 +70,50 @@ class MensajesController {
 
             // Determinar el contacto real
             if($producto->usuarioId == $usuarioId) {
-                // Si es vendedor, el contacto es el comprador (siempre el otro participante)
                 $contacto = Usuario::find($conv['contactoId'] == $usuarioId ? $producto->usuarioId : $conv['contactoId']);
             } else {
-                // Si es comprador, el contacto es el vendedor del producto
-                $vendedor = Usuario::find($producto->usuarioId);
-                $contacto = $vendedor ?? $contacto;
+                $vendedorProducto = Usuario::find($producto->usuarioId);
+                $contacto = $vendedorProducto ?? $contacto;
             }
                 
             if($contacto && $producto) {
+                $ultimoMensaje = $conv['ultimoMensaje'];
+                
+                // Procesar mensajes de contacto para vista previa
+                if($ultimoMensaje && $ultimoMensaje->tipo === 'contacto') {
+                    $contenido = json_decode(stripslashes($ultimoMensaje->contenido), true);
+                    
+                    if(json_last_error() === JSON_ERROR_NONE && isset($contenido['direccion'])) {
+                        $preview = $contenido['direccion']['calle'];
+                        if(!empty($contenido['direccion']['colonia'])) {
+                            $preview .= ', ' . $contenido['direccion']['colonia'];
+                        }
+                        $ultimoMensaje->contenido = $preview;
+                    }
+                }
+    
                 $conversacionesCompletas[] = [
                     'contacto' => $contacto,
                     'producto' => $producto,
-                    'ultimoMensaje' => $conv['ultimoMensaje'],
+                    'ultimoMensaje' => $ultimoMensaje,
                     'fecha' => $conv['fecha']
                 ];
             }
         }
 
-        // Determinar qué vista y layout usar
-        if ($rol === 'comprador') {
-            $router->render('marketplace/mensajes', [
-                'titulo' => 'Mensajes',
-                'conversaciones' => $conversacionesCompletas,
-                'mensajes' => $mensajes,
-                'productoChat' => $productoChat,
-                'contactoChat' => $contactoChat,
-            ], 'layout');
-        } else if ($rol === 'vendedor') {
-            $router->render('vendedor/mensajes', [
-                'titulo' => 'Mensajes',
-                'conversaciones' => $conversacionesCompletas,
-                'mensajes' => $mensajes,
-                'productoChat' => $productoChat,
-                'contactoChat' => $contactoChat,
-                'vendedor' => $vendedor ?? new Usuario(),
-                'direccionComercial' => $direccionComercial ?? []
-            ], 'vendedor-layout');
-        }
+        // Renderizar vista según rol
+        $vista = $rol === 'comprador' ? 'marketplace/mensajes' : 'vendedor/mensajes';
+        $layout = $rol === 'comprador' ? 'layout' : 'vendedor-layout';
+
+        $router->render($vista, [
+            'titulo' => 'Mensajes',
+            'conversaciones' => $conversacionesCompletas,
+            'mensajes' => $mensajes,
+            'productoChat' => $productoChat,
+            'contactoChat' => $contactoChat,
+            'vendedor' => $vendedor,
+            'direccionComercial' => $direccionComercial
+        ], $layout);
     }
 
     public static function chat(Router $router) {
@@ -172,7 +192,15 @@ class MensajesController {
 
             // Validación simplificada para contacto
             if ($tipo === 'contacto') {
-                $mensajeTexto = filter_var($mensajeTexto, FILTER_UNSAFE_RAW); // Permitir JSON
+                // Eliminar escapes dobles del JSON
+                $mensajeTexto = stripslashes($mensajeTexto);
+                $mensajeTexto = filter_var($mensajeTexto, FILTER_UNSAFE_RAW);
+                
+                // Validar estructura básica
+                $contactoData = json_decode($mensajeTexto, true);
+                if (json_last_error() !== JSON_ERROR_NONE || !isset($contactoData['direccion'])) {
+                    $errores[] = 'Estructura de contacto inválida';
+                }
             }
 
             if (empty($mensajeTexto) && !isset($_FILES['archivo'])) {
@@ -184,39 +212,48 @@ class MensajesController {
             }
     
             if (empty($errores)) {
-                // Detectar si es un mensaje de contacto
-                $esContacto = json_decode($mensajeTexto, true);
-                $esFormatoValido = $esContacto && isset($esContacto['tipo']) && $esContacto['tipo'] === 'contacto';
-    
                 $args = [
-                    'contenido' => json_encode($esContacto, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                    'contenido' => $mensajeTexto,
                     'tipo' => $tipo, 
                     'remitenteId' => $usuarioId,
                     'destinatarioId' => $destinatarioId,
                     'productoId' => $productoId
                 ];
-                
+    
+                // Procesamiento especial para contactos
+                if ($tipo === 'contacto') {
+                    $contactoData = json_decode($mensajeTexto, true);
+                    
+                    // Limpiar y validar estructura
+                    $contactoData['direccion'] = array_filter($contactoData['direccion'] ?? []);
+                    $contactoData = array_filter($contactoData);
+                    
+                    // Reconstruir contenido limpio
+                    $args['contenido'] = json_encode($contactoData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                }
+    
                 $mensaje = new Mensaje($args);
                 $resultado = $mensaje->guardar();
                 
                 if ($resultado) {
                     $mensajeGuardado = Mensaje::find($mensaje->id);
-                
+                    $mensajeGuardado->contenido = $args['contenido']; // Forzar contenido limpio
+                    
                     echo json_encode([
                         'success' => true,
                         'mensaje' => [
                             'id' => $mensajeGuardado->id,
-                            'contenido' => $mensajeGuardado->contenido, 
+                            'contenido' => $mensajeGuardado->contenido,
                             'tipo' => $mensajeGuardado->tipo,
                             'creado' => $mensajeGuardado->creado,
                             'remitenteId' => $mensajeGuardado->remitenteId,
                             'destinatarioId' => $mensajeGuardado->destinatarioId,
                             'productoId' => $mensajeGuardado->productoId
                         ]
-                    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                     exit();
                 }
-            }
+            }    
             
             echo json_encode([
                 'success' => false, 
@@ -236,68 +273,89 @@ class MensajesController {
         $productoId = $_POST['productoId'] ?? '';
         $destinatarioId = $_POST['destinatarioId'] ?? '';
         
-        // Validar archivo
         $archivo = $_FILES['archivo'] ?? null;
         $errores = [];
         $tipoPermitidos = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
         
         if(!$archivo || $archivo['error'] !== UPLOAD_ERR_OK) {
-            $errores[] = 'Error al subir el archivo';
+            $errores[] = 'Error al subir el archivo: ' . ($archivo['error'] ?? 'Desconocido');
+        } else { // Solo continuar si no hay error de subida inicial
+            if(!in_array($archivo['type'], $tipoPermitidos)) {
+                $errores[] = 'Tipo de archivo no permitido';
+            }
+            
+            if($archivo['size'] > 5000000) { // 5MB
+                $errores[] = 'El archivo es demasiado grande (máx 5MB)';
+            }
         }
-        
-        if(!in_array($archivo['type'], $tipoPermitidos)) {
-            $errores[] = 'Tipo de archivo no permitido';
-        }
-        
-        if($archivo['size'] > 5000000) { // 5MB
-            $errores[] = 'El archivo es demasiado grande';
-        }
+
 
         if(empty($errores)) {
             // Crear estructura de carpetas
-            $carpetaBase = $_SERVER['DOCUMENT_ROOT'] . '/mensajes/';
-            $subcarpeta = $archivo['type'] === 'application/pdf' ? 'pdf' : 'img';
+            $carpetaArchivos = 'chat_adjuntos/'; // Nuevo nombre de la carpeta base para adjuntos
+            $carpetaBaseServidor = $_SERVER['DOCUMENT_ROOT'] . '/' . $carpetaArchivos; // Ruta completa en el servidor
+
+            $subcarpeta = $archivo['type'] === 'application/pdf' ? 'pdf/' : 'img/'; // Subcarpetas img/ o pdf/
 
             // Crear directorios si no existen
-            if (!is_dir($carpetaBase . $subcarpeta)) {
-                mkdir($carpetaBase . $subcarpeta, 0755, true);
+            if (!is_dir($carpetaBaseServidor . $subcarpeta)) {
+                if (!mkdir($carpetaBaseServidor . $subcarpeta, 0755, true)) {
+                    $errores[] = 'Error al crear el directorio de subida.';
+                    echo json_encode(['success' => false, 'errores' => $errores]);
+                    exit();
+                }
             }
 
             // Generar nombre único
-            $nombreArchivo = md5(uniqid(rand(), true)) . '.' . pathinfo($archivo['name'], PATHINFO_EXTENSION);
-            $ruta = $nombreArchivo;
+            $nombreOriginal = pathinfo($archivo['name'], PATHINFO_FILENAME); // Obtiene el nombre sin extensión
+            $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);    // Obtiene la extensión original (ej. "pdf", "png")
 
-            move_uploaded_file($archivo['tmp_name'], $carpetaBase . $subcarpeta . '/' . $nombreArchivo);
-
-            // Crear mensaje
-            $mensaje = new Mensaje([
-                'contenido' => $ruta,
-                'tipo' => $archivo['type'] === 'application/pdf' ? 'documento' : 'imagen',
-                'remitenteId' => $usuarioId,
-                'destinatarioId' => $destinatarioId,
-                'productoId' => $productoId
-            ]);
-            
-            if($mensaje->guardar()) {
-                echo json_encode([
-                    'success' => true,
-                    'mensaje' => [
-                        'id' => $mensaje->id,
-                        'contenido' => $mensaje->contenido,
-                        'tipo' => $mensaje->tipo,
-                        'creado' => $mensaje->creado,
-                        'remitenteId' => $mensaje->remitenteId,
-                        'destinatarioId' => $mensaje->destinatarioId,
-                        'productoId' => $mensaje->productoId
-                    ]
-                ]);
+            // Asegurarse de que la extensión sea minúscula y válida
+            $extension = strtolower($extension);
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'pdf'])) {
+                $errores[] = 'Extensión de archivo no válida después de la verificación de tipo MIME.';
+                echo json_encode(['success' => false, 'errores' => $errores]);
                 exit();
+            }
+            
+            $nombreArchivoUnico = md5(uniqid(rand(), true) . $nombreOriginal) . '.' . $extension; // Nombre único CON extensión original
+        
+            $rutaParaBD = $carpetaArchivos . $subcarpeta . $nombreArchivoUnico; 
+            $rutaDestinoServidor = $carpetaBaseServidor . $subcarpeta . $nombreArchivoUnico;
+
+            if (move_uploaded_file($archivo['tmp_name'], $rutaDestinoServidor)) {
+                // Crear mensaje
+                $mensaje = new Mensaje([
+                    'contenido' => $rutaParaBD, 
+                    'tipo' => ($extension === 'pdf') ? 'documento' : 'imagen', 
+                    'remitenteId' => $usuarioId,
+                    'destinatarioId' => $destinatarioId,
+                    'productoId' => $productoId
+                ]);
+                
+                if($mensaje->guardar()) {
+                    // Devolver el objeto mensaje completo (ya lo hace el modelo con toArray())
+                    echo json_encode([
+                        'success' => true,
+                        'mensaje' => $mensaje->toArray() // Usar el toArray() del modelo
+                    ]);
+                    exit();
+                } else {
+                    $errores[] = 'Error al guardar el mensaje en la base de datos.';
+                    // Si falla guardar en BD, idealmente se debería borrar el archivo subido
+                    if (file_exists($rutaDestinoServidor)) {
+                        unlink($rutaDestinoServidor);
+                    }
+                }
+            } else {
+                $errores[] = 'Error al mover el archivo subido.';
             }
         }
         
         echo json_encode(['success' => false, 'errores' => $errores]);
         exit();
     }
+
 
     public static function obtenerNuevosMensajes(Router $router) {
         if (!is_auth()) {
@@ -321,6 +379,54 @@ class MensajesController {
         exit();
     }
 
+    // OBTENER LA LISTA DE CONVERSACIONES PARA EL SIDEBAR
+    public static function obtenerListaConversaciones(Router $router) {
+        if (!is_auth()) {
+            http_response_code(401);
+            exit(json_encode(['error' => 'No autenticado']));
+        }
+
+        $usuarioId = $_SESSION['id'];
+        // Llamamos a Mensaje::obtenerConversaciones que ya debería devolver los últimos mensajes
+        // de cada conversación para el usuario.
+        $conversacionesRaw = Mensaje::obtenerConversaciones($usuarioId);
+        $conversacionesCompletas = [];
+
+        foreach ($conversacionesRaw as $convData) { // $convData es el array ['productoId', 'contactoId', 'ultimoMensaje', 'fecha']
+            // Validar IDs antes de buscar
+            if (empty($convData['contactoId']) || empty($convData['productoId'])) {
+                continue; // Saltar entradas inválidas
+            }
+
+            $contacto = Usuario::find($convData['contactoId']);
+            $producto = Producto::find($convData['productoId']);
+            $ultimoMensaje = $convData['ultimoMensaje']; // Esto ya es un objeto Mensaje
+
+            if (!$contacto || !$producto) {
+                // Podría pasar si un usuario o producto fue eliminado.
+                // Considera si quieres mostrar estas conversaciones o filtrarlas.
+                continue;
+            }
+
+            $conversacionesCompletas[] = [
+                'contacto' => $contacto->toArray(), // Convertir a array para JSON
+                'producto' => $producto->toArray(), // Convertir a array para JSON
+                'ultimoMensaje' => $ultimoMensaje ? $ultimoMensaje->toArray() : null, // Convertir a array
+                'fecha' => $convData['fecha']
+            ];
+        }
+
+        // Ordenar por fecha descendente (más reciente primero)
+        // La consulta en Mensaje::obtenerConversaciones ya debería ordenarlas, pero una doble verificación no hace daño.
+        usort($conversacionesCompletas, function($a, $b) {
+            return strtotime($b['fecha']) - strtotime($a['fecha']);
+        });
+
+        echo json_encode(['conversaciones' => $conversacionesCompletas]);
+        exit();
+    }
+
+
     public static function buscarConversaciones(Router $router) {
         if (!is_auth()) {
             http_response_code(401);
@@ -330,37 +436,43 @@ class MensajesController {
         $termino = $_GET['term'] ?? '';
         $usuarioId = $_SESSION['id'];
     
+        // Si el término está vacío, podríamos llamar a obtenerListaConversaciones
+        // o simplemente dejar que la búsqueda con término vacío devuelva todo.
+        // Por ahora, mantendremos la lógica de búsqueda específica aquí.
         $conversacionesIds = Mensaje::buscarEnConversaciones($usuarioId, $termino);
         
         $conversacionesCompletas = [];
         foreach ($conversacionesIds as $conv) {
-            // Validar IDs antes de buscar
             if(empty($conv['contactoId']) || empty($conv['productoId'])) {
-                continue; // Saltar entradas inválidas
+                continue; 
             }
 
             $contacto = Usuario::find($conv['contactoId']);
             $producto = Producto::find($conv['productoId']);
 
             if (!$contacto || !$producto) {
-                continue; // Saltar si no existen
+                continue; 
             }
             
-            if ($contacto && $producto) {
-                $ultimoMensaje = Mensaje::obtenerUltimoMensajeConversacion(
-                    $conv['productoId'],
-                    $usuarioId,
-                    $conv['contactoId']
-                );
-                
-                $conversacionesCompletas[] = [
-                    'contacto' => $contacto,
-                    'producto' => $producto,
-                    'ultimoMensaje' => $ultimoMensaje,
-                    'fecha' => $ultimoMensaje->creado ?? date('Y-m-d H:i:s')
-                ];
-            }
+            // Para la búsqueda, necesitamos obtener el último mensaje específico de esta conversación.
+            $ultimoMensaje = Mensaje::obtenerUltimoMensajeConversacion(
+                $conv['productoId'],
+                $usuarioId,
+                $conv['contactoId']
+            );
+            
+            $conversacionesCompletas[] = [
+                'contacto' => $contacto->toArray(),
+                'producto' => $producto->toArray(),
+                'ultimoMensaje' => $ultimoMensaje ? $ultimoMensaje->toArray() : null,
+                'fecha' => $ultimoMensaje->creado ?? $producto->creado // Fallback a la fecha de creación del producto si no hay mensajes
+            ];
         }
+
+        // Ordenar por fecha para que la búsqueda también muestre los más recientes primero
+         usort($conversacionesCompletas, function($a, $b) {
+            return strtotime($b['fecha']) - strtotime($a['fecha']);
+        });
     
         echo json_encode(['conversaciones' => $conversacionesCompletas]);
         exit();

@@ -75,9 +75,37 @@ class DashboardVendedorController {
 
             // Sincronizar con los datos del POST
             $vendedor->sincronizar($_POST);
-
-            // Validación
             $alertas = $vendedor->validar_cuenta_dashboard();
+
+            // Validar direcciones
+            $tipos = ['residencial', 'comercial'];
+            $erroresDirecciones = [];
+
+            foreach ($tipos as $tipo) {
+                $camposRequeridos = ['calle', 'colonia', 'codigo_postal', 'ciudad', 'estado'];
+                $camposLlenos = 0;
+    
+                foreach ($camposRequeridos as $campo) {
+                    $nombreCampo = $campo . '_' . $tipo;
+                    if (!empty($_POST[$nombreCampo])) {
+                        $camposLlenos++;
+                    }
+                }
+    
+                if ($camposLlenos > 0) {
+                    foreach ($camposRequeridos as $campo) {
+                        $nombreCampo = $campo . '_' . $tipo;
+                        if (empty($_POST[$nombreCampo])) {
+                            $erroresDirecciones[] = "Todos los campos de la dirección {$tipo} son requeridos.";
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            if (!empty($erroresDirecciones)) {
+                $alertas['error'] = array_merge($alertas['error'] ?? [], $erroresDirecciones);
+            }
 
             if (empty($alertas)) {
                 // Si no se subió nueva imagen y no se elimina, mantener la anterior
@@ -88,6 +116,32 @@ class DashboardVendedorController {
                 $resultado = $vendedor->guardar();
 
                 if ($resultado) {
+                    // Eliminar direcciones existentes
+                    Direccion::eliminarPorUsuario($vendedor->id);
+
+                    // Guardar nuevas direcciones
+                    foreach ($tipos as $tipo) {
+                        $calle = $_POST['calle_' . $tipo] ?? '';
+                        $colonia = $_POST['colonia_' . $tipo] ?? '';
+                        $codigo_postal = $_POST['codigo_postal_' . $tipo] ?? '';
+                        $ciudad = $_POST['ciudad_' . $tipo] ?? '';
+                        $estado = $_POST['estado_' . $tipo] ?? '';
+
+                        if ($calle || $colonia || $codigo_postal || $ciudad || $estado) {
+                            $direccion = new Direccion([
+                                'tipo' => $tipo,
+                                'calle' => $calle,
+                                'colonia' => $colonia,
+                                'codigo_postal' => $codigo_postal,
+                                'ciudad' => $ciudad,
+                                'estado' => $estado,
+                                'usuarioId' => $vendedor->id
+                            ]);
+
+                            $direccion->guardar();
+                        }
+                    }
+
                     // Actualizar datos de sesión
                     $_SESSION['imagen'] = $vendedor->imagen;
 
@@ -100,7 +154,8 @@ class DashboardVendedorController {
         $router->render('vendedor/perfil/index', [
             'titulo' => 'Editar Perfil',
             'usuario' => $vendedor,
-            'alertas' => $alertas
+            'alertas' => $alertas,
+            'direcciones' => Direccion::whereArray(['usuarioId' => $vendedor->id])
         ], 'vendedor-layout');
     }
 

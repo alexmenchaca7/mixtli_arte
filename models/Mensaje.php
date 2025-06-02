@@ -20,7 +20,7 @@ class Mensaje extends ActiveRecord {
 
     public function __construct($args = [])
     {
-        date_default_timezone_set('America/Mexico_City'); // Establecer zona horaria de México
+        date_default_timezone_set('America/Mexico_City');
         $this->id = $args['id'] ?? NULL;
         $this->contenido = $args['contenido'] ?? '';
         $this->tipo = $args['tipo'] ?? 'texto';
@@ -35,7 +35,7 @@ class Mensaje extends ActiveRecord {
         $usuarioId = self::$conexion->escape_string($usuarioId);
         $contactoId = self::$conexion->escape_string($contactoId);
     
-        $query = "SELECT * FROM mensajes 
+        $query = "SELECT * FROM " . static::getTablaNombre() . "  
                   WHERE productoId = '$productoId' 
                   AND (
                       (remitenteId = '$usuarioId' AND destinatarioId = '$contactoId') 
@@ -53,7 +53,7 @@ class Mensaje extends ActiveRecord {
         $contactoId = self::$conexion->escape_string($contactoId);
         $ultimoId = self::$conexion->escape_string($ultimoId);
     
-        $query = "SELECT * FROM mensajes 
+        $query = "SELECT * FROM " . static::getTablaNombre() . " 
                 WHERE productoId = '$productoId' 
                 AND id > '$ultimoId'
                 AND (
@@ -68,8 +68,7 @@ class Mensaje extends ActiveRecord {
     
     public static function obtenerConversacionActual($productoId, $usuarioId, $contactoId) {
         $producto = Producto::find($productoId);
-        $contacto = Usuario::find($contactoId);
-        $direccionComercial = $contacto->obtenerDireccionComercial();
+        $contacto = Usuario::find($contactoId); 
         
         if(!$producto || !$contacto) {
             return null;
@@ -78,135 +77,176 @@ class Mensaje extends ActiveRecord {
         return [
             'producto' => $producto,
             'contacto' => $contacto,
-            'direccionComercial' => $direccionComercial,
             'mensajes' => self::obtenerMensajesChat($productoId, $usuarioId, $contactoId)
         ];
     }
     
     public static function obtenerConversaciones($usuarioId) {
-        $usuarioId = self::$conexion->escape_string($usuarioId);
-    
-        $query = "SELECT m1.*
-                FROM mensajes m1
-                INNER JOIN productos p ON m1.productoId = p.id
-                WHERE m1.id = (
-                    SELECT MAX(m2.id)
-                    FROM mensajes m2
-                    WHERE m2.productoId = m1.productoId
-                    AND (
-                        (m2.remitenteId = m1.remitenteId AND m2.destinatarioId = m1.destinatarioId) OR
-                        (m2.remitenteId = m1.destinatarioId AND m2.destinatarioId = m1.remitenteId)
-                    )
-                )
-                AND (
-                    m1.remitenteId = '$usuarioId' 
-                    OR m1.destinatarioId = '$usuarioId'
-                    OR p.usuarioId = '$usuarioId'
-                )
-                ORDER BY m1.creado DESC";
-    
-        $mensajes = self::consultarSQL($query);
-        
+        $usuarioIdEscaped = self::$conexion->escape_string($usuarioId);
+
+        $tablaMensajes = static::getTablaNombre(); // Nombre de la tabla de mensajes
+        $tablaProductos = Producto::getTablaNombre(); // Obtener nombre de la tabla Producto usando el nuevo método
+
+        $query = "
+        SELECT m_actual.*
+        FROM " . $tablaMensajes . " m_actual
+        INNER JOIN (
+            SELECT
+                MAX(sub_m.id) as max_id
+            FROM " . $tablaMensajes . " sub_m
+            INNER JOIN " . $tablaProductos . " sub_p ON sub_m.productoId = sub_p.id
+            WHERE (
+                sub_m.remitenteId = '{$usuarioIdEscaped}'
+                OR sub_m.destinatarioId = '{$usuarioIdEscaped}'
+                OR sub_p.usuarioId = '{$usuarioIdEscaped}' 
+            )
+            GROUP BY sub_m.productoId, 
+                     LEAST(sub_m.remitenteId, sub_m.destinatarioId), 
+                     GREATEST(sub_m.remitenteId, sub_m.destinatarioId)
+        ) AS ultimos_mensajes_ids ON m_actual.id = ultimos_mensajes_ids.max_id
+        ORDER BY m_actual.creado DESC";
+
+        $mensajesRecientes = self::consultarSQL($query);
+
         $conversaciones = [];
     
-        foreach($mensajes as $mensaje) {
-            // Obtener producto relacionado
-            $producto = Producto::find($mensaje->productoId);
-            
-            // Determinar contacto
-            $contactoId = ($mensaje->remitenteId == $usuarioId) 
-                ? $mensaje->destinatarioId 
-                : $mensaje->remitenteId;
-            
-            // Si es vendedor del producto
-            if($producto->usuarioId == $usuarioId) {
-                $contactoId = ($mensaje->remitenteId == $usuarioId) 
-                    ? $mensaje->destinatarioId 
-                    : $mensaje->remitenteId;
+        foreach($mensajesRecientes as $ultimoMensaje) { 
+            $contactoId = '';
+            if ($ultimoMensaje->remitenteId == $usuarioId) {
+                $contactoId = $ultimoMensaje->destinatarioId;
+            } else if ($ultimoMensaje->destinatarioId == $usuarioId) {
+                $contactoId = $ultimoMensaje->remitenteId;
+            } else {
+                // Este es el caso donde el usuario actual es el dueño del producto,
+                // pero no fue ni remitente ni destinatario del último mensaje.
+                // La conversación es entre remitenteId y destinatarioId del $ultimoMensaje.
+                // El "contacto" para el dueño del producto será uno de ellos.
+                // Debemos asegurarnos que el $contactoId no sea el mismo $usuarioId.
+                if ($ultimoMensaje->remitenteId != $usuarioId) {
+                    $contactoId = $ultimoMensaje->remitenteId;
+                } else if ($ultimoMensaje->destinatarioId != $usuarioId) {
+                    $contactoId = $ultimoMensaje->destinatarioId;
+                } else {
+                    // Ambos son el usuarioId, lo cual es lógicamente imposible en una conversación de dos.
+                    // Si llega aquí, hay un problema en la lógica o los datos.
+                    // Por seguridad, se omite esta conversación.
+                    continue;
+                }
             }
-    
-            $key = $mensaje->productoId . '-' . $contactoId;
+            
+            if(empty($contactoId) || $contactoId == $usuarioId) { // Segunda condición por si la lógica anterior falló
+                // No se pudo determinar un contacto válido o el contacto es el mismo usuario
+                continue; 
+            }
+
+            $key = $ultimoMensaje->productoId . '-' . $contactoId;
             
             if(!isset($conversaciones[$key])) {
                 $conversaciones[$key] = [
-                    'productoId' => $mensaje->productoId,
+                    'productoId' => $ultimoMensaje->productoId,
                     'contactoId' => $contactoId,
-                    'ultimoMensaje' => $mensaje,
-                    'fecha' => $mensaje->creado
+                    'ultimoMensaje' => $ultimoMensaje, 
+                    'fecha' => $ultimoMensaje->creado 
                 ];
             }
         }
         
-        return array_values($conversaciones);
+        return array_values($conversaciones); 
     }
 
-    public static function buscarEnConversaciones($usuarioId, $termino) {
-        $usuarioId = self::$conexion->escape_string($usuarioId);
-        $termino = self::$conexion->escape_string("%$termino%");
-    
-        $query = "SELECT DISTINCT m.productoId, 
-                    CASE 
-                        WHEN m.remitenteId = '$usuarioId' THEN m.destinatarioId
-                        ELSE m.remitenteId
-                    END AS contactoId
-                  FROM mensajes m
-                  INNER JOIN productos p ON m.productoId = p.id
-                  INNER JOIN usuarios u ON (m.remitenteId = u.id OR m.destinatarioId = u.id)
-                  WHERE (m.contenido LIKE '$termino'
-                         OR p.nombre LIKE '$termino'
-                         OR u.nombre LIKE '$termino')
-                    AND (m.remitenteId = '$usuarioId' 
-                         OR m.destinatarioId = '$usuarioId'
-                         OR p.usuarioId = '$usuarioId')";
 
-        $resultado = self::$conexion->query($query); // Ejecutar directamente
+    public static function buscarEnConversaciones($usuarioId, $termino) {
+        $usuarioIdEsc = self::$conexion->escape_string($usuarioId);
+        $terminoEsc = self::$conexion->escape_string("%$termino%");
         
-        $conversaciones = [];
+        $tablaMensajes = static::getTablaNombre();
+        $tablaProductos = Producto::getTablaNombre();
+        $tablaUsuarios = Usuario::getTablaNombre(); // Asumo que tienes un modelo Usuario con este método
+
+        $query = "SELECT 
+                    m.productoId, 
+                    CASE 
+                        WHEN m.remitenteId = '{$usuarioIdEsc}' THEN m.destinatarioId
+                        WHEN m.destinatarioId = '{$usuarioIdEsc}' THEN m.remitenteId
+                        ELSE NULL  -- Si el usuario es dueño del producto, el contacto será el otro.
+                                   -- Este CASE necesita refinamiento si el dueño no participa directamente.
+                    END AS contactoIdOriginal,
+                    m.remitenteId,
+                    m.destinatarioId,
+                    p.usuarioId as productoUsuarioId
+                  FROM " . $tablaMensajes . " m
+                  INNER JOIN " . $tablaProductos . " p ON m.productoId = p.id
+                  INNER JOIN " . $tablaUsuarios . " u_remitente ON m.remitenteId = u_remitente.id
+                  INNER JOIN " . $tablaUsuarios . " u_destinatario ON m.destinatarioId = u_destinatario.id
+                  WHERE 
+                    ( 
+                        m.remitenteId = '{$usuarioIdEsc}' 
+                        OR m.destinatarioId = '{$usuarioIdEsc}'
+                        OR p.usuarioId = '{$usuarioIdEsc}'
+                    )
+                    AND 
+                    ( 
+                        m.contenido LIKE '{$terminoEsc}'
+                        OR p.nombre LIKE '{$terminoEsc}'
+                        OR u_remitente.nombre LIKE '{$terminoEsc}' 
+                        OR u_destinatario.nombre LIKE '{$terminoEsc}'
+                    )";
+                    // Quitar el GROUP BY por ahora para procesar la lógica de contactoId en PHP
+
+        $resultado = self::$conexion->query($query);
+        
+        $posibles_conversaciones = [];
         if($resultado) {
-            while($fila = $resultado->fetch_assoc()) { // Leer como array asociativo
-                $conversaciones[] = [
-                    'productoId' => $fila['productoId'],
-                    'contactoId' => $fila['contactoId']
-                ];
+            while($fila = $resultado->fetch_assoc()) {
+                $contactoId = null;
+                // Si el usuario actual es el remitente
+                if ($fila['remitenteId'] == $usuarioId) {
+                    $contactoId = $fila['destinatarioId'];
+                // Si el usuario actual es el destinatario
+                } elseif ($fila['destinatarioId'] == $usuarioId) {
+                    $contactoId = $fila['remitenteId'];
+                // Si el usuario actual es el dueño del producto (y no es remitente ni destinatario del mensaje)
+                } elseif ($fila['productoUsuarioId'] == $usuarioId) {
+                    // El contacto es el que NO es el dueño del producto.
+                    // Si el remitente no es el dueño, ese es el contacto.
+                    if ($fila['remitenteId'] != $usuarioId) {
+                        $contactoId = $fila['remitenteId'];
+                    // Si el destinatario no es el dueño, ese es el contacto.
+                    } elseif ($fila['destinatarioId'] != $usuarioId) {
+                        $contactoId = $fila['destinatarioId'];
+                    }
+                    // Si ambos son el dueño (mensaje a sí mismo), $contactoId quedará null y se filtrará.
+                }
+
+                if ($contactoId && $contactoId != $usuarioId) {
+                    $posibles_conversaciones[] = [
+                        'productoId' => $fila['productoId'],
+                        'contactoId' => $contactoId
+                    ];
+                }
             }
             $resultado->free();
         }
         
+        // Eliminar duplicados
+        $conversaciones = [];
+        $keys = [];
+        foreach ($posibles_conversaciones as $conv) {
+            $key = $conv['productoId'] . '-' . $conv['contactoId'];
+            if (!in_array($key, $keys)) {
+                $conversaciones[] = $conv;
+                $keys[] = $key;
+            }
+        }
         return $conversaciones;
     }
 
-    public static function buscarMensajes($usuarioId, $termino) {
-        $usuarioId = self::$conexion->escape_string($usuarioId);
-        $termino = self::$conexion->escape_string("%$termino%");
-    
-        $query = "SELECT m.id as mensajeId, m.productoId, 
-                    CASE 
-                        WHEN m.remitenteId = '$usuarioId' THEN m.destinatarioId
-                        ELSE m.remitenteId
-                    END AS contactoId
-                  FROM mensajes m
-                  INNER JOIN productos p ON m.productoId = p.id
-                  INNER JOIN usuarios u ON (m.remitenteId = u.id OR m.destinatarioId = u.id)
-                  WHERE (m.contenido LIKE '$termino'
-                         OR p.nombre LIKE '$termino'
-                         OR u.nombre LIKE '$termino')
-                    AND (m.remitenteId = '$usuarioId' 
-                         OR m.destinatarioId = '$usuarioId'
-                         OR p.usuarioId = '$usuarioId')";
-    
-        $resultado = self::$conexion->query($query);
-        
-        $resultados = [];
-        while($fila = $resultado->fetch_assoc()) {
-            $resultados[] = $fila;
-        }
-        
-        return $resultados;
-    }
-
-    // Helper
     public static function obtenerUltimoMensajeConversacion($productoId, $usuarioId, $contactoId) {
-        $query = "SELECT * FROM mensajes 
+        $productoId = self::$conexion->escape_string($productoId);
+        $usuarioId = self::$conexion->escape_string($usuarioId);
+        $contactoId = self::$conexion->escape_string($contactoId);
+
+        $query = "SELECT * FROM " . static::getTablaNombre() . " 
                   WHERE productoId = '$productoId' 
                   AND (
                       (remitenteId = '$usuarioId' AND destinatarioId = '$contactoId') 
@@ -222,21 +262,9 @@ class Mensaje extends ActiveRecord {
     
     public function guardar() {
         $resultado = parent::guardar();
-        if($resultado) {
+        if($this->id == NULL && $resultado) { 
             $this->id = self::$conexion->insert_id;
         }
         return $resultado;
     }
-
-    public function toArray() {
-        return [
-            'id' => $this->id,
-            'contenido' => $this->contenido,
-            'tipo' => $this->tipo,
-            'creado' => $this->creado,
-            'remitenteId' => $this->remitenteId,
-            'destinatarioId' => $this->destinatarioId,
-            'productoId' => $this->productoId
-        ];
-    }    
 }

@@ -392,4 +392,30 @@ function obtenerDireccion($direcciones, $tipo, $campo) {
         }
     });
 
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const tipos = ['residencial', 'comercial'];
+        let errores = [];
+
+        tipos.forEach(tipo => {
+            const campos = [
+                document.getElementById(`calle_${tipo}`),
+                document.getElementById(`colonia_${tipo}`),
+                document.getElementById(`codigo_postal_${tipo}`),
+                document.getElementById(`ciudad_${tipo}`),
+                document.getElementById(`estado_${tipo}`)
+            ];
+
+            const camposLlenos = campos.some(campo => campo.value.trim() !== '');
+            const camposVacios = campos.some(campo => campo.value.trim() === '');
+
+            if (camposLlenos && camposVacios) {
+                errores.push(`Todos los campos de la dirección ${tipo} son requeridos.`);
+            }
+        });
+
+        if (errores.length > 0) {
+            e.preventDefault();
+            alert(errores.join('\n'));
+        }
+    });
 </script>

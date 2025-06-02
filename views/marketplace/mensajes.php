@@ -89,24 +89,24 @@
                             <?php switch($mensaje->tipo):
                                 case 'imagen': ?>
                                     <picture>
-                                        <source srcset="<?= $mensaje->contenido ?>.webp" type="image/webp">
-                                        <img loading="lazy" src="/mensajes/img/<?= $mensaje->contenido ?>" 
-                                             class="mensaje__imagen" 
-                                             alt="Imagen enviada">
+                                        <img loading="lazy" src="/<?= htmlspecialchars($mensaje->contenido) ?>" 
+                                            class="mensaje__imagen" 
+                                            alt="Imagen enviada">
                                     </picture>
-                                    <?php break; ?>
+                                <?php break; ?>
+
                                 <?php case 'documento': ?>
-                                    <a href="/mensajes/pdf/<?= $mensaje->contenido ?>" 
-                                       class="mensaje__documento"
-                                       download>
+                                    <a href="/<?= htmlspecialchars($mensaje->contenido) ?>" 
+                                    class="mensaje__documento"
+                                    download>
                                         <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
                                         <div class="mensaje__archivo-info">
                                             <div class="mensaje__nombre-archivo">
-                                                <?= basename($mensaje->contenido) ?>
+                                                <?= htmlspecialchars(basename($mensaje->contenido)) ?>
                                             </div>
                                         </div>
                                     </a>
-                                    <?php break; ?>
+                                <?php break; ?>
                                 <?php default: ?>
                                     <?= htmlspecialchars($mensaje->contenido) ?>
                             <?php endswitch; ?>
@@ -166,6 +166,12 @@ let currentUltimoId = 0;
 document.addEventListener('DOMContentLoaded', () => {
     const chatActivo = document.getElementById('chat-activo');
     const formChat = document.getElementById('form-chat');
+
+    let sidebarPollingInterval;
+    const SIDEBAR_POLLING_RATE = 7000; // Consultar cada 7 segundos (ajusta según necesidad)
+
+    // Iniciar el polling para la barra lateral cuando la página carga
+    inicializarSidebarPolling();
     
     // Cargar conversación al hacer clic en contacto
     document.querySelector('.contactos__lista').addEventListener('click', async (e) => {
@@ -212,6 +218,110 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.addEventListener('click', (e) => {
+        // Corregir detección del botón
+        const btnContacto = e.target.closest('#btn-contacto');
+        if (!btnContacto) return;
+
+        const direccionComercialInput = document.getElementById('direccionComercial');
+        const direcciones = JSON.parse(direccionComercialInput.value) || []; 
+        const telefono = document.getElementById('vendedorTelefono').value.trim();
+        const email = document.getElementById('vendedorEmail').value.trim();
+        const direccion = direcciones.length > 0 ? direcciones[0] : {};
+
+        // Validar estructura mínima
+        const contactoData = {
+            tipo: 'contacto',
+            direccion: direccion && direccion.calle ? direccion : null,
+            telefono: telefono,
+            email: email
+        };
+
+        console.log('Datos a enviar:', contactoData); // Verificar en consola
+
+        // Configurar el formulario
+        const form = document.getElementById('form-chat');
+        const formData = new FormData(form);
+        
+        // Establecer valores específicos para contacto
+        formData.set('tipo', 'contacto');
+        formData.set('mensaje', JSON.stringify(contactoData));
+
+        // Realizar petición
+        fetch('/mensajes/enviar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error en la respuesta');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Restablecer valores
+                document.getElementById('input-tipo').value = 'texto';
+                form.reset();
+                
+                // Agregar mensaje al chat
+                if(data.mensaje) {
+                    appendMessage(data.mensaje);
+                    currentUltimoId = data.mensaje.id;
+                    scrollToBottom();
+
+                    // Actualizar lista de conversaciones
+                    fetch(`/mensajes/buscar?term=`)
+                        .then(response => response.json())
+                        .then(data => actualizarListaConversaciones(data.conversaciones))
+                        .catch(error => console.error('Error actualizando conversaciones:', error));
+                }
+            } else {
+                console.error('Error del servidor:', data.errores);
+            }
+        })
+        .catch(error => {
+            console.error('Error en la petición:', error);
+            // Restablecer tipo en caso de error
+            document.getElementById('input-tipo').value = 'texto';
+        });
+    });
+
+    function inicializarSidebarPolling() {
+        if (sidebarPollingInterval) clearInterval(sidebarPollingInterval);
+
+        const fetchListaConversaciones = async () => {
+            try {
+                // Solo hacer fetch si la ventana está visible para ahorrar recursos
+                if (document.hidden) {
+                    return;
+                }
+                const response = await fetch('/mensajes/lista-conversaciones');
+                if (!response.ok) {
+                    // Si no está autenticado o hay otro error, detener el polling
+                    if (response.status === 401 || response.status === 403) {
+                        clearInterval(sidebarPollingInterval);
+                        console.warn('Polling de sidebar detenido por error de autenticación o autorización.');
+                    }
+                    throw new Error(`Error en la respuesta del servidor: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.conversaciones) {
+                    actualizarListaConversaciones(data.conversaciones);
+                }
+            } catch (error) {
+                console.error('Error obteniendo lista de conversaciones para sidebar:', error);
+                // Podrías querer detener el polling aquí también si el error es persistente
+                // clearInterval(sidebarPollingInterval);
+            }
+        };
+
+        // Ejecutar inmediatamente la primera vez
+        fetchListaConversaciones();
+        // Luego, establecer el intervalo
+        sidebarPollingInterval = setInterval(fetchListaConversaciones, SIDEBAR_POLLING_RATE);
+    }
+
+
     function inicializarPolling(productoId, contactoId) {
         if (pollingInterval) clearInterval(pollingInterval);
         
@@ -230,8 +340,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                     // Actualizar el último ID con el máximo recibido
-                    currentUltimoId = Math.max(currentUltimoId, ...data.mensajes.map(m => m.id));
+                    currentUltimoId = Math.max(...data.mensajes.map(m => m.id), currentUltimoId);
                     scrollToBottom();
+
+                    // Actualizar lista de conversaciones
+                    fetch(`/mensajes/buscar?term=`)
+                        .then(response => response.json())
+                        .then(data => actualizarListaConversaciones(data.conversaciones))
+                        .catch(error => console.error('Error actualizando conversaciones:', error));
                 }
             } catch (error) {
                 console.error('Error obteniendo nuevos mensajes:', error);
@@ -257,14 +373,21 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
+
+        // Restablecer tipo a 'texto' después de enviar
+        document.getElementById('input-tipo').value = 'texto';
+
+        // Obtener el archivo y validar sin errores
+        const archivo = formData.get('archivo');
+        const tieneArchivo = archivo && archivo.size > 0;
         
         // Validar que haya contenido
-        if (!formData.get('mensaje') && !formData.get('archivo').size > 0) {
+        if (!formData.get('mensaje') && !tieneArchivo) {
             return;
         }
 
         // Enviar la solicitud
-        fetch(formData.get('archivo').size > 0 ? '/mensajes/upload' : '/mensajes/enviar', {
+        fetch(tieneArchivo ? '/mensajes/upload' : '/mensajes/enviar', {
             method: 'POST',
             body: formData
         })
@@ -294,12 +417,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // Método para actualizar conversaciones
     function actualizarListaConversaciones(conversaciones) {
         const lista = document.querySelector('.contactos__lista');
+        if (!lista) return; // Salir si no se encuentra la lista
         lista.innerHTML = ''; // Limpiar lista actual
+
+        // Ordenar conversaciones por fecha más reciente primero
+        // conversaciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Opcional si el backend ya ordena
 
         conversaciones.forEach(conv => {
             const contacto = conv.contacto;
             const producto = conv.producto;
             const mensaje = conv.ultimoMensaje;
+
+            let preview = '';
+            if (mensaje) {
+                const prefix = mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : '';
+                
+                if (mensaje.tipo === 'contacto') {
+                    // Para el preview de 'contacto', podrías necesitar parsear el contenido si es un JSON string
+                    // o simplemente mostrar un texto genérico como antes.
+                    // Por simplicidad, si el backend ya no lo procesa, hacemos un texto genérico.
+                    let contenidoContacto = mensaje.contenido;
+                    try {
+                        // Si el contenido es un string JSON, intenta parsearlo
+                        if (typeof contenidoContacto === 'string') {
+                            const parsedContent = JSON.parse(stripslashes(contenidoContacto)); // stripslashes por si acaso
+                            if (parsedContent && parsedContent.direccion && parsedContent.direccion.calle) {
+                                contenidoContacto = `${parsedContent.direccion.calle}`;
+                                if(parsedContent.direccion.colonia) contenidoContacto += `, ${parsedContent.direccion.colonia}`;
+                            } else {
+                                contenidoContacto = "Información de contacto"; // Fallback
+                            }
+                        } else if (typeof contenidoContacto === 'object' && contenidoContacto !== null) {
+                            // Si ya es un objeto (por ejemplo, si toArray() lo devuelve así)
+                            if (contenidoContacto.direccion && contenidoContacto.direccion.calle) {
+                                contenidoContacto = `${contenidoContacto.direccion.calle}`;
+                                if(contenidoContacto.direccion.colonia) contenidoContacto += `, ${contenidoContacto.direccion.colonia}`;
+                            } else {
+                                 contenidoContacto = "Información de contacto"; // Fallback
+                            }
+                        } else {
+                             contenidoContacto = "Información de contacto"; // Fallback
+                        }
+
+                    } catch(e) {
+                        console.warn("Error parsing contact preview:", e, mensaje.contenido);
+                        contenidoContacto = "Información de contacto"; // Fallback
+                    }
+                    preview = `${prefix}📌 ${ (contenidoContacto.length > 20) ? (contenidoContacto.substring(0, 20) + '...') : contenidoContacto }`;
+
+                } else if (mensaje.tipo === 'imagen') {
+                    preview = `${prefix}<i class="fa-regular fa-image"></i> Imagen`;
+                } else if (mensaje.tipo === 'documento') {
+                    preview = `${prefix}<i class="fa-regular fa-file-pdf"></i> Documento`;
+                } else {
+                    preview = prefix + ((mensaje.contenido.length > 30) ? (mensaje.contenido.substring(0, 30) + '...') : mensaje.contenido);
+                }
+            }
             
             const contactoHTML = `
                 <div class="contacto" 
@@ -316,14 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         ${mensaje ? `
                             <small class="mensaje-preview">
-                                ${mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : ''}
-                                ${mensaje.tipo === 'imagen' ? 
-                                    '<i class="fa-regular fa-image"></i> Imagen' : 
-                                mensaje.tipo === 'documento' ? 
-                                    '<i class="fa-regular fa-file-pdf"></i> Documento' : 
-                                mensaje.contenido.length > 30 ? 
-                                    mensaje.contenido.substring(0, 30) + '...' : 
-                                    mensaje.contenido}
+                                ${preview}
                             </small>
                         ` : ''}
                     </div>
@@ -334,6 +500,22 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             
             lista.insertAdjacentHTML('beforeend', contactoHTML);
+        });
+    }
+
+    // Para manejar JSON con escapes en el cliente
+    function stripslashes(str) {
+        return (str + '').replace(/\\(.?)/g, function (s, n1) {
+            switch (n1) {
+                case '\\':
+                    return '\\';
+                case '0':
+                    return '\u0000';
+                case '':
+                    return '';
+                default:
+                    return n1;
+            }
         });
     }
 
@@ -370,32 +552,98 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderContent(mensaje) {
+        if (mensaje.tipo === 'contacto') {
+            try {
+                // Limpiar y parsear el contenido
+                let contenido = mensaje.contenido;
+
+                // Eliminar escapes adicionales enviados por PHP
+                if (typeof contenido === 'string') {
+                    contenido = contenido.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                }
+                
+                const contactoData = JSON.parse(contenido);
+                
+                // Construir HTML
+                let html = '<div class="mensaje__contacto-info">';
+                
+                if (contactoData.direccion) {
+                    const dir = contactoData.direccion;
+                    if (dir.calle) {
+                        html += `
+                            <div class="mensaje__contacto-item">
+                                <i class="fa-solid fa-map-marker-alt"></i>
+                                <span>${dir.calle}${dir.colonia ? ', ' + dir.colonia : ''}</span>
+                            </div>
+                            <div class="mensaje__contacto-item direccion-completa">
+                                ${dir.ciudad ? dir.ciudad + ', ' : ''}
+                                ${dir.estado ? dir.estado + ', ' : ''}
+                                ${dir.codigo_postal || ''}
+                            </div>`;
+                    }
+                }
+
+                if (contactoData.telefono) {
+                    html += `
+                        <div class="mensaje__contacto-item">
+                            <i class="fa-solid fa-phone"></i>
+                            <span>${contactoData.telefono}</span>
+                        </div>`;
+                }
+
+                if (contactoData.email) {
+                    html += `
+                        <div class="mensaje__contacto-item">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>${contactoData.email}</span>
+                        </div>`;
+                }
+
+                return html + `</div>`;
+            } catch (e) {
+                return '📌 Información de contacto';
+            }
+        }
+
         switch(mensaje.tipo) {
             case 'imagen':
                 return `
                     <picture>
-                        <source srcset="${mensaje.contenido}.webp" type="image/webp">
-                        <img loading="lazy" src="${mensaje.contenido}" 
-                             class="mensaje__imagen" 
-                             alt="Imagen enviada">
+                        <img loading="lazy" src="/${mensaje.contenido}" 
+                            class="mensaje__imagen" 
+                            alt="Imagen enviada">
                     </picture>
                 `;
             case 'documento':
+                const nombreArchivo = mensaje.contenido.split('/').pop(); // Obtiene "archivo.pdf"
                 return `
-                    <a href="${mensaje.contenido}" 
-                       class="mensaje__documento"
-                       download>
+                    <a href="/${mensaje.contenido}" 
+                    class="mensaje__documento"
+                    download>
                         <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
                         <div class="mensaje__archivo-info">
                             <div class="mensaje__nombre-archivo">
-                                ${mensaje.contenido.split('/').pop()}
+                                ${escapeHTML(nombreArchivo)}
                             </div>
                         </div>
                     </a>
                 `;
             default:
-                return mensaje.contenido ? mensaje.contenido : '';
+                return mensaje.contenido ? escapeHTML(mensaje.contenido) : '';
         }
+    }
+
+    function escapeHTML(str) {
+        if (typeof str !== 'string') return '';
+        return str.replace(/[&<>"']/g, function (match) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[match];
+        });
     }
 
     const searchInput = document.getElementById('input-busqueda');
@@ -404,11 +652,20 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('input', async function(e) {
             const searchTerm = e.target.value.trim();
             
+            if (sidebarPollingInterval) clearInterval(sidebarPollingInterval);
+
+            if (searchTerm === "") {
+                inicializarSidebarPolling(); // Si se borra el término, reiniciar polling normal
+                return;
+            }
+            
             try {
                 const response = await fetch(`/mensajes/buscar?term=${encodeURIComponent(searchTerm)}`);
                 const data = await response.json();
                 
-                actualizarListaConversaciones(data.conversaciones);
+                if (data.conversaciones) {
+                    actualizarListaConversaciones(data.conversaciones);
+                }
             } catch (error) {
                 console.error('Error buscando conversaciones:', error);
             }
