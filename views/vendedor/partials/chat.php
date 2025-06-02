@@ -28,7 +28,7 @@
 
         <?php foreach($mensajes as $mensaje): ?>
             <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
-                <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
+                <div class="mensaje__burbuja <?= ($mensaje->tipo !== 'texto' && $mensaje->tipo !== 'plantilla_auto') ? 'mensaje--contenido-especial' : '' ?>">
                     <?php switch($mensaje->tipo):
                         case 'imagen': ?>
                             <picture>
@@ -41,7 +41,7 @@
                         <?php case 'documento': ?>
                             <a href="/<?= htmlspecialchars($mensaje->contenido) ?>" 
                             class="mensaje__documento"
-                            download> 
+                            download>
                                 <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
                                 <div class="mensaje__archivo-info">
                                     <div class="mensaje__nombre-archivo">
@@ -51,50 +51,43 @@
                             </a>
                         <?php break; ?>
                         <?php case 'contacto': 
+                            // Limpiar escapes y parsear
                             $contenidoLimpio = stripslashes($mensaje->contenido);
                             $contactoData = json_decode($contenidoLimpio);
                             
-                            if (json_last_error() === JSON_ERROR_NONE):
-                        ?>
+                            if (json_last_error() !== JSON_ERROR_NONE) {
+                                $contactoData = null; // Manejar error si es necesario
+                            }
+                            ?>
                             <div class="mensaje__contacto-info">
-                                <?php if (!empty($contactoData->direccion)): ?>
+                                <?php if ($contactoData && isset($contactoData->direccion) && isset($contactoData->direccion->calle)): ?>
                                     <div class="mensaje__contacto-item">
                                         <i class="fa-solid fa-map-marker-alt"></i>
-                                        <span>
-                                            <?= htmlspecialchars($contactoData->direccion->calle) ?>
-                                            <?= !empty($contactoData->direccion->colonia) ? ', ' . htmlspecialchars($contactoData->direccion->colonia) : '' ?>
-                                        </span>
+                                        <span><?= htmlspecialchars($contactoData->direccion->calle) ?></span>
                                     </div>
-                                    <?php if (!empty($contactoData->direccion->ciudad) || !empty($contactoData->direccion->estado) || !empty($contactoData->direccion->codigo_postal)): ?>
-                                        <div class="direccion-completa">
-                                            <?= htmlspecialchars($contactoData->direccion->ciudad) ?>
-                                            <?= !empty($contactoData->direccion->estado) ? ', ' . htmlspecialchars($contactoData->direccion->estado) : '' ?>
-                                            <?= !empty($contactoData->direccion->codigo_postal) ? ' • ' . htmlspecialchars($contactoData->direccion->codigo_postal) : '' ?>
-                                        </div>
-                                    <?php endif; ?>
                                 <?php endif; ?>
-                                
-                                <?php if (!empty($contactoData->telefono)): ?>
+                                <?php if ($contactoData && !empty($contactoData->telefono)): ?>
                                     <div class="mensaje__contacto-item">
                                         <i class="fa-solid fa-phone"></i>
                                         <span><?= htmlspecialchars($contactoData->telefono) ?></span>
                                     </div>
                                 <?php endif; ?>
-                                
-                                <?php if (!empty($contactoData->email)): ?>
+                                <?php if ($contactoData && !empty($contactoData->email)): ?>
                                     <div class="mensaje__contacto-item">
                                         <i class="fa-solid fa-envelope"></i>
                                         <span><?= htmlspecialchars($contactoData->email) ?></span>
                                     </div>
                                 <?php endif; ?>
                             </div>
-                        <?php else: ?>
-                            <div class="error-datos">Información de contacto no válida</div>
-                        <?php endif; ?>
                         <?php break; ?>
                         <?php default: ?>
-                            <?= htmlspecialchars($mensaje->contenido) ?>
+                            <?php echo htmlspecialchars(stripslashes($mensaje->contenido)); ?>
                     <?php endswitch; ?>
+
+                    <?php if ($mensaje->tipo === 'plantilla_auto'): ?>
+                        <small class="mensaje__indicador-auto">Mensaje automático</small>
+                    <?php endif; ?>
+                    
                     <span class="mensaje__fecha">
                         <?= date('h:i a', strtotime($mensaje->creado)) ?>
                     </span>
@@ -113,7 +106,7 @@
         <!-- Campos ocultos con datos del VENDEDOR -->
         <input type="hidden" id="vendedorTelefono" value="<?= $vendedor->telefono ?? '' ?>">
         <input type="hidden" id="vendedorEmail" value="<?= $vendedor->email ?? '' ?>">
-        <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial ?? []), ENT_QUOTES) ?>">
+        <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial[0] ?? []), ENT_QUOTES) ?>">
 
         <div class="preview-archivo" id="preview-archivo">
             <div class="preview-archivo-contenido">
@@ -126,7 +119,7 @@
             </div>
         </div>
         
-        <button type="button" class="chat__adjuntar">
+        <button type="button" class="chat__adjuntar" title="Adjuntar archivo (imagen o PDF)">
             <i class="fa-regular fa-file"></i>
             <input type="file" 
                     class="chat__input-archivo" 
@@ -135,15 +128,25 @@
                     id="input-archivo">
         </button>
 
-        <button type="button" class="chat__contacto" id="btn-contacto">
+        <button type="button" class="chat__contacto" id="btn-contacto" title="Compartir información de contacto del vendedor">
             <i class="fa-regular fa-address-card"></i>
         </button>
+
+        <div class="chat__plantillas-container">
+            <button type="button" class="chat__boton-plantillas" id="btn-mostrar-plantillas" title="Usar una plantilla de mensaje">
+                <i class="fa-regular fa-file-lines"></i> <!-- O un ícono más adecuado -->
+            </button>
+            <div class="chat__lista-plantillas" id="lista-plantillas" style="display: none;">
+                <!-- Las plantillas se cargarán aquí con JS -->
+            </div>
+        </div>
         
         <input type="text" 
                 class="chat__campo" 
-                name="mensaje" 
+                name="mensaje"
+                id="input-mensaje-chat"
                 placeholder="Escribe un mensaje...">
-        <button type="submit" class="chat__boton">
+        <button type="submit" class="chat__boton" title="Enviar mensaje">
             <i class="fa-regular fa-paper-plane"></i>
         </button>
     </form>

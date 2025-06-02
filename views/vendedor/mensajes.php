@@ -33,15 +33,37 @@
                             <h3><?php echo $contacto->nombre . ' • ' . $producto->nombre; ?></h3>
                         </div>
                         <?php if ($mensaje): ?>
-                            <?php $prefix = ($mensaje->remitenteId === $_SESSION['id']) ? 'Tú: ' : ''; ?>
+                            <?php 
+                                $prefix = ($mensaje->remitenteId === $_SESSION['id']) ? 'Tú: ' : ''; 
+                                $contenidoPreview = '';
+                                if ($mensaje->tipo === 'imagen') {
+                                    $contenidoPreview = '<i class="fa-regular fa-image"></i> ' . $prefix . 'Imagen';
+                                } elseif ($mensaje->tipo === 'documento') {
+                                    $contenidoPreview = '<i class="fa-regular fa-file-pdf"></i> ' . $prefix . 'Documento';
+                                } elseif ($mensaje->tipo === 'contacto') {
+                                    $jsonContenido = stripslashes($mensaje->contenido);
+                                    $datosContactoPreview = json_decode($jsonContenido, true);
+                                    if (json_last_error() === JSON_ERROR_NONE && isset($datosContactoPreview['direccion']['calle']) && !empty($datosContactoPreview['direccion']['calle'])) {
+                                        $textoPreviewContacto = $datosContactoPreview['direccion']['calle'];
+                                        if (!empty($datosContactoPreview['direccion']['colonia'])) {
+                                            $textoPreviewContacto .= ', ' . $datosContactoPreview['direccion']['colonia'];
+                                        }
+                                    } elseif (json_last_error() === JSON_ERROR_NONE && !empty($datosContactoPreview['telefono'])) {
+                                        $textoPreviewContacto = 'Tel: ' . $datosContactoPreview['telefono'];
+                                    } elseif (json_last_error() === JSON_ERROR_NONE && !empty($datosContactoPreview['email'])) {
+                                        $textoPreviewContacto = 'Email: ' . $datosContactoPreview['email'];
+                                    } else {
+                                        $textoPreviewContacto = 'Información de contacto';
+                                    }
+                                    $contenidoPreview = $prefix . '📌 ' . ((strlen($textoPreviewContacto) > 25) ? htmlspecialchars(substr($textoPreviewContacto, 0, 25)) . '...' : htmlspecialchars($textoPreviewContacto));
+                                } else { // Para 'texto' y 'plantilla_auto'
+                                    // Aplicar stripslashes ANTES de htmlspecialchars y substr
+                                    $contenidoLimpio = stripslashes($mensaje->contenido);
+                                    $contenidoPreview = $prefix . ((strlen($contenidoLimpio) > 30) ? htmlspecialchars(substr($contenidoLimpio, 0, 30)) . '...' : htmlspecialchars($contenidoLimpio));
+                                }
+                            ?>
                             <small class="mensaje-preview">
-                                <?php if($mensaje->tipo === 'imagen'): ?>
-                                    <i class="fa-regular fa-image"></i> <?= $prefix ?>Imagen
-                                <?php elseif($mensaje->tipo === 'documento'): ?>
-                                    <i class="fa-regular fa-file-pdf"></i> <?= $prefix ?>Documento
-                                <?php else: ?>
-                                    <?= $prefix . ((strlen($mensaje->contenido) > 30) ? (substr($mensaje->contenido, 0, 30) . '...') : $mensaje->contenido) ?>
-                                <?php endif; ?>
+                                <?= $contenidoPreview ?>
                             </small>
                         <?php endif; ?>
                     </div>
@@ -85,7 +107,7 @@
 
                 <?php foreach($mensajes as $mensaje): ?>
                     <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
-                        <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
+                        <div class="mensaje__burbuja <?= ($mensaje->tipo !== 'texto' && $mensaje->tipo !== 'plantilla_auto') ? 'mensaje--contenido-especial' : '' ?>">
                             <?php switch($mensaje->tipo):
                                 case 'imagen': ?>
                                     <picture>
@@ -138,8 +160,13 @@
                                     </div>
                                 <?php break; ?>
                                 <?php default: ?>
-                                    <?= htmlspecialchars($mensaje->contenido) ?>
+                                    <?php echo htmlspecialchars(stripslashes($mensaje->contenido)); ?>
                             <?php endswitch; ?>
+
+                            <?php if ($mensaje->tipo === 'plantilla_auto'): ?>
+                                <small class="mensaje__indicador-auto">Mensaje automático</small>
+                            <?php endif; ?>
+                            
                             <span class="mensaje__fecha">
                                 <?= date('h:i a', strtotime($mensaje->creado)) ?>
                             </span>
@@ -171,7 +198,7 @@
                     </div>
                 </div>
                 
-                <button type="button" class="chat__adjuntar">
+                <button type="button" class="chat__adjuntar" title="Adjuntar archivo (imagen o PDF)">
                     <i class="fa-regular fa-file"></i>
                     <input type="file" 
                            class="chat__input-archivo" 
@@ -180,15 +207,25 @@
                            id="input-archivo">
                 </button>
 
-                <button type="button" class="chat__contacto" id="btn-contacto">
+                <button type="button" class="chat__contacto" id="btn-contacto" title="Compartir información de contacto del vendedor">
                     <i class="fa-regular fa-address-card"></i>
                 </button>
+
+                <div class="chat__plantillas-container">
+                    <button type="button" class="chat__boton-plantillas" id="btn-mostrar-plantillas" title="Usar una plantilla de mensaje">
+                        <i class="fa-regular fa-file-lines"></i> <!-- O un ícono más adecuado -->
+                    </button>
+                    <div class="chat__lista-plantillas" id="lista-plantillas" style="display: none;">
+                        <!-- Las plantillas se cargarán aquí con JS -->
+                    </div>
+                </div>
                 
                 <input type="text" 
                        class="chat__campo" 
-                       name="mensaje" 
+                       name="mensaje"
+                       id="input-mensaje-chat"
                        placeholder="Escribe un mensaje...">
-                <button type="submit" class="chat__boton">
+                <button type="submit" class="chat__boton" title="Enviar mensaje">
                     <i class="fa-regular fa-paper-plane"></i>
                 </button>
             </form>
@@ -198,43 +235,353 @@
             </div>
         <?php endif; ?>
     </div>
+
+    <div class="modal-plantilla" id="modal-personalizar-plantilla" style="display:none;">
+        <div class="modal-plantilla__contenido">
+            <h3 id="modal-plantilla-titulo">Personalizar Plantilla</h3>
+            <textarea id="modal-plantilla-texto" rows="5"></textarea>
+            <div id="modal-plantilla-placeholders">
+                <!-- Placeholders se mostrarán aquí -->
+            </div>
+            <div class="modal-plantilla__acciones">
+                <button type="button" id="btn-enviar-plantilla-personalizada" title="Enviar este mensaje de plantilla">Enviar</button>
+                <button type="button" id="btn-cerrar-modal-plantilla" title="Cancelar y cerrar esta ventana">Cancelar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
 let pollingInterval;
 let currentUltimoId = 0;
+const plantillasDesdePHP = <?= json_encode($plantillasDefinidas ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatActivo = document.getElementById('chat-activo');
     const formChat = document.getElementById('form-chat');
+
+    // Referencias a elementos del modal y plantillas
+    const btnMostrarPlantillas = document.getElementById('btn-mostrar-plantillas');
+    const listaPlantillasEl = document.getElementById('lista-plantillas');
+    const modalPlantilla = document.getElementById('modal-personalizar-plantilla');
+    const modalPlantillaTitulo = document.getElementById('modal-plantilla-titulo');
+    const modalPlantillaTexto = document.getElementById('modal-plantilla-texto');
+    const modalPlantillaPlaceholders = document.getElementById('modal-plantilla-placeholders');
+    const btnEnviarPlantillaPersonalizada = document.getElementById('btn-enviar-plantilla-personalizada');
+    const btnCerrarModalPlantilla = document.getElementById('btn-cerrar-modal-plantilla');
+    const inputMensajeChat = document.getElementById('input-mensaje-chat'); // El campo de texto normal
 
     let sidebarPollingInterval;
     const SIDEBAR_POLLING_RATE = 7000; // Consultar cada 7 segundos (ajusta según necesidad)
 
     // Iniciar el polling para la barra lateral cuando la página carga
     inicializarSidebarPolling();
-    
-    // Cargar conversación al hacer clic en contacto
-    document.querySelector('.contactos__lista').addEventListener('click', async (e) => {
-        const contacto = e.target.closest('.contacto');
-        if (!contacto) return;
 
-        const productoId = contacto.dataset.productoId;
-        const contactoId = contacto.dataset.contactoId;
+    let plantillasDisponibles = {}; // Para almacenar las plantillas cargadas
+    let plantillaSeleccionadaId = null;
+
+    // Variables para almacenar información del chat actual
+    let nombreClienteActual = '';
+    let nombreProductoActual = '';
+
+    function popularListaPlantillas(listaEl) {
+        if (!listaEl) return;
+        listaEl.innerHTML = ''; 
+        if (Object.keys(plantillasDisponibles).length === 0) {
+            listaEl.innerHTML = '<p style="padding:1rem; color:grey; text-align:center;">No hay plantillas.</p>';
+            return;
+        }
+        for (const id in plantillasDisponibles) {
+            const plantilla = plantillasDisponibles[id];
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = plantilla.nombre;
+            btn.dataset.plantillaId = id;
+            // El listener para estos botones se manejará por delegación
+            listaEl.appendChild(btn);
+        }
+    }
+    
+    async function cargarYPrepararPlantillas() {
+        if (plantillasDesdePHP && Object.keys(plantillasDesdePHP).length > 0) {
+            plantillasDisponibles = plantillasDesdePHP;
+        } else {
+            // Simulación si es necesario para desarrollo local sin PHP
+            plantillasDisponibles = { /* ... tu objeto de simulación ... */ };
+        }
+        // Si la lista de plantillas ya existe en el DOM (chat inicial cargado), la populamos
+        const listaPlantillasInicial = document.getElementById('lista-plantillas');
+        if (listaPlantillasInicial) {
+            popularListaPlantillas(listaPlantillasInicial);
+        }
+    }
+
+    function seleccionarPlantilla(id) {
+        actualizarInfoChatActualParaPlantillas();
+        plantillaSeleccionadaId = id;
+        const plantilla = plantillasDisponibles[id];
+
+        if (modalPlantilla && plantilla) {
+            modalPlantillaTitulo.textContent = `Personalizar: ${plantilla.nombre}`;
+            let textoConPlaceholders = plantilla.texto;
+            if (nombreClienteActual) textoConPlaceholders = textoConPlaceholders.replace(/\[nombre_cliente\]/gi, nombreClienteActual);
+            if (nombreProductoActual) textoConPlaceholders = textoConPlaceholders.replace(/\[nombre_producto\]/gi, nombreProductoActual);
+            modalPlantillaTexto.value = textoConPlaceholders;
+            
+            modalPlantillaPlaceholders.innerHTML = ''; 
+            if (plantilla.placeholders && plantilla.placeholders.length > 0) {
+                const p = document.createElement('p');
+                p.textContent = 'Puedes reemplazar o completar los siguientes campos:';
+                modalPlantillaPlaceholders.appendChild(p);
+                plantilla.placeholders.forEach(ph => {
+                    if (textoConPlaceholders.includes(ph)) { 
+                        const code = document.createElement('code');
+                        code.textContent = ph;
+                        modalPlantillaPlaceholders.appendChild(code);
+                        modalPlantillaPlaceholders.appendChild(document.createTextNode(' '));
+                    }
+                });
+            }
+            modalPlantilla.style.display = 'flex';
+            const listaPlantillasEl = document.getElementById('lista-plantillas'); // Re-obtener por si acaso
+            if(listaPlantillasEl) listaPlantillasEl.style.display = 'none'; 
+        }
+    }
+
+
+    // --- MANEJO DE EVENTOS CON DELEGACIÓN para elementos dentro de #chat-activo ---
+    if (chatActivo) {
+        chatActivo.addEventListener('click', function(event) {
+            const target = event.target;
+
+            // Botón para mostrar/ocultar lista de plantillas
+            const btnMostrar = target.closest('#btn-mostrar-plantillas');
+            if (btnMostrar) {
+                const listaEl = document.getElementById('lista-plantillas'); // Buscarla dentro del chat actual
+                if (listaEl) {
+                    if (listaEl.children.length === 0 || Object.keys(plantillasDisponibles).length === 0) {
+                        popularListaPlantillas(listaEl);
+                    }
+                    listaEl.style.display = listaEl.style.display === 'none' ? 'block' : 'none';
+                }
+                return; // Prevenir que otros listeners (como el de cerrar lista) se disparen inmediatamente
+            }
+
+            // Botón para seleccionar una plantilla de la lista
+            const plantillaBtn = target.closest('#lista-plantillas button[data-plantilla-id]');
+            if (plantillaBtn) {
+                seleccionarPlantilla(plantillaBtn.dataset.plantillaId);
+                return;
+            }
+
+            // Botón de compartir contacto
+            const btnContacto = target.closest('#btn-contacto');
+            if (btnContacto) {
+                manejarClickBotonContacto();
+                return;
+            }
+
+            // Botón de adjuntar archivo (solo para abrir el input file)
+            const btnAdjuntar = target.closest('.chat__adjuntar');
+            if (btnAdjuntar && !target.matches('input[type="file"]')) { // Evitar si el clic es en el input mismo
+                const inputFile = btnAdjuntar.querySelector('.chat__input-archivo');
+                if (inputFile) inputFile.click();
+                return;
+            }
+        });
+        
+        // Listener para el cambio en el input de archivo (dentro del chat)
+            chatActivo.addEventListener('change', function(event) {
+            if (event.target && event.target.id === 'input-archivo') {
+                manejarCambioInputArchivo(event.target);
+            }
+        });
+    }
+
+    function manejarClickBotonContacto() {
+        const formChatEl = document.getElementById('form-chat');
+        if (!formChatEl) {
+            console.error("Formulario de chat no encontrado para botón de contacto.");
+            return;
+        }
+
+        const direccionComercialInput = formChatEl.querySelector('#direccionComercial');
+        const vendedorTelefonoInput = formChatEl.querySelector('#vendedorTelefono');
+        const vendedorEmailInput = formChatEl.querySelector('#vendedorEmail');
+        
+        let direccionObj = null; // Por defecto null si no hay datos válidos
+        if (direccionComercialInput && direccionComercialInput.value) {
+            try {
+                const dirData = JSON.parse(direccionComercialInput.value);
+                // El valor es un array con un objeto, o un objeto directamente
+                const parsedDir = Array.isArray(dirData) ? dirData[0] : dirData;
+                // Solo construimos el objeto direccion si hay una calle
+                if (parsedDir && typeof parsedDir === 'object' && parsedDir.calle && parsedDir.calle.trim() !== '') {
+                    direccionObj = { // Crear un nuevo objeto con solo los campos que quieres
+                        calle: parsedDir.calle || '',
+                        colonia: parsedDir.colonia || '',
+                        ciudad: parsedDir.ciudad || '',
+                        estado: parsedDir.estado || '',
+                        codigo_postal: parsedDir.codigo_postal || ''
+                    };
+                    // Filtrar propiedades vacías del objeto direccionObj si es necesario
+                    direccionObj = Object.fromEntries(Object.entries(direccionObj).filter(([_, v]) => v !== ''));
+                    if (Object.keys(direccionObj).length === 0) { // Si quedó vacío después de filtrar
+                        direccionObj = null;
+                    }
+
+                }
+            } catch (e) { 
+                console.error("Error parseando direccionComercialInput para contacto:", e);
+                direccionObj = null; // En caso de error, no enviar dirección
+            }
+        }
+
+        const telefono = vendedorTelefonoInput ? vendedorTelefonoInput.value.trim() : '';
+        const email = vendedorEmailInput ? vendedorEmailInput.value.trim() : '';
+
+        // Este es el objeto que se convertirá en el string JSON para el contenido del mensaje
+        const datosParaMensajeJSON = {
+            direccion: direccionObj, // Será null si no hay calle, o el objeto de dirección
+            telefono: telefono,
+            email: email
+        };
+
+        // console.log('Datos de contacto (objeto) a enviar:', datosParaMensajeJSON);
+
+        const formData = new FormData(formChatEl);
+        formData.set('tipo', 'contacto'); // Tipo general del mensaje
+        formData.set('mensaje', JSON.stringify(datosParaMensajeJSON)); // Contenido del mensaje es el JSON
+
+        fetch('/mensajes/enviar', { method: 'POST', body: formData })
+        .then(response => response.ok ? response.json() : response.json().then(err => Promise.reject(err)))
+        .then(data => {
+            if (data.success && data.mensaje) {
+                const tipoInput = formChatEl.querySelector('input[name="tipo"]');
+                if(tipoInput) tipoInput.value = 'texto';
+                formChatEl.reset(); 
+                
+                appendMessage(data.mensaje);
+                currentUltimoId = data.mensaje.id;
+                scrollToBottom();
+                fetch(`/mensajes/lista-conversaciones`).then(res => res.json()).then(sData => { // Endpoint correcto
+                    if(sData.conversaciones) actualizarListaConversaciones(sData.conversaciones);
+                });
+            } else {
+                alert('Error al enviar contacto: ' + (data.errores ? data.errores.join(', ') : 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error en petición al enviar contacto:', error);
+            alert('Error en petición: ' + (error.errores ? error.errores.join(', ') : (error.message || 'Error de red')));
+        });
+    }
+
+
+    // Listeners para el modal (que está fuera de #chat-activo, según mi sugerencia)
+    if (btnCerrarModalPlantilla) {
+        btnCerrarModalPlantilla.addEventListener('click', () => {
+            if (modalPlantilla) modalPlantilla.style.display = 'none';
+            plantillaSeleccionadaId = null;
+        });
+    }
+
+    if (modalPlantilla) { // Para cerrar el modal al hacer clic fuera
+        modalPlantilla.addEventListener('click', function(event) {
+            if (event.target === modalPlantilla) {
+                modalPlantilla.style.display = 'none';
+                plantillaSeleccionadaId = null;
+            }
+        });
+    }
+
+    if (btnEnviarPlantillaPersonalizada) {
+        btnEnviarPlantillaPersonalizada.addEventListener('click', async () => {
+            if (!plantillaSeleccionadaId) return;
+            const formChatEl = document.getElementById('form-chat'); 
+            if (!formChatEl) return;
+
+            const formData = new FormData(formChatEl); 
+            formData.set('mensaje', modalPlantillaTexto.value);
+            formData.set('tipo', 'plantilla_auto'); 
+            formData.set('plantilla_id', plantillaSeleccionadaId); 
+
+            try {
+                const response = await fetch('/mensajes/enviar', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (data.success && data.mensaje) {
+                    appendMessage(data.mensaje);
+                    currentUltimoId = data.mensaje.id;
+                    scrollToBottom();
+                    fetch(`/mensajes/lista-conversaciones`).then(res => res.json()).then(sData => {
+                        if(sData.conversaciones) actualizarListaConversaciones(sData.conversaciones);
+                    });
+                } else {
+                    console.error('Error enviando plantilla:', data.errores || 'Error desconocido');
+                }
+            } catch (error) {
+                console.error('Error en fetch al enviar plantilla:', error);
+            } finally {
+                if (modalPlantilla) modalPlantilla.style.display = 'none';
+                plantillaSeleccionadaId = null;
+            }
+        });
+    }
+
+    document.querySelector('.contactos__lista').addEventListener('click', async (e) => {
+        const contactoDiv = e.target.closest('.contacto');
+        if (!contactoDiv) return;
+
+        const productoId = contactoDiv.dataset.productoId;
+        const contactoId = contactoDiv.dataset.contactoId;
         
         try {
             const response = await fetch(`/mensajes/chat?productoId=${productoId}&contactoId=${contactoId}`);
             const data = await response.json();
             
-            document.getElementById('chat-activo').innerHTML = data.html;
+            if (chatActivo) {
+                chatActivo.innerHTML = data.html; 
+                actualizarInfoChatActualParaPlantillas(); 
+                const nuevaListaPlantillasEl = document.getElementById('lista-plantillas');
+                if (nuevaListaPlantillasEl) { // Si el nuevo HTML contiene la lista
+                    popularListaPlantillas(nuevaListaPlantillasEl);
+                }
+            }
             scrollToBottom();
-
             currentUltimoId = data.ultimoId;
             inicializarPolling(productoId, contactoId);
         } catch (error) {
             console.error('Error cargando el chat:', error);
         }
-    }); 
+    });
+    
+    function actualizarInfoChatActualParaPlantillas() {
+        const chatHeaderInfo = document.querySelector('#chat-activo .chat__info h3');
+        if (chatHeaderInfo && chatHeaderInfo.offsetParent !== null) {
+            const parts = chatHeaderInfo.textContent.split('•');
+            nombreClienteActual = parts[0] ? parts[0].trim() : '';
+            nombreProductoActual = parts[1] ? parts[1].trim() : '';
+        } else {
+            nombreClienteActual = '';
+            nombreProductoActual = '';
+        }
+    }
+    
+    function setupInitialPageLoadFeatures() {
+        const chatActivoInicial = document.getElementById('chat-activo');
+        const chatVacioInfo = chatActivoInicial ? chatActivoInicial.querySelector('.chat__vacio') : null;
+
+        if (chatActivoInicial && (!chatVacioInfo || chatVacioInfo.offsetParent === null )) {
+            actualizarInfoChatActualParaPlantillas();
+            const listaEl = document.getElementById('lista-plantillas');
+            if (listaEl) { // Si el chat inicial ya tiene la lista
+                popularListaPlantillas(listaEl);
+            }
+        }
+    }
+
+    cargarYPrepararPlantillas(); // Carga las plantillas desde PHP a la variable JS
+    setupInitialPageLoadFeatures(); // Configura para el chat cargado inicialmente (si existe)
 
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'input-archivo') {
@@ -257,73 +604,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-    });
-
-    document.addEventListener('click', (e) => {
-        // Corregir detección del botón
-        const btnContacto = e.target.closest('#btn-contacto');
-        if (!btnContacto) return;
-
-        const direccionComercialInput = document.getElementById('direccionComercial');
-        const direcciones = JSON.parse(direccionComercialInput.value) || []; 
-        const telefono = document.getElementById('vendedorTelefono').value.trim();
-        const email = document.getElementById('vendedorEmail').value.trim();
-        const direccion = direcciones.length > 0 ? direcciones[0] : {};
-
-        // Validar estructura mínima
-        const contactoData = {
-            tipo: 'contacto',
-            direccion: direccion && direccion.calle ? direccion : null,
-            telefono: telefono,
-            email: email
-        };
-
-        console.log('Datos a enviar:', contactoData); // Verificar en consola
-
-        // Configurar el formulario
-        const form = document.getElementById('form-chat');
-        const formData = new FormData(form);
-        
-        // Establecer valores específicos para contacto
-        formData.set('tipo', 'contacto');
-        formData.set('mensaje', JSON.stringify(contactoData));
-
-        // Realizar petición
-        fetch('/mensajes/enviar', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Error en la respuesta');
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Restablecer valores
-                document.getElementById('input-tipo').value = 'texto';
-                form.reset();
-                
-                // Agregar mensaje al chat
-                if(data.mensaje) {
-                    appendMessage(data.mensaje);
-                    currentUltimoId = data.mensaje.id;
-                    scrollToBottom();
-
-                    // Actualizar lista de conversaciones
-                    fetch(`/mensajes/buscar?term=`)
-                        .then(response => response.json())
-                        .then(data => actualizarListaConversaciones(data.conversaciones))
-                        .catch(error => console.error('Error actualizando conversaciones:', error));
-                }
-            } else {
-                console.error('Error del servidor:', data.errores);
-            }
-        })
-        .catch(error => {
-            console.error('Error en la petición:', error);
-            // Restablecer tipo en caso de error
-            document.getElementById('input-tipo').value = 'texto';
-        });
     });
 
     function inicializarSidebarPolling() {
@@ -461,9 +741,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!lista) return; // Salir si no se encuentra la lista
         lista.innerHTML = ''; // Limpiar lista actual
 
-        // Ordenar conversaciones por fecha más reciente primero
-        // conversaciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Opcional si el backend ya ordena
-
         conversaciones.forEach(conv => {
             const contacto = conv.contacto;
             const producto = conv.producto;
@@ -472,46 +749,37 @@ document.addEventListener('DOMContentLoaded', () => {
             let preview = '';
             if (mensaje) {
                 const prefix = mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : '';
-                
+                let contenidoMensaje = mensaje.contenido; // Este es el string que puede tener slashes
+
+                // Aplicar "stripslashes" en JS si es necesario
+                if (typeof contenidoMensaje === 'string') {
+                    // Solo si sabes que el backend podría estar enviando slashes escapados en el JSON
+                    // para comillas simples. JSON_UNESCAPED_SLASHES en PHP es para '/', no para '\''.
+                    // json_encode por defecto no escapa comillas simples, pero si lo hiciera como \', esto lo limpiaría.
+                    contenidoMensaje = contenidoMensaje.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+                }
+
                 if (mensaje.tipo === 'contacto') {
-                    // Para el preview de 'contacto', podrías necesitar parsear el contenido si es un JSON string
-                    // o simplemente mostrar un texto genérico como antes.
-                    // Por simplicidad, si el backend ya no lo procesa, hacemos un texto genérico.
-                    let contenidoContacto = mensaje.contenido;
+                    let textoPreviewContacto = 'Información de contacto'; // Fallback
                     try {
-                        // Si el contenido es un string JSON, intenta parsearlo
-                        if (typeof contenidoContacto === 'string') {
-                            const parsedContent = JSON.parse(stripslashes(contenidoContacto)); // stripslashes por si acaso
-                            if (parsedContent && parsedContent.direccion && parsedContent.direccion.calle) {
-                                contenidoContacto = `${parsedContent.direccion.calle}`;
-                                if(parsedContent.direccion.colonia) contenidoContacto += `, ${parsedContent.direccion.colonia}`;
-                            } else {
-                                contenidoContacto = "Información de contacto"; // Fallback
-                            }
-                        } else if (typeof contenidoContacto === 'object' && contenidoContacto !== null) {
-                            // Si ya es un objeto (por ejemplo, si toArray() lo devuelve así)
-                            if (contenidoContacto.direccion && contenidoContacto.direccion.calle) {
-                                contenidoContacto = `${contenidoContacto.direccion.calle}`;
-                                if(contenidoContacto.direccion.colonia) contenidoContacto += `, ${contenidoContacto.direccion.colonia}`;
-                            } else {
-                                 contenidoContacto = "Información de contacto"; // Fallback
-                            }
-                        } else {
-                             contenidoContacto = "Información de contacto"; // Fallback
+                        const datosContactoPreview = (typeof contenidoMensaje === 'string') ? JSON.parse(contenidoMensaje) : contenidoMensaje;
+                        if (datosContactoPreview && datosContactoPreview.direccion && datosContactoPreview.direccion.calle && datosContactoPreview.direccion.calle.trim() !== '') {
+                            textoPreviewContacto = datosContactoPreview.direccion.calle;
+                            if (datosContactoPreview.direccion.colonia) textoPreviewContacto += ', ' + datosContactoPreview.direccion.colonia;
+                        } else if (datosContactoPreview && datosContactoPreview.telefono) {
+                            textoPreviewContacto = 'Tel: ' + datosContactoPreview.telefono;
+                        } else if (datosContactoPreview && datosContactoPreview.email) {
+                            textoPreviewContacto = 'Email: ' + datosContactoPreview.email;
                         }
-
-                    } catch(e) {
-                        console.warn("Error parsing contact preview:", e, mensaje.contenido);
-                        contenidoContacto = "Información de contacto"; // Fallback
-                    }
-                    preview = `${prefix}📌 ${ (contenidoContacto.length > 20) ? (contenidoContacto.substring(0, 20) + '...') : contenidoContacto }`;
-
+                    } catch (e) { /* Mantener fallback */ }
+                    previewHTML = `${prefix}📌 ${ (textoPreviewContacto.length > 25) ? escapeHTML(textoPreviewContacto.substring(0, 25)) + '...' : escapeHTML(textoPreviewContacto) }`;
+                
                 } else if (mensaje.tipo === 'imagen') {
-                    preview = `${prefix}<i class="fa-regular fa-image"></i> Imagen`;
+                    previewHTML = `${prefix}<i class="fa-regular fa-image"></i> Imagen`;
                 } else if (mensaje.tipo === 'documento') {
-                    preview = `${prefix}<i class="fa-regular fa-file-pdf"></i> Documento`;
-                } else {
-                    preview = prefix + ((mensaje.contenido.length > 30) ? (mensaje.contenido.substring(0, 30) + '...') : mensaje.contenido);
+                    previewHTML = `${prefix}<i class="fa-regular fa-file-pdf"></i> Documento`;
+                } else { // 'texto', 'plantilla_auto'
+                    previewHTML = prefix + ((contenidoMensaje.length > 30) ? escapeHTML(contenidoMensaje.substring(0, 30)) + '...' : escapeHTML(contenidoMensaje));
                 }
             }
             
@@ -521,18 +789,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     data-contacto-id="${contacto.id}">
                     <picture>
                         <img src="/img/usuarios/${contacto.imagen ? contacto.imagen + '.png' : 'default.png'}" 
-                            alt="${contacto.nombre}"
+                            alt="${escapeHTML(contacto.nombre)}"
                             class="contacto__imagen">
                     </picture>
                     <div class="contacto__info">
                         <div class="contacto__titulo">
-                            <h3>${contacto.nombre} • ${producto.nombre}</h3>
+                            <h3>${escapeHTML(contacto.nombre)} • ${escapeHTML(producto.nombre)}</h3>
                         </div>
-                        ${mensaje ? `
-                            <small class="mensaje-preview">
-                                ${preview}
-                            </small>
-                        ` : ''}
+                        ${mensaje ? `<small class="mensaje-preview">${previewHTML}</small>` : ''}
                     </div>
                     <span class="contacto__fecha">
                         ${new Date(conv.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
@@ -575,12 +839,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Agregar mensaje al DOM
     function appendMessage(mensaje) {
         const container = document.getElementById('mensajes-container');
+        if (!container) return;
         const isEnviado = mensaje.remitenteId == <?= $_SESSION['id'] ?? 0 ?>;
+
+        // Construir el indicador de mensaje automático
+        let indicadorAutoHTML = '';
+        if (mensaje.tipo === 'plantilla_auto') {
+            indicadorAutoHTML = '<small class="mensaje__indicador-auto">Mensaje automático</small>';
+        }
 
         const messageHtml = `
             <div class="mensaje mensaje--${isEnviado ? 'enviado' : 'recibido'}" data-id="${mensaje.id}">
-                <div class="mensaje__burbuja ${mensaje.tipo !== 'texto' ? 'mensaje--contenido-especial' : ''}">
-                    ${renderContent(mensaje)}
+                <div class="mensaje__burbuja ${mensaje.tipo !== 'texto' && mensaje.tipo !== 'plantilla_auto' ? 'mensaje--contenido-especial' : ''}">
+                    ${renderContent(mensaje)} 
+                    ${indicadorAutoHTML} 
                     <span class="mensaje__fecha">
                         ${new Date(mensaje.creado).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                     </span>
@@ -588,22 +860,24 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        container.insertAdjacentHTML('beforeend', messageHtml); // Añadir al final
-        scrollToBottom(); // Asegurar scroll al final
+        container.insertAdjacentHTML('beforeend', messageHtml);
+        scrollToBottom();
     }
 
     function renderContent(mensaje) {
+        let contenidoParaMostrar = mensaje.contenido;
+
+        if (typeof contenidoParaMostrar === 'string') {
+            // Quita slashes que podrían haber venido del servidor si no se limpiaron antes de json_encode
+            // o si el proceso de renderizado PHP inicial los tenía y se re-leyó de alguna manera.
+            // Esto es una capa extra de seguridad/limpieza.
+            contenidoParaMostrar = contenidoParaMostrar.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+        }
+
         if (mensaje.tipo === 'contacto') {
             try {
                 // Limpiar y parsear el contenido
-                let contenido = mensaje.contenido;
-
-                // Eliminar escapes adicionales enviados por PHP
-                if (typeof contenido === 'string') {
-                    contenido = contenido.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-                }
-                
-                const contactoData = JSON.parse(contenido);
+                const contactoData = (typeof contenidoParaMostrar === 'string') ? JSON.parse(contenidoParaMostrar) : contenidoParaMostrar;
                 
                 // Construir HTML
                 let html = '<div class="mensaje__contacto-info">';
@@ -670,7 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>
                 `;
             default:
-                return mensaje.contenido ? escapeHTML(mensaje.contenido) : '';
+                return contenidoParaMostrar ? escapeHTML(contenidoParaMostrar) : '';
         }
     }
 
@@ -713,12 +987,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Usar delegación de eventos para el formulario
-    document.addEventListener('submit', (e) => {
-        if (e.target && e.target.matches('#form-chat')) {
-            manejarEnvio(e);
+    // Listener para cerrar la lista desplegable de plantillas (no el modal)
+    document.addEventListener('click', function(event) {
+        const listaEl = document.getElementById('lista-plantillas'); // Re-obtener por si se recreó
+        const btnMostrar = document.getElementById('btn-mostrar-plantillas'); // Re-obtener
+
+        if (listaEl && btnMostrar && listaEl.style.display === 'block') {
+            const isClickInsideLista = listaEl.contains(event.target);
+            const isClickOnBoton = btnMostrar.contains(event.target);
+            if (!isClickInsideLista && !isClickOnBoton) {
+                listaEl.style.display = 'none';
+            }
         }
     });
 
+    // Listener para el submit del formulario principal
+    const formChatEl = document.getElementById('form-chat'); // Obtener una sola vez
+    if (formChatEl) {
+        formChatEl.addEventListener('submit', function(e) { // Pasar 'e' para llamar a manejarEnvio
+            // ... tu lógica para setear tipo 'texto' ...
+            // Llamar a manejarEnvio si es necesario o dejar que el listener de delegación lo haga
+        });
+    }
+
+    // Delegación para el submit del formulario principal
+    document.addEventListener('submit', (e) => {
+        if (e.target && e.target.matches('#form-chat')) {
+            // Antes de llamar a manejarEnvio, asegurarse que el tipo es 'texto' si no es archivo/plantilla
+            const form = e.target;
+            const inputFile = form.querySelector('input[type="file"]');
+            const tipoInput = form.querySelector('input[name="tipo"]');
+
+            if (tipoInput && tipoInput.value !== 'plantilla_auto' && tipoInput.value !== 'contacto') {
+                if (!inputFile || !inputFile.files || inputFile.files.length === 0) {
+                    tipoInput.value = 'texto';
+                }
+            }
+            manejarEnvio(e);
+        }
+    });
 });
 </script>

@@ -33,15 +33,37 @@
                             <h3><?php echo $contacto->nombre . ' • ' . $producto->nombre; ?></h3>
                         </div>
                         <?php if ($mensaje): ?>
-                            <?php $prefix = ($mensaje->remitenteId === $_SESSION['id']) ? 'Tú: ' : ''; ?>
+                            <?php 
+                                $prefix = ($mensaje->remitenteId === $_SESSION['id']) ? 'Tú: ' : ''; 
+                                $contenidoPreview = '';
+                                if ($mensaje->tipo === 'imagen') {
+                                    $contenidoPreview = '<i class="fa-regular fa-image"></i> ' . $prefix . 'Imagen';
+                                } elseif ($mensaje->tipo === 'documento') {
+                                    $contenidoPreview = '<i class="fa-regular fa-file-pdf"></i> ' . $prefix . 'Documento';
+                                } elseif ($mensaje->tipo === 'contacto') {
+                                    $jsonContenido = stripslashes($mensaje->contenido);
+                                    $datosContactoPreview = json_decode($jsonContenido, true);
+                                    if (json_last_error() === JSON_ERROR_NONE && isset($datosContactoPreview['direccion']['calle']) && !empty($datosContactoPreview['direccion']['calle'])) {
+                                        $textoPreviewContacto = $datosContactoPreview['direccion']['calle'];
+                                        if (!empty($datosContactoPreview['direccion']['colonia'])) {
+                                            $textoPreviewContacto .= ', ' . $datosContactoPreview['direccion']['colonia'];
+                                        }
+                                    } elseif (json_last_error() === JSON_ERROR_NONE && !empty($datosContactoPreview['telefono'])) {
+                                        $textoPreviewContacto = 'Tel: ' . $datosContactoPreview['telefono'];
+                                    } elseif (json_last_error() === JSON_ERROR_NONE && !empty($datosContactoPreview['email'])) {
+                                        $textoPreviewContacto = 'Email: ' . $datosContactoPreview['email'];
+                                    } else {
+                                        $textoPreviewContacto = 'Información de contacto';
+                                    }
+                                    $contenidoPreview = $prefix . '📌 ' . ((strlen($textoPreviewContacto) > 25) ? htmlspecialchars(substr($textoPreviewContacto, 0, 25)) . '...' : htmlspecialchars($textoPreviewContacto));
+                                } else { // Para 'texto' y 'plantilla_auto'
+                                    // Aplicar stripslashes ANTES de htmlspecialchars y substr
+                                    $contenidoLimpio = stripslashes($mensaje->contenido);
+                                    $contenidoPreview = $prefix . ((strlen($contenidoLimpio) > 30) ? htmlspecialchars(substr($contenidoLimpio, 0, 30)) . '...' : htmlspecialchars($contenidoLimpio));
+                                }
+                            ?>
                             <small class="mensaje-preview">
-                                <?php if($mensaje->tipo === 'imagen'): ?>
-                                    <i class="fa-regular fa-image"></i> <?= $prefix ?>Imagen
-                                <?php elseif($mensaje->tipo === 'documento'): ?>
-                                    <i class="fa-regular fa-file-pdf"></i> <?= $prefix ?>Documento
-                                <?php else: ?>
-                                    <?= $prefix . ((strlen($mensaje->contenido) > 30) ? (substr($mensaje->contenido, 0, 30) . '...') : $mensaje->contenido) ?>
-                                <?php endif; ?>
+                                <?= $contenidoPreview ?>
                             </small>
                         <?php endif; ?>
                     </div>
@@ -85,7 +107,7 @@
 
                 <?php foreach($mensajes as $mensaje): ?>
                     <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
-                        <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
+                        <div class="mensaje__burbuja <?= ($mensaje->tipo !== 'texto' && $mensaje->tipo !== 'plantilla_auto') ? 'mensaje--contenido-especial' : '' ?>">
                             <?php switch($mensaje->tipo):
                                 case 'imagen': ?>
                                     <picture>
@@ -108,8 +130,13 @@
                                     </a>
                                 <?php break; ?>
                                 <?php default: ?>
-                                    <?= htmlspecialchars($mensaje->contenido) ?>
+                                    <?php echo htmlspecialchars(stripslashes($mensaje->contenido)); ?>
                             <?php endswitch; ?>
+
+                            <?php if ($mensaje->tipo === 'plantilla_auto'): ?>
+                                <small class="mensaje__indicador-auto">Mensaje automático</small>
+                            <?php endif; ?>
+
                             <span class="mensaje__fecha">
                                 <?= date('h:i a', strtotime($mensaje->creado)) ?>
                             </span>
@@ -134,7 +161,7 @@
                     </div>
                 </div>
                 
-                <button type="button" class="chat__adjuntar">
+                <button type="button" class="chat__adjuntar" title="Adjuntar archivo (imagen o PDF)">
                     <i class="fa-regular fa-file"></i>
                     <input type="file" 
                            class="chat__input-archivo" 
@@ -147,7 +174,7 @@
                        class="chat__campo" 
                        name="mensaje" 
                        placeholder="Escribe un mensaje...">
-                <button type="submit" class="chat__boton">
+                <button type="submit" class="chat__boton" title="Enviar mensaje">
                     <i class="fa-regular fa-paper-plane"></i>
                 </button>
             </form>
@@ -420,9 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!lista) return; // Salir si no se encuentra la lista
         lista.innerHTML = ''; // Limpiar lista actual
 
-        // Ordenar conversaciones por fecha más reciente primero
-        // conversaciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Opcional si el backend ya ordena
-
         conversaciones.forEach(conv => {
             const contacto = conv.contacto;
             const producto = conv.producto;
@@ -431,46 +455,37 @@ document.addEventListener('DOMContentLoaded', () => {
             let preview = '';
             if (mensaje) {
                 const prefix = mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : '';
-                
+                let contenidoMensaje = mensaje.contenido; // Este es el string que puede tener slashes
+
+                // Aplicar "stripslashes" en JS si es necesario
+                if (typeof contenidoMensaje === 'string') {
+                    // Solo si sabes que el backend podría estar enviando slashes escapados en el JSON
+                    // para comillas simples. JSON_UNESCAPED_SLASHES en PHP es para '/', no para '\''.
+                    // json_encode por defecto no escapa comillas simples, pero si lo hiciera como \', esto lo limpiaría.
+                    contenidoMensaje = contenidoMensaje.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+                }
+
                 if (mensaje.tipo === 'contacto') {
-                    // Para el preview de 'contacto', podrías necesitar parsear el contenido si es un JSON string
-                    // o simplemente mostrar un texto genérico como antes.
-                    // Por simplicidad, si el backend ya no lo procesa, hacemos un texto genérico.
-                    let contenidoContacto = mensaje.contenido;
+                    let textoPreviewContacto = 'Información de contacto'; // Fallback
                     try {
-                        // Si el contenido es un string JSON, intenta parsearlo
-                        if (typeof contenidoContacto === 'string') {
-                            const parsedContent = JSON.parse(stripslashes(contenidoContacto)); // stripslashes por si acaso
-                            if (parsedContent && parsedContent.direccion && parsedContent.direccion.calle) {
-                                contenidoContacto = `${parsedContent.direccion.calle}`;
-                                if(parsedContent.direccion.colonia) contenidoContacto += `, ${parsedContent.direccion.colonia}`;
-                            } else {
-                                contenidoContacto = "Información de contacto"; // Fallback
-                            }
-                        } else if (typeof contenidoContacto === 'object' && contenidoContacto !== null) {
-                            // Si ya es un objeto (por ejemplo, si toArray() lo devuelve así)
-                            if (contenidoContacto.direccion && contenidoContacto.direccion.calle) {
-                                contenidoContacto = `${contenidoContacto.direccion.calle}`;
-                                if(contenidoContacto.direccion.colonia) contenidoContacto += `, ${contenidoContacto.direccion.colonia}`;
-                            } else {
-                                 contenidoContacto = "Información de contacto"; // Fallback
-                            }
-                        } else {
-                             contenidoContacto = "Información de contacto"; // Fallback
+                        const datosContactoPreview = (typeof contenidoMensaje === 'string') ? JSON.parse(contenidoMensaje) : contenidoMensaje;
+                        if (datosContactoPreview && datosContactoPreview.direccion && datosContactoPreview.direccion.calle && datosContactoPreview.direccion.calle.trim() !== '') {
+                            textoPreviewContacto = datosContactoPreview.direccion.calle;
+                            if (datosContactoPreview.direccion.colonia) textoPreviewContacto += ', ' + datosContactoPreview.direccion.colonia;
+                        } else if (datosContactoPreview && datosContactoPreview.telefono) {
+                            textoPreviewContacto = 'Tel: ' + datosContactoPreview.telefono;
+                        } else if (datosContactoPreview && datosContactoPreview.email) {
+                            textoPreviewContacto = 'Email: ' + datosContactoPreview.email;
                         }
-
-                    } catch(e) {
-                        console.warn("Error parsing contact preview:", e, mensaje.contenido);
-                        contenidoContacto = "Información de contacto"; // Fallback
-                    }
-                    preview = `${prefix}📌 ${ (contenidoContacto.length > 20) ? (contenidoContacto.substring(0, 20) + '...') : contenidoContacto }`;
-
+                    } catch (e) { /* Mantener fallback */ }
+                    previewHTML = `${prefix}📌 ${ (textoPreviewContacto.length > 25) ? escapeHTML(textoPreviewContacto.substring(0, 25)) + '...' : escapeHTML(textoPreviewContacto) }`;
+                
                 } else if (mensaje.tipo === 'imagen') {
-                    preview = `${prefix}<i class="fa-regular fa-image"></i> Imagen`;
+                    previewHTML = `${prefix}<i class="fa-regular fa-image"></i> Imagen`;
                 } else if (mensaje.tipo === 'documento') {
-                    preview = `${prefix}<i class="fa-regular fa-file-pdf"></i> Documento`;
-                } else {
-                    preview = prefix + ((mensaje.contenido.length > 30) ? (mensaje.contenido.substring(0, 30) + '...') : mensaje.contenido);
+                    previewHTML = `${prefix}<i class="fa-regular fa-file-pdf"></i> Documento`;
+                } else { // 'texto', 'plantilla_auto'
+                    previewHTML = prefix + ((contenidoMensaje.length > 30) ? escapeHTML(contenidoMensaje.substring(0, 30)) + '...' : escapeHTML(contenidoMensaje));
                 }
             }
             
@@ -480,18 +495,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     data-contacto-id="${contacto.id}">
                     <picture>
                         <img src="/img/usuarios/${contacto.imagen ? contacto.imagen + '.png' : 'default.png'}" 
-                            alt="${contacto.nombre}"
+                            alt="${escapeHTML(contacto.nombre)}"
                             class="contacto__imagen">
                     </picture>
                     <div class="contacto__info">
                         <div class="contacto__titulo">
-                            <h3>${contacto.nombre} • ${producto.nombre}</h3>
+                            <h3>${escapeHTML(contacto.nombre)} • ${escapeHTML(producto.nombre)}</h3>
                         </div>
-                        ${mensaje ? `
-                            <small class="mensaje-preview">
-                                ${preview}
-                            </small>
-                        ` : ''}
+                        ${mensaje ? `<small class="mensaje-preview">${previewHTML}</small>` : ''}
                     </div>
                     <span class="contacto__fecha">
                         ${new Date(conv.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
@@ -552,17 +563,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderContent(mensaje) {
+        let contenidoParaMostrar = mensaje.contenido;
+
+        if (typeof contenidoParaMostrar === 'string') {
+            // Quita slashes que podrían haber venido del servidor si no se limpiaron antes de json_encode
+            // o si el proceso de renderizado PHP inicial los tenía y se re-leyó de alguna manera.
+            // Esto es una capa extra de seguridad/limpieza.
+            contenidoParaMostrar = contenidoParaMostrar.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+        }
+        
         if (mensaje.tipo === 'contacto') {
             try {
                 // Limpiar y parsear el contenido
-                let contenido = mensaje.contenido;
-
-                // Eliminar escapes adicionales enviados por PHP
-                if (typeof contenido === 'string') {
-                    contenido = contenido.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-                }
-                
-                const contactoData = JSON.parse(contenido);
+                const contactoData = (typeof contenidoParaMostrar === 'string') ? JSON.parse(contenidoParaMostrar) : contenidoParaMostrar;
                 
                 // Construir HTML
                 let html = '<div class="mensaje__contacto-info">';
@@ -629,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>
                 `;
             default:
-                return mensaje.contenido ? escapeHTML(mensaje.contenido) : '';
+                return contenidoParaMostrar ? escapeHTML(contenidoParaMostrar) : '';
         }
     }
 

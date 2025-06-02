@@ -176,6 +176,58 @@
         display: flex;
         position: relative;
         gap: 1rem;
+        align-items: center;
+    }
+
+    &__plantillas-container {
+        position: relative; // Para el posicionamiento de la lista
+    }
+
+    &__boton-plantillas {
+        @extend .chat__adjuntar; // Heredar estilos base
+        background-color: v.$gris-claro; // Un color diferente
+        i {
+            color: v.$gris-oscuro;
+            font-size: 1.8rem;
+        }
+        &:hover {
+             background: color.adjust(v.$gris-claro, $lightness: -5%);
+        }
+    }
+
+    &__lista-plantillas {
+        position: absolute;
+        bottom: 100%; // Se mostrará encima del botón
+        left: 0;
+        background: v.$blanco;
+        border: 1px solid v.$gris-claro;
+        border-radius: 0.8rem;
+        box-shadow: 0 4px 12px rgba(v.$negro, 0.15);
+        width: 250px; // Ajustar según necesidad
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 100;
+        margin-bottom: 0.5rem; // Espacio entre el botón y la lista
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1.4rem;
+            border-bottom: 1px solid v.$gris-claro;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:hover {
+                background-color: v.$gris-claro;
+            }
+        }
     }
 
     &__adjuntar {
@@ -272,6 +324,90 @@
     }
 }
 
+// Modal de personalización
+.modal-plantilla {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(v.$negro, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; // Encima de todo
+
+    &__contenido {
+        background-color: v.$blanco;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(v.$negro, 0.2);
+        width: 90%;
+        max-width: 500px;
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid v.$gris-claro;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+    }
+
+    &__placeholders {
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        color: v.$gris;
+        p {
+            margin: 0.5rem 0;
+        }
+        code {
+            background-color: v.$gris-claro;
+            padding: 0.2em 0.4em;
+            border-radius: 0.3rem;
+        }
+    }
+
+    &__acciones {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+
+        button {
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1.4rem;
+            font-weight: 500;
+
+            &#btn-enviar-plantilla-personalizada {
+                background-color: v.$dashboard;
+                color: v.$blanco;
+                &:hover {
+                    background-color: color.adjust(v.$dashboard, $lightness: -5%);
+                }
+            }
+            &#btn-cerrar-modal-plantilla {
+                background-color: v.$gris-claro;
+                color: v.$gris-oscuro;
+                 &:hover {
+                    background-color: color.adjust(v.$gris-claro, $lightness: 5%);
+                }
+            }
+        }
+    }
+}
+
 .mensaje-sistema {
     text-align: center;
     margin: 2rem 0;
@@ -355,6 +491,28 @@
         border-radius: 2rem;
         word-wrap: break-word; // Romper palabras largas
         overflow-wrap: anywhere; // Forzar ruptura en cualquier parte
+        position: relative;
+    }
+
+    &__indicador-auto {
+        display: block; 
+        font-size: 1.1rem; // Un poco más pequeño que el texto del mensaje
+        color: v.$gris-oscuro; // Color para el texto del indicador
+        font-style: italic;
+        text-align: right; 
+        margin-top: 0.5rem; // Espacio entre contenido/indicador y fecha
+        // Si es mensaje enviado (fondo oscuro), el color del indicador debería contrastar
+    }
+
+    &--enviado {
+        .mensaje__indicador-auto {
+            color: rgba(v.$blanco, 0.7); // Un color más claro para fondo oscuro
+        }
+    }
+    &--recibido {
+         .mensaje__indicador-auto {
+            color: v.$gris-oscuro;
+        }
     }
 
     &__fecha {

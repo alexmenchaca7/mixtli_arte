@@ -28,7 +28,7 @@
 
         <?php foreach($mensajes as $mensaje): ?>
             <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
-                <div class="mensaje__burbuja <?= $mensaje->tipo !== 'texto' ? 'mensaje--contenido-especial' : '' ?>">
+                <div class="mensaje__burbuja <?= ($mensaje->tipo !== 'texto' && $mensaje->tipo !== 'plantilla_auto') ? 'mensaje--contenido-especial' : '' ?>">
                     <?php switch($mensaje->tipo):
                         case 'imagen': ?>
                             <picture>
@@ -93,8 +93,13 @@
                         <?php endif; ?>
                         <?php break; ?>
                         <?php default: ?>
-                            <?= htmlspecialchars($mensaje->contenido) ?>
+                            <?php echo htmlspecialchars(stripslashes($mensaje->contenido)); ?>
                     <?php endswitch; ?>
+
+                    <?php if ($mensaje->tipo === 'plantilla_auto'): ?>
+                        <small class="mensaje__indicador-auto">Mensaje automático</small>
+                    <?php endif; ?>
+
                     <span class="mensaje__fecha">
                         <?= date('h:i a', strtotime($mensaje->creado)) ?>
                     </span>
@@ -126,7 +131,7 @@
             </div>
         </div>
         
-        <button type="button" class="chat__adjuntar">
+        <button type="button" class="chat__adjuntar" title="Adjuntar archivo (imagen o PDF)">
             <i class="fa-regular fa-file"></i>
             <input type="file" 
                     class="chat__input-archivo" 
@@ -139,7 +144,7 @@
                 class="chat__campo" 
                 name="mensaje" 
                 placeholder="Escribe un mensaje...">
-        <button type="submit" class="chat__boton">
+        <button type="submit" class="chat__boton" title="Enviar mensaje">
             <i class="fa-regular fa-paper-plane"></i>
         </button>
     </form>

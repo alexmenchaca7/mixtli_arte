@@ -8,6 +8,49 @@ use Model\Usuario;
 use Model\Producto;
 
 class MensajesController {
+    protected static $plantillasMensajes = [
+        'saludo_interes' => [
+            'id' => 'saludo_interes',
+            'nombre' => 'Saludo por Interés',
+            'texto' => "¡Hola [nombre_cliente]! Gracias por tu interés en mi producto '[nombre_producto]'. Estoy a tu disposición para cualquier pregunta que tengas.",
+            'placeholders' => ['[nombre_cliente]', '[nombre_producto]']
+        ],
+        'info_disponibilidad' => [
+            'id' => 'info_disponibilidad',
+            'nombre' => 'Información de Disponibilidad',
+            'texto' => "Hola, con respecto a '[nombre_producto]', te confirmo que todavía está disponible. ¿Te gustaría saber algo más específico o coordinar para verlo?",
+            'placeholders' => ['[nombre_producto]']
+        ],
+        'info_producto_detalle' => [
+            'id' => 'info_producto_detalle',
+            'nombre' => 'Detalles Adicionales del Producto',
+            'texto' => "Sobre el producto '[nombre_producto]', puedo añadir que [detalle_adicional_1] y también [detalle_adicional_2]. Si necesitas más información, no dudes en preguntar.",
+            'placeholders' => ['[nombre_producto]', '[detalle_adicional_1]', '[detalle_adicional_2]']
+        ],
+        'coordinar_encuentro' => [
+            'id' => 'coordinar_encuentro',
+            'nombre' => 'Coordinar Encuentro/Recogida',
+            'texto' => "¡Perfecto! Para el producto '[nombre_producto]', podríamos coordinar un encuentro. ¿Qué días y horarios te vendrían bien? Suelo estar disponible por [zona_referencia] o podemos acordar un punto.",
+            'placeholders' => ['[nombre_producto]', '[zona_referencia]']
+        ],
+        'agradecimiento_consulta' => [
+            'id' => 'agradecimiento_consulta',
+            'nombre' => 'Agradecimiento por Consulta',
+            'texto' => "Gracias por tu consulta sobre '[nombre_producto]'. Si decides seguir adelante o tienes más preguntas más adelante, estaré aquí para ayudarte.",
+            'placeholders' => ['[nombre_producto]']
+        ],
+        'respuesta_rapida_ausente' => [
+            'id' => 'respuesta_rapida_ausente',
+            'nombre' => 'Respuesta Rápida (Ausente)',
+            'texto' => "¡Hola! He recibido tu mensaje. En este momento no puedo responder detalladamente, pero lo haré tan pronto como me sea posible. ¡Gracias por tu paciencia!",
+            'placeholders' => []
+        ]
+    ];
+
+    public static function obtenerPlantillasParaVista() {
+        return self::$plantillasMensajes;
+    }
+
     public static function index(Router $router) {
         if(!is_auth()) {
             header('Location: /login');
@@ -78,19 +121,6 @@ class MensajesController {
                 
             if($contacto && $producto) {
                 $ultimoMensaje = $conv['ultimoMensaje'];
-                
-                // Procesar mensajes de contacto para vista previa
-                if($ultimoMensaje && $ultimoMensaje->tipo === 'contacto') {
-                    $contenido = json_decode(stripslashes($ultimoMensaje->contenido), true);
-                    
-                    if(json_last_error() === JSON_ERROR_NONE && isset($contenido['direccion'])) {
-                        $preview = $contenido['direccion']['calle'];
-                        if(!empty($contenido['direccion']['colonia'])) {
-                            $preview .= ', ' . $contenido['direccion']['colonia'];
-                        }
-                        $ultimoMensaje->contenido = $preview;
-                    }
-                }
     
                 $conversacionesCompletas[] = [
                     'contacto' => $contacto,
@@ -105,7 +135,7 @@ class MensajesController {
         $vista = $rol === 'comprador' ? 'marketplace/mensajes' : 'vendedor/mensajes';
         $layout = $rol === 'comprador' ? 'layout' : 'vendedor-layout';
 
-        $router->render($vista, [
+        $datosVista = [
             'titulo' => 'Mensajes',
             'conversaciones' => $conversacionesCompletas,
             'mensajes' => $mensajes,
@@ -113,7 +143,13 @@ class MensajesController {
             'contactoChat' => $contactoChat,
             'vendedor' => $vendedor,
             'direccionComercial' => $direccionComercial
-        ], $layout);
+        ];
+
+        if ($rol === 'vendedor') {
+            $datosVista['plantillasDefinidas'] = self::$plantillasMensajes;
+        }
+
+        $router->render($vista, $datosVista, $layout);
     }
 
     public static function chat(Router $router) {
@@ -173,94 +209,106 @@ class MensajesController {
 
     public static function enviar(Router $router) {
         date_default_timezone_set('America/Mexico_City');
-    
+
         if (!is_auth()) {
             http_response_code(401);
             exit(json_encode(['error' => 'No autenticado']));
         }
-    
+
         $usuarioId = $_SESSION['id'];
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $mensajeTexto = trim($_POST['mensaje'] ?? '');
-            $productoId = $_POST['productoId'] ?? '';
-            $destinatarioId = $_POST['destinatarioId'] ?? '';
-            $tipo = $_POST['tipo'] ?? 'texto';
-    
-            // Validar datos
+            $mensajeTexto = trim($_POST['mensaje'] ?? ''); // Para 'contacto', este es el string JSON
+            $productoId = filter_var($_POST['productoId'] ?? '', FILTER_VALIDATE_INT);
+            $destinatarioId = filter_var($_POST['destinatarioId'] ?? '', FILTER_VALIDATE_INT);
+            $tipo = htmlspecialchars($_POST['tipo'] ?? 'texto', ENT_QUOTES, 'UTF-8');
+
             $errores = [];
 
-            // Validación simplificada para contacto
             if ($tipo === 'contacto') {
-                // Eliminar escapes dobles del JSON
-                $mensajeTexto = stripslashes($mensajeTexto);
-                $mensajeTexto = filter_var($mensajeTexto, FILTER_UNSAFE_RAW);
-                
-                // Validar estructura básica
-                $contactoData = json_decode($mensajeTexto, true);
-                if (json_last_error() !== JSON_ERROR_NONE || !isset($contactoData['direccion'])) {
-                    $errores[] = 'Estructura de contacto inválida';
+                // $mensajeTexto es el string JSON que viene del cliente.
+                // NO aplicar stripslashes aquí si el cliente envía un JSON bien formado.
+                $contactoData = json_decode($mensajeTexto, true); // Decodificar a array asociativo
+
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $errores[] = 'Formato de datos de contacto inválido (JSON no válido).';
+                } else {
+                    // Verificar que $contactoData sea un array y tenga las claves esperadas.
+                    // La clave 'direccion' DEBE existir. Su valor PUEDE ser null.
+                    if (!is_array($contactoData) || !array_key_exists('direccion', $contactoData) || 
+                        !array_key_exists('telefono', $contactoData) || !array_key_exists('email', $contactoData)) {
+                        $errores[] = 'Estructura de datos de contacto incompleta (faltan claves: direccion, telefono o email).';
+                    } else {
+                        // Si la clave 'direccion' existe y su valor NO es null, entonces DEBE ser un array.
+                        if ($contactoData['direccion'] !== null && !is_array($contactoData['direccion'])) {
+                            $errores[] = 'Si se proporciona una dirección, debe tener una estructura válida (ser un objeto/array).';
+                        }
+                        // Si la dirección es un array (es decir, se intentó enviar una dirección),
+                        // y ese array NO está completamente vacío (es decir, se intentó poner algún dato de dirección),
+                        // PERO la 'calle' está vacía, entonces es un error.
+                        // Esto permite que direccion: null o direccion: {} (objeto vacío) sea válido si no se quiere enviar dirección.
+                        if (is_array($contactoData['direccion']) && 
+                            !empty(array_filter($contactoData['direccion'])) && // Si hay algún valor en el array de dirección
+                            empty(trim($contactoData['direccion']['calle'] ?? ''))) { // Y la calle está vacía
+                        $errores[] = 'Si se proporcionan detalles de dirección, la calle es obligatoria.';
+                        }
+
+                        // Validar que al menos una forma de contacto esté presente
+                        $tieneDireccionValida = is_array($contactoData['direccion']) && !empty(trim($contactoData['direccion']['calle'] ?? ''));
+                        $tieneTelefono = !empty(trim($contactoData['telefono']));
+                        $tieneEmail = !empty(trim($contactoData['email']));
+
+                        if (!$tieneDireccionValida && !$tieneTelefono && !$tieneEmail) {
+                            $errores[] = 'Debe proporcionar al menos una forma de contacto (dirección con calle, teléfono o email).';
+                        }
+                    }
                 }
+                // Si hay errores, se manejarán más abajo.
+                // Si no hay errores, $mensajeTexto (el string JSON original) se guardará.
             }
 
-            if (empty($mensajeTexto) && !isset($_FILES['archivo'])) {
+
+            if (empty($mensajeTexto) && $tipo !== 'contacto') { 
                 $errores[] = 'El mensaje no puede estar vacío';
             }
-    
-            if (empty($productoId) || !is_numeric($productoId) || empty($destinatarioId) || !is_numeric($destinatarioId)) {
-                $errores[] = 'Datos de contacto inválidos';
+
+            if (empty($productoId) || empty($destinatarioId)) {
+                $errores[] = 'Datos de destinatario o producto inválidos';
             }
-    
+
             if (empty($errores)) {
                 $args = [
-                    'contenido' => $mensajeTexto,
+                    'contenido' => $mensajeTexto, // Para 'contacto', este es el string JSON.
                     'tipo' => $tipo, 
                     'remitenteId' => $usuarioId,
                     'destinatarioId' => $destinatarioId,
                     'productoId' => $productoId
                 ];
-    
-                // Procesamiento especial para contactos
-                if ($tipo === 'contacto') {
-                    $contactoData = json_decode($mensajeTexto, true);
-                    
-                    // Limpiar y validar estructura
-                    $contactoData['direccion'] = array_filter($contactoData['direccion'] ?? []);
-                    $contactoData = array_filter($contactoData);
-                    
-                    // Reconstruir contenido limpio
-                    $args['contenido'] = json_encode($contactoData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                }
-    
+
                 $mensaje = new Mensaje($args);
                 $resultado = $mensaje->guardar();
                 
                 if ($resultado) {
                     $mensajeGuardado = Mensaje::find($mensaje->id);
-                    $mensajeGuardado->contenido = $args['contenido']; // Forzar contenido limpio
                     
                     echo json_encode([
                         'success' => true,
-                        'mensaje' => [
-                            'id' => $mensajeGuardado->id,
-                            'contenido' => $mensajeGuardado->contenido,
-                            'tipo' => $mensajeGuardado->tipo,
-                            'creado' => $mensajeGuardado->creado,
-                            'remitenteId' => $mensajeGuardado->remitenteId,
-                            'destinatarioId' => $mensajeGuardado->destinatarioId,
-                            'productoId' => $mensajeGuardado->productoId
-                        ]
+                        'mensaje' => $mensajeGuardado->toArray() 
                     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                     exit();
+                } else {
+                    $errores[] = "Error al guardar el mensaje en la base de datos.";
                 }
             }    
             
-            echo json_encode([
-                'success' => false, 
-                'errores' => $errores
-            ]);
+            http_response_code(400); 
+            echo json_encode(['success' => false, 'errores' => $errores]);
             exit();
         }
+        // El resto del método POST y la respuesta de error 405 si no es POST
+        http_response_code(405);
+        echo json_encode(['success' => false, 'errores' => ['Método no permitido.']]);
+        exit();
     }
 
     public static function subirArchivo(Router $router) {
