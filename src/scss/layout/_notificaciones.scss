@@ -1,0 +1,20 @@
+@use '../base/variables' as v; // Make sure variables are imported
+
+.notification-badge {
+    position: absolute;
+    top: -8px;       // Adjust for optimal position relative to the icon
+    right: -10px;    // Adjust for optimal position relative to the icon
+    background-color: v.$rojo; 
+    color: v.$blanco;
+    border-radius: 50%;
+    padding: 2px 6px; // Smaller padding for a badge
+    font-size: 1rem;  // Smaller font size
+    font-weight: v.$bold;
+    min-width: 20px;  // Ensure it's circular for single digits
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    z-index: 10;      // Ensure it's above the icon
+}

@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use MVC\Router;
+use Classes\Email;
 use Model\Mensaje;
 use Model\Usuario;
 use Model\Producto;
@@ -157,54 +158,106 @@ class MensajesController {
             http_response_code(401);
             exit(json_encode(['error' => 'No autenticado']));
         }
-    
+
         $usuarioId = $_SESSION['id'];
         $productoId = $_GET['productoId'] ?? '';
-        $contactoId = $_GET['contactoId'] ?? '';
-    
-        // Obtener datos usando el modelo
+        $contactoId = $_GET['contactoId'] ?? ''; 
+
+        if (!empty($productoId) && !empty($contactoId)) {
+            Mensaje::marcarComoLeido($productoId, $usuarioId, $contactoId);
+        }
+
         $conversacion = Mensaje::obtenerConversacionActual($productoId, $usuarioId, $contactoId);
-    
+
         if (!$conversacion) {
             http_response_code(404);
             exit(json_encode(['error' => 'Conversación no encontrada']));
         }
-    
-        // Variables para la vista
+
         $productoChat = $conversacion['producto'];
         $contactoChat = $conversacion['contacto'];
+        $vendedorDelProducto = Usuario::find($productoChat->usuarioId); 
 
-        // Obtener el vendedor (dueño del producto)
-        $vendedor = Usuario::find($productoChat->usuarioId);
-        $direccionComercial = $vendedor->obtenerDireccionComercial();
+        $vendedorParaVista = new \stdClass();
+        $direccionComercialData = []; // Inicializar
+
+        if ($vendedorDelProducto) { // Verificar si el vendedor existe
+            $vendedorParaVista->id = $vendedorDelProducto->id;
+            $vendedorParaVista->telefono = $vendedorDelProducto->telefono ?? ''; // Usar null coalescing para propiedades individuales
+            $vendedorParaVista->email = $vendedorDelProducto->email ?? '';
+            $direccionComercialData = $vendedorDelProducto->obtenerDireccionComercial();
+        } else {
+            // Establecer valores por defecto si el vendedor no existe
+            $vendedorParaVista->id = null;
+            $vendedorParaVista->telefono = '';
+            $vendedorParaVista->email = '';
+            // $direccionComercialData ya es []
+        }
+
+        // Preparar $direccionComercialParaVista
+        $direccionComercialParaVista = $direccionComercialData[0] ?? new \stdClass();
+        
+        // Asegurar que sea un objeto para json_encode en la vista parcial si se usa como $direccionComercial[0]
+        if (is_array($direccionComercialParaVista) && empty($direccionComercialParaVista)) {
+            $direccionComercialParaVista = new \stdClass();
+        } else if (is_array($direccionComercialParaVista) && isset($direccionComercialParaVista[0])) {
+            $direccionComercialParaVista = (object) $direccionComercialParaVista[0];
+        } else {
+            $direccionComercialParaVista = (object) $direccionComercialParaVista;
+        }
         
         $mensajes = $conversacion['mensajes']; 
-    
-        // Renderizar solo la parte del chat
+
         ob_start();
         extract([
             'productoChat' => $productoChat,
             'contactoChat' => $contactoChat,
-            'vendedor' => $vendedor,
-            'direccionComercial' => $direccionComercial,
-            'mensajes' => $mensajes
+            'vendedor' => $vendedorParaVista, // Usar la variable preparada
+            'direccionComercial' => $direccionComercialParaVista, // Usar la variable preparada
+            'mensajes' => $mensajes,
+            'plantillasDefinidas' => ($_SESSION['rol'] === 'vendedor') ? self::obtenerPlantillasParaVista() : []
         ]);
         
+        $viewPathRoot = dirname(__DIR__) . '/views/'; // Esto apuntará a tu directorio 'mixtli_arte/views/'
+
+        $viewFileToInclude = '';
         if ($_SESSION['rol'] === 'comprador') {
-            include '../views/marketplace/partials/chat.php'; // Vista para compradores
+            $viewFileToInclude = $viewPathRoot . 'marketplace/partials/chat.php';
         } else if ($_SESSION['rol'] === 'vendedor') {
-            include '../views/vendedor/partials/chat.php'; // Vista para vendedores
+            $viewFileToInclude = $viewPathRoot . 'vendedor/partials/chat.php';
+        }
+
+        if (!empty($viewFileToInclude) && file_exists($viewFileToInclude)) {
+            include $viewFileToInclude;
+        } else {
+            ob_end_clean(); 
+            http_response_code(500);
+            $errorMessage = 'Error crítico: La vista parcial del chat no fue encontrada.';
+            if (empty($viewFileToInclude)) {
+                $errorMessage .= ' Rol de usuario no determinó una vista.';
+            } else {
+                $errorMessage .= ' Ruta esperada: ' . $viewFileToInclude;
+            }
+            exit(json_encode(['error' => $errorMessage, 'debug_rol' => $_SESSION['rol'] ?? 'No definido']));
         }
         $html = ob_get_clean();
-    
+
         $ultimoId = !empty($mensajes) ? end($mensajes)->id : 0;
-    
+
+        // Antes de enviar el JSON, asegúrate que $html no es false
+        if ($html === false) {
+            http_response_code(500);
+            // Esto puede pasar si hay un error fatal dentro de la vista parcial y ob_get_clean() falla
+            exit(json_encode(['error' => 'Error generando el HTML del chat. Revisa los logs del servidor.']));
+        }
+
         echo json_encode([
             'html' => $html,
             'ultimoId' => $ultimoId
         ]);
         exit();
     }
+
     
 
     public static function enviar(Router $router) {
@@ -226,15 +279,11 @@ class MensajesController {
             $errores = [];
 
             if ($tipo === 'contacto') {
-                // $mensajeTexto es el string JSON que viene del cliente.
-                // NO aplicar stripslashes aquí si el cliente envía un JSON bien formado.
                 $contactoData = json_decode($mensajeTexto, true); // Decodificar a array asociativo
 
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     $errores[] = 'Formato de datos de contacto inválido (JSON no válido).';
                 } else {
-                    // Verificar que $contactoData sea un array y tenga las claves esperadas.
-                    // La clave 'direccion' DEBE existir. Su valor PUEDE ser null.
                     if (!is_array($contactoData) || !array_key_exists('direccion', $contactoData) || 
                         !array_key_exists('telefono', $contactoData) || !array_key_exists('email', $contactoData)) {
                         $errores[] = 'Estructura de datos de contacto incompleta (faltan claves: direccion, telefono o email).';
@@ -243,10 +292,6 @@ class MensajesController {
                         if ($contactoData['direccion'] !== null && !is_array($contactoData['direccion'])) {
                             $errores[] = 'Si se proporciona una dirección, debe tener una estructura válida (ser un objeto/array).';
                         }
-                        // Si la dirección es un array (es decir, se intentó enviar una dirección),
-                        // y ese array NO está completamente vacío (es decir, se intentó poner algún dato de dirección),
-                        // PERO la 'calle' está vacía, entonces es un error.
-                        // Esto permite que direccion: null o direccion: {} (objeto vacío) sea válido si no se quiere enviar dirección.
                         if (is_array($contactoData['direccion']) && 
                             !empty(array_filter($contactoData['direccion'])) && // Si hay algún valor en el array de dirección
                             empty(trim($contactoData['direccion']['calle'] ?? ''))) { // Y la calle está vacía
@@ -282,7 +327,8 @@ class MensajesController {
                     'tipo' => $tipo, 
                     'remitenteId' => $usuarioId,
                     'destinatarioId' => $destinatarioId,
-                    'productoId' => $productoId
+                    'productoId' => $productoId,
+                    'leido' => 0
                 ];
 
                 $mensaje = new Mensaje($args);
@@ -290,6 +336,46 @@ class MensajesController {
                 
                 if ($resultado) {
                     $mensajeGuardado = Mensaje::find($mensaje->id);
+
+                    // --- EMAIL NOTIFICATION LOGIC ---
+                    $destinatarioInfo = Usuario::find($destinatarioId);
+                    $remitenteInfo = Usuario::find($usuarioId);
+                    $productoInfo = Producto::find($productoId);
+
+                    if($destinatarioInfo && $remitenteInfo && $productoInfo) {
+                        $mensajeCortoPreview = '';
+                        $cleanedMensajeTexto = stripslashes($mensajeTexto); // Clean slashes for preview
+
+                        if ($tipo === 'texto' || $tipo === 'plantilla_auto') {
+                            $mensajeCortoPreview = substr($cleanedMensajeTexto, 0, 70);
+                        } elseif ($tipo === 'imagen') {
+                            $mensajeCortoPreview = "[Imagen adjunta]";
+                        } elseif ($tipo === 'documento') {
+                            $mensajeCortoPreview = "[Documento adjunto]";
+                        } elseif ($tipo === 'contacto') {
+                            $mensajeCortoPreview = "[Información de contacto compartida]";
+                        }
+                        
+                        // The recipient will view the chat from their perspective, 
+                        // so the 'contactoId' in the URL will be the current sender ($usuarioId)
+                        $urlConversacion = $_ENV['HOST'] . "/mensajes?productoId={$productoId}&contactoId={$usuarioId}";
+                        
+                        // Instantiate Email class (token is not strictly needed for this type of email)
+                        $emailNotificacion = new Email($destinatarioInfo->email, $destinatarioInfo->nombre . ' ' . $destinatarioInfo->apellido, ''); 
+                        try {
+                            $emailNotificacion->enviarNotificacionNuevoMensaje(
+                                $destinatarioInfo->email,
+                                $destinatarioInfo->nombre . ' ' . $destinatarioInfo->apellido,
+                                $remitenteInfo->nombre . ' ' . $remitenteInfo->apellido,
+                                $productoInfo->nombre,
+                                $mensajeCortoPreview,
+                                $urlConversacion
+                            );
+                        } catch (\Exception $e) {
+                            error_log("Error al intentar enviar email de notificación de mensaje: " . $e->getMessage());
+                        }
+                    }
+                    // --- END EMAIL NOTIFICATION LOGIC ---
                     
                     echo json_encode([
                         'success' => true,
@@ -524,5 +610,20 @@ class MensajesController {
     
         echo json_encode(['conversaciones' => $conversacionesCompletas]);
         exit();
+    }
+
+    public static function getUnreadCount(Router $router) {
+        if (!is_auth()) {
+            http_response_code(401); // Unauthorized
+            echo json_encode(['error' => 'No autenticado']);
+            exit;
+        }
+
+        $usuarioId = $_SESSION['id'];
+        $count = Mensaje::contarNoLeidos($usuarioId);
+
+        header('Content-Type: application/json');
+        echo json_encode(['unread_count' => $count]);
+        exit;
     }
 }

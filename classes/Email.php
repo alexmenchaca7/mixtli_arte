@@ -26,7 +26,7 @@ class Email {
         $mail->Port = $_ENV['EMAIL_PORT'];
         $mail->Username = $_ENV['EMAIL_USER'];
         $mail->Password = $_ENV['EMAIL_PASS'];
-        $mail->setFrom('noreply@mixtliarte.com');
+        $mail->setFrom('noreply@mixtliarte.com', 'MixtliArte');
         $mail->addAddress($this->email, $this->nombre);
         $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
@@ -98,5 +98,36 @@ class Email {
 
         //Enviar el mail
         $mail->send();
+    }
+
+    public function enviarNotificacionNuevoMensaje($destinatarioEmail, $destinatarioNombre, $remitenteNombre, $productoNombre, $mensajeCorto, $urlConversacion) {
+        $mail = $this->configurarEmailBasico();
+        // Clear previous recipient from constructor and set the actual recipient for this notification
+        $mail->clearAddresses(); 
+        $mail->addAddress($destinatarioEmail, $destinatarioNombre);
+
+        $mail->Subject = 'Nuevo mensaje de ' . $remitenteNombre . ' sobre "' . $productoNombre . '"';
+
+        $contenido = '<html>';
+        $contenido .= "<body>"; // Added body tag
+        $contenido .= "<h1>Hola " . htmlspecialchars($destinatarioNombre) . ",</h1>";
+        $contenido .= "<p>Has recibido un nuevo mensaje de <strong>" . htmlspecialchars($remitenteNombre) . "</strong> sobre el producto \"<strong>" . htmlspecialchars($productoNombre) . "</strong>\".</p>";
+        
+        if (!empty($mensajeCorto)) {
+            $contenido .= "<p>Mensaje: <em>\"" . htmlspecialchars($mensajeCorto) . "...\"</em></p>";
+        }
+        
+        $contenido .= "<p>Para ver la conversación completa y responder, haz clic aquí: <a href='" . htmlspecialchars($urlConversacion) . "'>Ver Conversación</a></p>";
+        $contenido .= "<p>Si no esperabas este mensaje, puedes ignorarlo.</p>";
+        $contenido .= "<p>Gracias,<br>El equipo de MixtliArte</p>";
+        $contenido .= "</body>"; // Added closing body tag
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        if(!$mail->send()) {
+            error_log("Error al enviar email de notificación de mensaje a {$destinatarioEmail}: " . $mail->ErrorInfo);
+            return false;
+        }
+        return true;
     }
 }

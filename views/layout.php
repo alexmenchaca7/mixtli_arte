@@ -189,6 +189,74 @@
             const inputBusqueda = document.getElementById('busqueda');
             const listaSugerencias = document.getElementById('sugerencias');
 
+            // Global Polling and Badge Display (Client-side):
+            const mensajeLink = document.querySelector('nav.barra .enlaces a[href="/mensajes"]');
+            let unreadBadge = null;
+            let unreadPollInterval = null;
+
+            if (mensajeLink) {
+                const mensajeIcon = mensajeLink.querySelector('i.fa-comment');
+                if (mensajeIcon) {
+                    unreadBadge = document.createElement('span');
+                    unreadBadge.className = 'notification-badge'; // You'll need to style this
+                    unreadBadge.style.display = 'none'; // Initially hidden
+
+                    // Ensure the parent (link) can position the badge
+                    mensajeLink.style.position = 'relative'; 
+                    mensajeLink.appendChild(unreadBadge); // Append to the <a> tag
+                }
+            }
+
+            async function fetchUnreadCount() {
+                if (!mensajeLink || document.hidden) { // Only poll if element exists and tab is visible
+                    // If user logs out or element is not on page, stop polling
+                    if (!mensajeLink && unreadPollInterval) {
+                        clearInterval(unreadPollInterval);
+                        unreadPollInterval = null;
+                    }
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/mensajes/unread-count');
+                    if (!response.ok) {
+                        if (response.status === 401 || response.status === 403) {
+                            console.warn('User not authenticated for unread count. Stopping poll.');
+                            if (unreadPollInterval) clearInterval(unreadPollInterval);
+                            unreadPollInterval = null; // Stop polling
+                            if (unreadBadge) unreadBadge.style.display = 'none';
+                        }
+                        // Do not throw error for 401/403 to allow polling to stop gracefully
+                        return;
+                    }
+                    const data = await response.json();
+                    updateUnreadBadge(data.unread_count);
+                } catch (error) {
+                    console.error('Error fetching unread count:', error);
+                    // Consider stopping polling on repeated critical errors
+                }
+            }
+
+            function updateUnreadBadge(count) {
+                if (unreadBadge) {
+                    if (count > 0) {
+                        unreadBadge.textContent = count > 9 ? '9+' : count;
+                        unreadBadge.style.display = 'block';
+                    } else {
+                        unreadBadge.style.display = 'none';
+                    }
+                }
+            }
+
+            // Start polling only if the message link (and thus the badge placeholder) exists
+            // This implies the user is likely logged in and on a page with the main navigation
+            if (mensajeLink) {
+                fetchUnreadCount(); // Initial fetch
+                unreadPollInterval = setInterval(fetchUnreadCount, 15000); // Poll every 15 seconds
+            }
+            // -- END Global Polling and Badge Display --
+
+
             inputBusqueda.addEventListener('input', async (e) => {
                 let termino = e.target.value.trim();
 

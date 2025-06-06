@@ -5,7 +5,7 @@ namespace Model;
 class Mensaje extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'contenido', 'tipo', 'creado', 'remitenteId', 'destinatarioId', 'productoId'];
+    protected static $columnasDB = ['id', 'contenido', 'tipo', 'creado', 'remitenteId', 'destinatarioId', 'productoId', 'leido'];
     protected static $tabla = 'mensajes';  
 
 
@@ -16,6 +16,7 @@ class Mensaje extends ActiveRecord {
     public $remitenteId;
     public $destinatarioId;
     public $productoId;
+    public $leido;
 
 
     public function __construct($args = [])
@@ -28,6 +29,7 @@ class Mensaje extends ActiveRecord {
         $this->remitenteId = $args['remitenteId'] ?? '';
         $this->destinatarioId = $args['destinatarioId'] ?? '';
         $this->productoId = $args['productoId'] ?? '';
+        $this->leido = $args['leido'] ?? 0;
     }
 
     public static function obtenerMensajesChat($productoId, $usuarioId, $contactoId) {
@@ -266,5 +268,35 @@ class Mensaje extends ActiveRecord {
             $this->id = self::$conexion->insert_id;
         }
         return $resultado;
+    }
+
+    public static function marcarComoLeido($productoId, $usuarioIdActual, $otroUsuarioId) {
+        if (empty($productoId) || empty($usuarioIdActual) || empty($otroUsuarioId)) {
+            return false;
+        }
+        $productoIdEscaped = self::$conexion->escape_string($productoId);
+        $usuarioIdActualEscaped = self::$conexion->escape_string($usuarioIdActual);
+        $otroUsuarioIdEscaped = self::$conexion->escape_string($otroUsuarioId);
+
+        $query = "UPDATE " . static::$tabla . " SET leido = 1 
+                WHERE productoId = '{$productoIdEscaped}' 
+                AND remitenteId = '{$otroUsuarioIdEscaped}' 
+                AND destinatarioId = '{$usuarioIdActualEscaped}' 
+                AND leido = 0";
+
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
+
+    public static function contarNoLeidos($usuarioId) {
+        $usuarioId = self::$conexion->escape_string($usuarioId);
+        $query = "SELECT COUNT(*) as total FROM " . static::$tabla . " WHERE destinatarioId = '$usuarioId' AND leido = 0";
+        $resultado = self::$conexion->query($query);
+        if ($resultado) {
+            $data = $resultado->fetch_assoc();
+            $resultado->free(); // Free the result set
+            return (int)$data['total'];
+        }
+        return 0; // Return 0 in case of query error or no result
     }
 }
