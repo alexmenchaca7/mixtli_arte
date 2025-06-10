@@ -197,6 +197,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let sidebarPollingInterval;
     const SIDEBAR_POLLING_RATE = 7000; // Consultar cada 7 segundos (ajusta según necesidad)
 
+    // Función para iniciar el polling si un chat ya está cargado en la página
+    function iniciarPollingParaChatActivo() {
+        const form = document.getElementById('form-chat');
+        if (form) { // Si el formulario del chat existe, significa que hay un chat activo
+            const productoId = form.querySelector('input[name="productoId"]').value;
+            const contactoId = form.querySelector('input[name="destinatarioId"]').value;
+            
+            // Obtenemos el ID del último mensaje renderizado por PHP
+            const mensajes = document.querySelectorAll('.mensaje[data-id]');
+            if (mensajes.length > 0) {
+                currentUltimoId = mensajes[mensajes.length - 1].dataset.id;
+            }
+
+            if (productoId && contactoId) {
+                console.log('Iniciando polling para chat activo...');
+                inicializarPolling(productoId, contactoId);
+            }
+        }
+    }
+
+    // Llama a la nueva función cuando la página se carga
+    iniciarPollingParaChatActivo();
+
     // Iniciar el polling para la barra lateral cuando la página carga
     inicializarSidebarPolling();
     

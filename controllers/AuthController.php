@@ -379,4 +379,27 @@ class AuthController {
             'token_valido' => $token_valido
         ]);
     }
+
+    public static function heartbeat() {
+        if(!is_auth()) {
+            // Si no está autenticado, no hacer nada o devolver error
+            http_response_code(401);
+            echo json_encode(['status' => 'unauthorized']);
+            return;
+        }
+
+        $usuario = Usuario::find($_SESSION['id']);
+        if($usuario) {
+            // Actualiza la marca de tiempo a la hora actual
+            $usuario->last_active = date('Y-m-d H:i:s');
+            $usuario->guardar();
+
+            // Responde con éxito
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'ok']);
+        } else {
+            http_response_code(404);
+            echo json_encode(['status' => 'user not found']);
+        }
+    }
 }

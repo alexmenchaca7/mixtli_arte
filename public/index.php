@@ -76,6 +76,7 @@ $router->get('/mensajes/nuevos', [MensajesController::class, 'obtenerNuevosMensa
 $router->get('/mensajes/buscar', [MensajesController::class, 'buscarConversaciones']);
 $router->get('/mensajes/lista-conversaciones', [MensajesController::class, 'obtenerListaConversaciones']);
 $router->get('/mensajes/unread-count', [MensajesController::class, 'getUnreadCount']);
+$router->post('/api/heartbeat', [AuthController::class, 'heartbeat']);
 
 
 // Dashboard del Artesano (VISTA VENDEDOR)

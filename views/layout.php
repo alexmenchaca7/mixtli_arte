@@ -183,7 +183,29 @@
     </div>
 
     <script src="/build/js/app.js"></script>
+    
+    <?php if(is_auth()): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // Función para enviar el "latido" al servidor
+                const sendHeartbeat = () => {
+                    // Usamos fetch para enviar una solicitud POST silenciosa
+                    fetch('/api/heartbeat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }).catch(error => console.error('Error en el heartbeat:', error));
+                };
 
+                // Enviar un latido inicial al cargar la página
+                sendHeartbeat();
+
+                // Configurar para que se envíe un latido cada 60 segundos
+                setInterval(sendHeartbeat, 60000); 
+            });
+        </script>
+    <?php endif; ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const inputBusqueda = document.getElementById('busqueda');

@@ -123,22 +123,49 @@
         background-color: #e0e0e0;
     }
 
+    &__titulo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h3 {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+            font-size: 1.5rem; // Tamaño consistente
+        }
+    }
+
+    .mensaje-preview {
+        // Estilos para la previsualización del mensaje
+        color: v.$gris;
+        font-size: 1.3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    // ESTILOS PARA LA NOTIFICACIÓN DE NO LEÍDO
     &--no-leido {
-        .contacto__info .contacto__titulo h3,
+        background-color: #f2e7f5; // Un sutil fondo lila
+
+        .contacto__titulo h3,
         .mensaje-preview {
             font-weight: v.$bold;
             color: v.$negro;
         }
+    }
 
-        .unread-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: v.$primario;
-            border-radius: 50%;
-            margin-left: 0.8rem;
-            vertical-align: middle;
-        }
+    .unread-dot {
+        flex-shrink: 0; // Evita que el punto se encoja
+        display: block;
+        width: 10px;
+        height: 10px;
+        background-color: v.$primario; // Tu color primario
+        border-radius: 50%;
+        margin-left: 1rem;
     }
 }
 
@@ -537,18 +564,30 @@
         }
     }
 
+    &__status {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+        gap: 0.5rem;
+    }
+
+
     &__fecha {
         font-size: 1.1rem;
-        place-self: flex-end;
-        margin-top: 0.3rem;
+    }
 
-        &--recibido {
-            color: v.$gris;
-        }
+    &__leido {
+        font-size: 1.4rem; // Un poco más grande que la fecha
+    }
 
-        &--enviado {
-            color: v.$blanco;
-        }
+    &--recibido {
+        .mensaje__fecha { color: v.$gris; }
+    }
+
+    &--enviado {
+        .mensaje__fecha { color: rgba(v.$blanco, 0.8); }
+        .mensaje__leido { color: #82eefd; } // Color de la palomita azul
     }
 
     &__contenido {

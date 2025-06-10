@@ -277,6 +277,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCerrarModalPlantilla = document.getElementById('btn-cerrar-modal-plantilla');
     const inputMensajeChat = document.getElementById('input-mensaje-chat'); // El campo de texto normal
 
+    // Función para iniciar el polling si un chat ya está cargado en la página
+    function iniciarPollingParaChatActivo() {
+        const form = document.getElementById('form-chat');
+        if (form) { // Si el formulario del chat existe, significa que hay un chat activo
+            const productoId = form.querySelector('input[name="productoId"]').value;
+            const contactoId = form.querySelector('input[name="destinatarioId"]').value;
+            
+            // Obtenemos el ID del último mensaje renderizado por PHP
+            const mensajes = document.querySelectorAll('.mensaje[data-id]');
+            if (mensajes.length > 0) {
+                currentUltimoId = mensajes[mensajes.length - 1].dataset.id;
+            }
+
+            if (productoId && contactoId) {
+                console.log('Iniciando polling para chat activo...');
+                inicializarPolling(productoId, contactoId);
+            }
+        }
+    }
+
+    // Llama a la nueva función cuando la página se carga
+    iniciarPollingParaChatActivo();
+
     // Iniciar el polling para la barra lateral cuando la página carga
     inicializarSidebarPolling();
 
@@ -677,12 +700,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Procesar actualizaciones de estado "leído" 
                     if (data.read_updates && data.read_updates.length > 0) {
                         data.read_updates.forEach(msgId => {
-                            const mensajeElement = document.querySelector(`.mensaje[data-id="${msgId}"] .mensaje__burbuja`);
-                            if (mensajeElement && !mensajeElement.querySelector('.mensaje__leido')) {
-                                // Añadir el indicador de "leído" (ej. doble check azul)
-                                const leidoIndicator = document.createElement('i');
-                                leidoIndicator.className = 'fas fa-check-double mensaje__leido'; 
-                                mensajeElement.appendChild(leidoIndicator);
+                            const mensajeElement = document.querySelector(`.mensaje[data-id="${msgId}"]`);
+                            if(mensajeElement) {
+                                const statusContainer = mensajeElement.querySelector('.mensaje__status');
+                                // Añadir el indicador de "leído" solo si no existe ya
+                                if (statusContainer && !statusContainer.querySelector('.mensaje__leido')) {
+                                    const leidoIndicator = document.createElement('i');
+                                    leidoIndicator.className = 'fa-solid fa-check-double mensaje__leido'; 
+                                    statusContainer.appendChild(leidoIndicator);
+                                }
                             }
                         });
                     }
@@ -883,9 +909,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mensaje__burbuja ${mensaje.tipo !== 'texto' && mensaje.tipo !== 'plantilla_auto' ? 'mensaje--contenido-especial' : ''}">
                     ${renderContent(mensaje)} 
                     ${indicadorAutoHTML} 
-                    <span class="mensaje__fecha">
-                        ${new Date(mensaje.creado).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                    <div class="mensaje__status">
+                        <span class="mensaje__fecha">
+                            ${new Date(mensaje.creado).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        ${ isEnviado && mensaje.leido == 1 ? '<i class="fa-solid fa-check-double mensaje__leido"></i>' : '' }
+                    </div>
                 </div>
             </div>
         `;

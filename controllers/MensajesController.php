@@ -279,7 +279,7 @@ class MensajesController {
         $destinatarioId = filter_var($_POST['destinatarioId'] ?? '', FILTER_VALIDATE_INT);
         $tipo = htmlspecialchars($_POST['tipo'] ?? 'texto', ENT_QUOTES, 'UTF-8');
 
-        // Aquí va tu lógica de validación de errores...
+        // Validación de errores
         $errores = [];
         if (empty($mensajeTexto) && $tipo !== 'contacto') {
             $errores[] = 'El mensaje no puede estar vacío';
@@ -307,40 +307,67 @@ class MensajesController {
 
         if ($resultado) {
             $mensajeGuardado = Mensaje::find($mensaje->id);
-
-            // 1. Envía la respuesta JSON al navegador inmediatamente.
-            header('Content-Type: application/json');
-            echo json_encode([
+            $respuesta = [
                 'success' => true,
                 'mensaje' => $mensajeGuardado->toArray()
-            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            ];
 
-            // 2. Finaliza la conexión con el navegador pero permite que el script siga ejecutándose.
+            // Ignorar si el usuario aborta la conexión y quitar límite de tiempo
+            ignore_user_abort(true);
+            set_time_limit(0);
+
+            // Iniciar el buffer de salida
+            ob_start();
+
+            // Enviar la respuesta JSON al buffer
+            echo json_encode($respuesta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            // Enviar cabeceras para forzar el cierre de la conexión
+            header('Connection: close');
+            header('Content-Type: application/json');
+            header('Content-Length: ' . ob_get_length());
+            
+            // Enviar el contenido del buffer (la respuesta) al navegador
+            ob_end_flush();
+            flush();
+
+            // Si está disponible, usar fastcgi_finish_request para un cierre más limpio
             if (function_exists('fastcgi_finish_request')) {
                 fastcgi_finish_request();
             }
-
-            // 3. Ahora, ejecuta la tarea lenta (enviar email) en segundo plano.
+            
             $destinatarioInfo = Usuario::find($destinatarioId);
-            $remitenteInfo = Usuario::find($usuarioId);
-            $productoInfo = Producto::find($productoId);
+            $isOnline = false;
 
-            if ($destinatarioInfo && $remitenteInfo && $productoInfo) {
-                $mensajeCortoPreview = substr(stripslashes($mensajeTexto), 0, 70);
-                $urlConversacion = $_ENV['HOST'] . "/mensajes?productoId={$productoId}&contactoId={$usuarioId}";
-                
-                $email = new Email($destinatarioInfo->email, $destinatarioInfo->nombre, '');
-                $email->enviarNotificacionNuevoMensaje(
-                    $destinatarioInfo->email,
-                    $destinatarioInfo->nombre . ' ' . $destinatarioInfo->apellido,
-                    $remitenteInfo->nombre,
-                    $productoInfo->nombre,
-                    $mensajeCortoPreview,
-                    $urlConversacion
-                );
+            if ($destinatarioInfo && $destinatarioInfo->last_active) {
+                $lastActiveTimestamp = strtotime($destinatarioInfo->last_active);
+                $currentTime = time();
+                if (($currentTime - $lastActiveTimestamp) < (3 * 60)) { // 3 minutos
+                    $isOnline = true;
+                }
             }
 
-            // 4. Salimos del script para asegurar que no haya más salida.
+            // Solo envía el email si el usuario NO está online
+            if (!$isOnline) {
+                $remitenteInfo = Usuario::find($usuarioId);
+                $productoInfo = Producto::find($productoId);
+
+                if ($destinatarioInfo && $remitenteInfo && $productoInfo) {
+                    $mensajeCortoPreview = substr(stripslashes($mensajeTexto), 0, 70);
+                    $urlConversacion = $_ENV['HOST'] . "/mensajes?productoId={$productoId}&contactoId={$usuarioId}";
+                    
+                    $email = new Email($destinatarioInfo->email, $destinatarioInfo->nombre, '');
+                    $email->enviarNotificacionNuevoMensaje(
+                        $destinatarioInfo->email,
+                        $destinatarioInfo->nombre . ' ' . $destinatarioInfo->apellido,
+                        $remitenteInfo->nombre,
+                        $productoInfo->nombre,
+                        $mensajeCortoPreview,
+                        $urlConversacion
+                    );
+                }
+            }
+
             exit();
         }
 
@@ -349,6 +376,7 @@ class MensajesController {
         echo json_encode(['success' => false, 'errores' => ['Error al guardar el mensaje.']]);
         exit();
     }
+
 
     public static function subirArchivo(Router $router) {
         if (!is_auth()) {
