@@ -319,4 +319,52 @@ class Mensaje extends ActiveRecord {
         }
         return $conteos;
     }
+
+    public static function obtenerActualizacionesLeido($productoId, $remitenteId, $destinatarioId) {
+        $productoId = self::$conexion->escape_string($productoId);
+        $remitenteId = self::$conexion->escape_string($remitenteId); // Quien envió el mensaje original
+        $destinatarioId = self::$conexion->escape_string($destinatarioId); // Quien ahora está leyendo
+
+        // Buscamos mensajes enviados por $remitenteId al $destinatarioId que ahora están leídos
+        $query = "SELECT id FROM " . static::$tabla . " 
+                WHERE productoId = '{$productoId}'
+                AND remitenteId = '{$remitenteId}'
+                AND destinatarioId = '{$destinatarioId}'
+                AND leido = 1";
+                // Podrías añadir una condición para no traer siempre todos los leídos,
+                // por ejemplo, `AND actualizado > 'ultima_vez_que_se_checo'`
+                // pero para empezar, esto funciona.
+
+        $resultado = self::$conexion->query($query);
+        $ids = [];
+        if ($resultado) {
+            while ($fila = $resultado->fetch_assoc()) {
+                $ids[] = $fila['id'];
+            }
+            $resultado->free();
+        }
+        return $ids;
+    }
+
+    public static function obtenerIdsLeidosPorContacto($productoId, $remitenteId, $lectorId) {
+        $productoIdEsc = self::$conexion->escape_string($productoId);
+        $remitenteIdEsc = self::$conexion->escape_string($remitenteId); // El usuario que envió originalmente
+        $lectorIdEsc = self::$conexion->escape_string($lectorId);     // El usuario que leyó los mensajes
+
+        $query = "SELECT id FROM " . static::$tabla . " 
+                WHERE productoId = '{$productoIdEsc}'
+                AND remitenteId = '{$remitenteIdEsc}'
+                AND destinatarioId = '{$lectorIdEsc}'
+                AND leido = 1";
+
+        $resultado = self::$conexion->query($query);
+        $ids = [];
+        if ($resultado) {
+            while ($fila = $resultado->fetch_assoc()) {
+                $ids[] = $fila['id'];
+            }
+            $resultado->free();
+        }
+        return $ids;
+    }
 }

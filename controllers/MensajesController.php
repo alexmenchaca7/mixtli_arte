@@ -258,142 +258,95 @@ class MensajesController {
         exit();
     }
 
-    
-
     public static function enviar(Router $router) {
         date_default_timezone_set('America/Mexico_City');
 
         if (!is_auth()) {
             http_response_code(401);
-            exit(json_encode(['error' => 'No autenticado']));
+            echo json_encode(['success' => false, 'errores' => ['No autenticado']]);
+            exit();
         }
 
-        $usuarioId = $_SESSION['id'];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'errores' => ['Método no permitido']]);
+            exit();
+        }
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $mensajeTexto = trim($_POST['mensaje'] ?? ''); // Para 'contacto', este es el string JSON
-            $productoId = filter_var($_POST['productoId'] ?? '', FILTER_VALIDATE_INT);
-            $destinatarioId = filter_var($_POST['destinatarioId'] ?? '', FILTER_VALIDATE_INT);
-            $tipo = htmlspecialchars($_POST['tipo'] ?? 'texto', ENT_QUOTES, 'UTF-8');
+        $usuarioId = $_SESSION['id'];
+        $mensajeTexto = trim($_POST['mensaje'] ?? '');
+        $productoId = filter_var($_POST['productoId'] ?? '', FILTER_VALIDATE_INT);
+        $destinatarioId = filter_var($_POST['destinatarioId'] ?? '', FILTER_VALIDATE_INT);
+        $tipo = htmlspecialchars($_POST['tipo'] ?? 'texto', ENT_QUOTES, 'UTF-8');
 
-            $errores = [];
+        // Aquí va tu lógica de validación de errores...
+        $errores = [];
+        if (empty($mensajeTexto) && $tipo !== 'contacto') {
+            $errores[] = 'El mensaje no puede estar vacío';
+        }
+        if (empty($productoId) || empty($destinatarioId)) {
+            $errores[] = 'Datos de destinatario o producto inválidos';
+        }
 
-            if ($tipo === 'contacto') {
-                $contactoData = json_decode($mensajeTexto, true); // Decodificar a array asociativo
-
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    $errores[] = 'Formato de datos de contacto inválido (JSON no válido).';
-                } else {
-                    if (!is_array($contactoData) || !array_key_exists('direccion', $contactoData) || 
-                        !array_key_exists('telefono', $contactoData) || !array_key_exists('email', $contactoData)) {
-                        $errores[] = 'Estructura de datos de contacto incompleta (faltan claves: direccion, telefono o email).';
-                    } else {
-                        // Si la clave 'direccion' existe y su valor NO es null, entonces DEBE ser un array.
-                        if ($contactoData['direccion'] !== null && !is_array($contactoData['direccion'])) {
-                            $errores[] = 'Si se proporciona una dirección, debe tener una estructura válida (ser un objeto/array).';
-                        }
-                        if (is_array($contactoData['direccion']) && 
-                            !empty(array_filter($contactoData['direccion'])) && // Si hay algún valor en el array de dirección
-                            empty(trim($contactoData['direccion']['calle'] ?? ''))) { // Y la calle está vacía
-                        $errores[] = 'Si se proporcionan detalles de dirección, la calle es obligatoria.';
-                        }
-
-                        // Validar que al menos una forma de contacto esté presente
-                        $tieneDireccionValida = is_array($contactoData['direccion']) && !empty(trim($contactoData['direccion']['calle'] ?? ''));
-                        $tieneTelefono = !empty(trim($contactoData['telefono']));
-                        $tieneEmail = !empty(trim($contactoData['email']));
-
-                        if (!$tieneDireccionValida && !$tieneTelefono && !$tieneEmail) {
-                            $errores[] = 'Debe proporcionar al menos una forma de contacto (dirección con calle, teléfono o email).';
-                        }
-                    }
-                }
-                // Si hay errores, se manejarán más abajo.
-                // Si no hay errores, $mensajeTexto (el string JSON original) se guardará.
-            }
-
-
-            if (empty($mensajeTexto) && $tipo !== 'contacto') { 
-                $errores[] = 'El mensaje no puede estar vacío';
-            }
-
-            if (empty($productoId) || empty($destinatarioId)) {
-                $errores[] = 'Datos de destinatario o producto inválidos';
-            }
-
-            if (empty($errores)) {
-                $args = [
-                    'contenido' => $mensajeTexto, // Para 'contacto', este es el string JSON.
-                    'tipo' => $tipo, 
-                    'remitenteId' => $usuarioId,
-                    'destinatarioId' => $destinatarioId,
-                    'productoId' => $productoId,
-                    'leido' => 0
-                ];
-
-                $mensaje = new Mensaje($args);
-                $resultado = $mensaje->guardar();
-                
-                if ($resultado) {
-                    $mensajeGuardado = Mensaje::find($mensaje->id);
-
-                    // --- EMAIL NOTIFICATION LOGIC ---
-                    $destinatarioInfo = Usuario::find($destinatarioId);
-                    $remitenteInfo = Usuario::find($usuarioId);
-                    $productoInfo = Producto::find($productoId);
-
-                    if($destinatarioInfo && $remitenteInfo && $productoInfo) {
-                        $mensajeCortoPreview = '';
-                        $cleanedMensajeTexto = stripslashes($mensajeTexto); // Clean slashes for preview
-
-                        if ($tipo === 'texto' || $tipo === 'plantilla_auto') {
-                            $mensajeCortoPreview = substr($cleanedMensajeTexto, 0, 70);
-                        } elseif ($tipo === 'imagen') {
-                            $mensajeCortoPreview = "[Imagen adjunta]";
-                        } elseif ($tipo === 'documento') {
-                            $mensajeCortoPreview = "[Documento adjunto]";
-                        } elseif ($tipo === 'contacto') {
-                            $mensajeCortoPreview = "[Información de contacto compartida]";
-                        }
-                        
-                        // The recipient will view the chat from their perspective, 
-                        // so the 'contactoId' in the URL will be the current sender ($usuarioId)
-                        $urlConversacion = $_ENV['HOST'] . "/mensajes?productoId={$productoId}&contactoId={$usuarioId}";
-                        
-                        // Instantiate Email class (token is not strictly needed for this type of email)
-                        $emailNotificacion = new Email($destinatarioInfo->email, $destinatarioInfo->nombre . ' ' . $destinatarioInfo->apellido, ''); 
-                        try {
-                            $emailNotificacion->enviarNotificacionNuevoMensaje(
-                                $destinatarioInfo->email,
-                                $destinatarioInfo->nombre . ' ' . $destinatarioInfo->apellido,
-                                $remitenteInfo->nombre . ' ' . $remitenteInfo->apellido,
-                                $productoInfo->nombre,
-                                $mensajeCortoPreview,
-                                $urlConversacion
-                            );
-                        } catch (\Exception $e) {
-                            error_log("Error al intentar enviar email de notificación de mensaje: " . $e->getMessage());
-                        }
-                    }
-                    // --- END EMAIL NOTIFICATION LOGIC ---
-                    
-                    echo json_encode([
-                        'success' => true,
-                        'mensaje' => $mensajeGuardado->toArray() 
-                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                    exit();
-                } else {
-                    $errores[] = "Error al guardar el mensaje en la base de datos.";
-                }
-            }    
-            
-            http_response_code(400); 
+        if (!empty($errores)) {
+            http_response_code(400);
             echo json_encode(['success' => false, 'errores' => $errores]);
             exit();
         }
-        // El resto del método POST y la respuesta de error 405 si no es POST
-        http_response_code(405);
-        echo json_encode(['success' => false, 'errores' => ['Método no permitido.']]);
+        
+        $mensaje = new Mensaje([
+            'contenido' => $mensajeTexto,
+            'tipo' => $tipo,
+            'remitenteId' => $usuarioId,
+            'destinatarioId' => $destinatarioId,
+            'productoId' => $productoId,
+            'leido' => 0
+        ]);
+
+        $resultado = $mensaje->guardar();
+
+        if ($resultado) {
+            $mensajeGuardado = Mensaje::find($mensaje->id);
+
+            // 1. Envía la respuesta JSON al navegador inmediatamente.
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'mensaje' => $mensajeGuardado->toArray()
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            // 2. Finaliza la conexión con el navegador pero permite que el script siga ejecutándose.
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            }
+
+            // 3. Ahora, ejecuta la tarea lenta (enviar email) en segundo plano.
+            $destinatarioInfo = Usuario::find($destinatarioId);
+            $remitenteInfo = Usuario::find($usuarioId);
+            $productoInfo = Producto::find($productoId);
+
+            if ($destinatarioInfo && $remitenteInfo && $productoInfo) {
+                $mensajeCortoPreview = substr(stripslashes($mensajeTexto), 0, 70);
+                $urlConversacion = $_ENV['HOST'] . "/mensajes?productoId={$productoId}&contactoId={$usuarioId}";
+                
+                $email = new Email($destinatarioInfo->email, $destinatarioInfo->nombre, '');
+                $email->enviarNotificacionNuevoMensaje(
+                    $destinatarioInfo->email,
+                    $destinatarioInfo->nombre . ' ' . $destinatarioInfo->apellido,
+                    $remitenteInfo->nombre,
+                    $productoInfo->nombre,
+                    $mensajeCortoPreview,
+                    $urlConversacion
+                );
+            }
+
+            // 4. Salimos del script para asegurar que no haya más salida.
+            exit();
+        }
+
+        // Si hubo un error guardando en la BD
+        http_response_code(500);
+        echo json_encode(['success' => false, 'errores' => ['Error al guardar el mensaje.']]);
         exit();
     }
 
@@ -496,22 +449,37 @@ class MensajesController {
             http_response_code(401);
             exit(json_encode(['error' => 'No autenticado']));
         }
-    
+
         $usuarioId = $_SESSION['id'];
         $productoId = $_GET['productoId'] ?? '';
         $contactoId = $_GET['contactoId'] ?? '';
         $ultimoId = $_GET['ultimoId'] ?? 0;
-    
-        $mensajes = Mensaje::obtenerMensajesNuevos($productoId, $usuarioId, $contactoId, $ultimoId);
 
+        if (empty($productoId) || empty($contactoId)) {
+            http_response_code(400);
+            exit(json_encode(['error' => 'Faltan parámetros']));
+        }
+
+        // 1. Marcar como leídos los mensajes que este usuario ha recibido de este contacto en este chat.
+        //    Esto confirma que el usuario está "viendo" el chat.
+        Mensaje::marcarComoLeido($productoId, $usuarioId, $contactoId);
+
+        // 2. Obtener los mensajes nuevos que el contacto le ha enviado a este usuario.
+        $mensajesNuevos = Mensaje::obtenerMensajesNuevos($productoId, $usuarioId, $contactoId, $ultimoId);
+
+        // 3. Obtener los IDs de los mensajes que este usuario envió y que el contacto ya leyó.
+        //    Esta es la notificación de "visto".
+        $idsLeidosPorContacto = Mensaje::obtenerIdsLeidosPorContacto($productoId, $usuarioId, $contactoId);
+        
+        header('Content-Type: application/json');
         echo json_encode([
             'success' => true,
-            'mensajes' => array_map(function($m) {
-                return $m->toArray();
-            }, $mensajes)
+            'mensajes' => array_map(fn($m) => $m->toArray(), $mensajesNuevos),
+            'read_updates' => $idsLeidosPorContacto
         ]);
         exit();
     }
+
 
     // OBTENER LA LISTA DE CONVERSACIONES PARA EL SIDEBAR
     public static function obtenerListaConversaciones(Router $router) {

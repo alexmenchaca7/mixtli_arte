@@ -353,37 +353,58 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pollingInterval) clearInterval(pollingInterval);
         
         const fetchMensajes = async () => {
+            // No hacer polling si la pestaña no está visible
+            if (document.hidden) {
+                return;
+            }
+
             try {
                 const response = await fetch(
                     `/mensajes/nuevos?productoId=${productoId}&contactoId=${contactoId}&ultimoId=${currentUltimoId}`
                 );
                 const data = await response.json();
                 
-                if (data.success && data.mensajes.length > 0) {
-                    data.mensajes.forEach(mensaje => {
-                        const existe = document.querySelector(`.mensaje[data-id="${mensaje.id}"]`);
-                        if (!existe) {
-                            appendMessage(mensaje);
-                        }
-                    });
-                    // Actualizar el último ID con el máximo recibido
-                    currentUltimoId = Math.max(...data.mensajes.map(m => m.id), currentUltimoId);
-                    scrollToBottom();
+                if (data.success) {
+                    // Procesar mensajes nuevos
+                    if (data.mensajes.length > 0) {
+                        data.mensajes.forEach(mensaje => {
+                            const existe = document.querySelector(`.mensaje[data-id="${mensaje.id}"]`);
+                            if (!existe) {
+                                appendMessage(mensaje);
+                            }
+                        });
+                        currentUltimoId = Math.max(...data.mensajes.map(m => m.id), currentUltimoId);
+                        scrollToBottom();
+                    }
 
-                    // Actualizar lista de conversaciones
-                    fetch(`/mensajes/buscar?term=`)
-                        .then(response => response.json())
-                        .then(data => actualizarListaConversaciones(data.conversaciones))
-                        .catch(error => console.error('Error actualizando conversaciones:', error));
+                    // Procesar actualizaciones de estado "leído" 
+                    if (data.read_updates && data.read_updates.length > 0) {
+                        data.read_updates.forEach(msgId => {
+                            const mensajeElement = document.querySelector(`.mensaje[data-id="${msgId}"] .mensaje__burbuja`);
+                            if (mensajeElement && !mensajeElement.querySelector('.mensaje__leido')) {
+                                // Añadir el indicador de "leído" (ej. doble check azul)
+                                const leidoIndicator = document.createElement('i');
+                                leidoIndicator.className = 'fas fa-check-double mensaje__leido'; 
+                                mensajeElement.appendChild(leidoIndicator);
+                            }
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error obteniendo nuevos mensajes:', error);
             }
         };
 
-        // Ejecutar inmediatamente y luego cada 3 segundos
-        fetchMensajes();
-        pollingInterval = setInterval(fetchMensajes, 3000);
+        const setPollingRate = () => {
+            if (pollingInterval) clearInterval(pollingInterval);
+            const rate = document.hidden ? POLLING_RATE_INACTIVE : POLLING_RATE_ACTIVE;
+            pollingInterval = setInterval(fetchMensajes, rate);
+        };
+
+        // Iniciar polling y ajustar la frecuencia cuando cambia la visibilidad de la pestaña
+        fetchMensajes(); // Llamada inicial
+        setPollingRate();
+        document.addEventListener('visibilitychange', setPollingRate);
     }
 
     // Función cerrar preview actualizada

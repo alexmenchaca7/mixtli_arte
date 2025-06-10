@@ -252,11 +252,17 @@
 </div>
 
 <script>
-let pollingInterval;
-let currentUltimoId = 0;
 const plantillasDesdePHP = <?= json_encode($plantillasDefinidas ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Configuración y Variables Globales ---
+    let pollingInterval;
+    let sidebarPollingInterval;
+    let currentUltimoId = 0;
+    const POLLING_RATE_ACTIVE = 3000; // 3 segundos
+    const POLLING_RATE_INACTIVE = 10000; // 10 segundos
+    const SIDEBAR_POLLING_RATE = 15000; // 15 segundos
+
     const chatActivo = document.getElementById('chat-activo');
     const formChat = document.getElementById('form-chat');
 
@@ -270,9 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEnviarPlantillaPersonalizada = document.getElementById('btn-enviar-plantilla-personalizada');
     const btnCerrarModalPlantilla = document.getElementById('btn-cerrar-modal-plantilla');
     const inputMensajeChat = document.getElementById('input-mensaje-chat'); // El campo de texto normal
-
-    let sidebarPollingInterval;
-    const SIDEBAR_POLLING_RATE = 7000; // Consultar cada 7 segundos (ajusta según necesidad)
 
     // Iniciar el polling para la barra lateral cuando la página carga
     inicializarSidebarPolling();
@@ -647,37 +650,58 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pollingInterval) clearInterval(pollingInterval);
         
         const fetchMensajes = async () => {
+            // No hacer polling si la pestaña no está visible
+            if (document.hidden) {
+                return;
+            }
+
             try {
                 const response = await fetch(
                     `/mensajes/nuevos?productoId=${productoId}&contactoId=${contactoId}&ultimoId=${currentUltimoId}`
                 );
                 const data = await response.json();
                 
-                if (data.success && data.mensajes.length > 0) {
-                    data.mensajes.forEach(mensaje => {
-                        const existe = document.querySelector(`.mensaje[data-id="${mensaje.id}"]`);
-                        if (!existe) {
-                            appendMessage(mensaje);
-                        }
-                    });
-                    // Actualizar el último ID con el máximo recibido
-                    currentUltimoId = Math.max(...data.mensajes.map(m => m.id), currentUltimoId);
-                    scrollToBottom();
+                if (data.success) {
+                    // Procesar mensajes nuevos
+                    if (data.mensajes.length > 0) {
+                        data.mensajes.forEach(mensaje => {
+                            const existe = document.querySelector(`.mensaje[data-id="${mensaje.id}"]`);
+                            if (!existe) {
+                                appendMessage(mensaje);
+                            }
+                        });
+                        currentUltimoId = Math.max(...data.mensajes.map(m => m.id), currentUltimoId);
+                        scrollToBottom();
+                    }
 
-                    // Actualizar lista de conversaciones
-                    fetch(`/mensajes/buscar?term=`)
-                        .then(response => response.json())
-                        .then(data => actualizarListaConversaciones(data.conversaciones))
-                        .catch(error => console.error('Error actualizando conversaciones:', error));
+                    // Procesar actualizaciones de estado "leído" 
+                    if (data.read_updates && data.read_updates.length > 0) {
+                        data.read_updates.forEach(msgId => {
+                            const mensajeElement = document.querySelector(`.mensaje[data-id="${msgId}"] .mensaje__burbuja`);
+                            if (mensajeElement && !mensajeElement.querySelector('.mensaje__leido')) {
+                                // Añadir el indicador de "leído" (ej. doble check azul)
+                                const leidoIndicator = document.createElement('i');
+                                leidoIndicator.className = 'fas fa-check-double mensaje__leido'; 
+                                mensajeElement.appendChild(leidoIndicator);
+                            }
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error obteniendo nuevos mensajes:', error);
             }
         };
 
-        // Ejecutar inmediatamente y luego cada 3 segundos
-        fetchMensajes();
-        pollingInterval = setInterval(fetchMensajes, 3000);
+        const setPollingRate = () => {
+            if (pollingInterval) clearInterval(pollingInterval);
+            const rate = document.hidden ? POLLING_RATE_INACTIVE : POLLING_RATE_ACTIVE;
+            pollingInterval = setInterval(fetchMensajes, rate);
+        };
+
+        // Iniciar polling y ajustar la frecuencia cuando cambia la visibilidad de la pestaña
+        fetchMensajes(); // Llamada inicial
+        setPollingRate();
+        document.addEventListener('visibilitychange', setPollingRate);
     }
 
     // Función cerrar preview actualizada
