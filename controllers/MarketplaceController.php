@@ -7,8 +7,22 @@ use Model\Favorito;
 use Model\Producto;
 use Model\Categoria;
 use Model\Direccion;
+use Model\Valoracion;
 use Classes\Paginacion;
 use Model\ImagenProducto;
+use Model\PreferenciaUsuario;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+
+// --- FUNCIÓN HELPER PARA LA VISTA ---
+function obtenerDireccion($direcciones, $tipo, $campo) {
+    foreach($direcciones as $direccion) {
+        if($direccion->tipo === $tipo) {
+            return htmlspecialchars($direccion->$campo ?? '');
+        }
+    }
+    return '';
+}
 
 class MarketplaceController {
     public static function index(Router $router) {
@@ -197,5 +211,187 @@ class MarketplaceController {
     
         echo json_encode($resultados);
         exit();
+    }
+
+    public static function perfil(Router $router) {
+        if (!is_auth('comprador')) {
+            header('Location: /login');
+            exit();
+        }
+    
+        $idUsuario = $_SESSION['id'];
+        $usuario = Usuario::find($idUsuario);
+        if (!$usuario) {
+            header('Location: /');
+            exit();
+        }
+
+        $direcciones = Direccion::whereField('usuarioId', $idUsuario);
+        
+        $preferencias = PreferenciaUsuario::where('usuarioId', $idUsuario);
+        $categoriasIds = $preferencias ? json_decode($preferencias->categorias, true) : [];
+        
+        $categoriasInteres = [];
+        if(!empty($categoriasIds)) {
+            $idsSeguros = array_map('intval', $categoriasIds);
+            $idsString = implode(',', $idsSeguros);
+            if (!empty($idsString)) {
+                $categoriasInteres = Categoria::consultarSQL("SELECT * FROM categorias WHERE id IN ($idsString)");
+            }
+        }
+        
+        $valoracionesRecibidas = Valoracion::whereArray([
+            'calificadoId' => $idUsuario,
+            'estrellas IS NOT' => 'NULL',
+            'moderado' => 1
+        ]);
+
+        foreach($valoracionesRecibidas as $valoracion) {
+            $valoracion->calificador = Usuario::find($valoracion->calificadorId);
+            $valoracion->producto = Producto::find($valoracion->productoId);
+        }
+
+        $router->render('marketplace/perfil/index', [
+            'titulo' => 'Mi Perfil',
+            'usuario' => $usuario,
+            'direcciones' => $direcciones,
+            'categoriasInteres' => $categoriasInteres,
+            'valoraciones' => $valoracionesRecibidas,
+            'show_hero' => false
+        ]);
+    }
+
+    public static function editarPerfil(Router $router) {
+        if (!is_auth('comprador')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $usuario = Usuario::find($_SESSION['id']);
+        $usuario->imagen_actual = $usuario->imagen;
+        $alertas = [];
+    
+        $direcciones = Direccion::whereField('usuarioId', $usuario->id);
+        $categorias = Categoria::all();
+        $preferencias = PreferenciaUsuario::where('usuarioId', $usuario->id);
+        $categoriasSeleccionadas = $preferencias ? json_decode($preferencias->categorias, true) : [];
+    
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Procesamiento de imagen
+            $carpeta_imagenes = '../public/img/usuarios';
+            $nombre_imagen = '';
+
+            // Manejar nueva imagen
+            if (!empty($_FILES['imagen']['tmp_name'])) {
+                if (!is_dir($carpeta_imagenes)) {
+                    mkdir($carpeta_imagenes, 0755, true);
+                }
+
+                // Generar nombre único
+                $nombre_imagen = md5(uniqid(rand(), true));
+                $_POST['imagen'] = $nombre_imagen;
+
+                // Procesar la imagen en formatos PNG y WebP
+                $imagen_origen = imagecreatefromstring(file_get_contents($_FILES['imagen']['tmp_name']));
+                if ($imagen_origen) {
+                    // Guardar en formato PNG
+                    imagepng($imagen_origen, "$carpeta_imagenes/{$nombre_imagen}.png", 9);
+
+                    // Guardar en formato WebP
+                    imagewebp($imagen_origen, "$carpeta_imagenes/{$nombre_imagen}.webp", 85);
+
+                    // Liberar memoria
+                    imagedestroy($imagen_origen);
+                }
+            }
+
+            // Manejar eliminación de imagen
+            if (isset($_POST['eliminar_imagen']) && $_POST['eliminar_imagen'] === 'on') {
+                if (!empty($vendedor->imagen_actual)) {
+                    if (file_exists("$carpeta_imagenes/{$vendedor->imagen_actual}.png")) {
+                        unlink("$carpeta_imagenes/{$vendedor->imagen_actual}.png");
+                    }
+                    if (file_exists("$carpeta_imagenes/{$vendedor->imagen_actual}.webp")) {
+                        unlink("$carpeta_imagenes/{$vendedor->imagen_actual}.webp");
+                    }
+                }
+                $_POST['imagen'] = '';
+            }
+            
+            $usuario->sincronizar($_POST);
+            $alertas = $usuario->validar_cuenta_dashboard();
+    
+            if (empty($alertas)) {
+                $usuario->guardar();
+    
+                // Actualizar dirección
+                Direccion::eliminarPorUsuario($usuario->id);
+                if (!empty($_POST['calle_residencial'])) {
+                    $direccion = new Direccion();
+                    $direccion->tipo = 'residencial';
+                    $direccion->calle = $_POST['calle_residencial'] ?? '';
+                    $direccion->colonia = $_POST['colonia_residencial'] ?? '';
+                    $direccion->ciudad = $_POST['ciudad_residencial'] ?? '';
+                    $direccion->estado = $_POST['estado_residencial'] ?? '';
+                    $direccion->codigo_postal = $_POST['codigo_postal_residencial'] ?? '';
+                    $direccion->usuarioId = $usuario->id;
+                    $direccion->guardar();
+                }
+
+                // Actualizar preferencias
+                $categoriasPost = $_POST['categorias'] ?? [];
+                if ($preferencias) {
+                    $preferencias->categorias = json_encode($categoriasPost);
+                    $preferencias->guardar();
+                } else {
+                    $nuevaPreferencia = new PreferenciaUsuario(['usuarioId' => $usuario->id, 'categorias' => json_encode($categoriasPost)]);
+                    $nuevaPreferencia->guardar();
+                }   
+
+                header('Location: /comprador/perfil');
+                exit();
+            }
+        }
+    
+        // Renderiza usando el layout principal (layout.php)
+        $router->render('marketplace/perfil/editar', [
+            'titulo' => 'Editar Mi Perfil',
+            'usuario' => $usuario,
+            'alertas' => $alertas,
+            'direcciones' => $direcciones,
+            'categorias' => $categorias,
+            'categoriasSeleccionadas' => $categoriasSeleccionadas,
+            'fecha_hoy' => date('Y-m-d')
+        ]);
+    }
+
+
+    public static function valoraciones(Router $router) {
+        if(!is_auth('comprador')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $idUsuario = $_SESSION['id'];
+
+        $valoracionesRecibidas = Valoracion::whereArray([
+            'calificadoId' => $idUsuario,
+            'estrellas IS NOT' => 'NULL'
+        ]);
+
+        $totalEstrellas = 0;
+        foreach($valoracionesRecibidas as $valoracion) {
+            $valoracion->calificador = Usuario::find($valoracion->calificadorId);
+            $valoracion->producto = Producto::find($valoracion->productoId);
+            if ($valoracion->estrellas) $totalEstrellas += $valoracion->estrellas;
+        }
+
+        $promedio = !empty($valoracionesRecibidas) ? $totalEstrellas / count($valoracionesRecibidas) : 0;
+        
+        $router->render('marketplace/perfil/valoraciones', [
+            'titulo' => 'Valoraciones que he Recibido',
+            'valoraciones' => $valoracionesRecibidas,
+            'promedio' => number_format($promedio, 1)
+        ]);
     }
 }

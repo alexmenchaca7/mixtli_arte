@@ -86,7 +86,19 @@
                                 <i class="fa-regular fa-bell"></i>
                             </a>
             
-                            <a href="/perfil">
+                            <?php
+                                $perfilUrl = '/login';
+                                if (isset($_SESSION['login'])) {
+                                    if ($_SESSION['rol'] === 'vendedor') {
+                                        $perfilUrl = '/vendedor/perfil';
+                                    } elseif ($_SESSION['rol'] === 'comprador') {
+                                        $perfilUrl = '/comprador/perfil';
+                                    } elseif ($_SESSION['rol'] === 'admin') {
+                                        $perfilUrl = '/admin/dashboard';
+                                    }
+                                }
+                            ?>
+                            <a href="<?= $perfilUrl ?>">
                                 <?php if(isset($usuarioImagen)): ?>
                                     <img class="icono_perfil" src="/img/usuarios/<?=$usuarioImagen;?>.png" alt="Icono de perfil">
                                 <?php else: ?>

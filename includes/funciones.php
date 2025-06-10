@@ -64,3 +64,12 @@ function is_auth($required_role = null) : bool {
 
     return $authenticated;
 }
+
+function obtenerDireccion($direcciones, $tipo, $campo) {
+    foreach($direcciones as $direccion) {
+        if($direccion->tipo === $tipo) {
+            return htmlspecialchars($direccion->$campo ?? '');
+        }
+    }
+    return '';
+}

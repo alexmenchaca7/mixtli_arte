@@ -67,6 +67,10 @@ $router->get('/marketplace', [MarketplaceController::class, 'index']);
 $router->get('/marketplace/autocompletar', [MarketplaceController::class, 'autocompletar']);
 $router->get('/marketplace/producto', [MarketplaceController::class, 'producto']);
 
+$router->get('/comprador/perfil', [MarketplaceController::class, 'perfil']);
+$router->get('/comprador/perfil/editar', [MarketplaceController::class, 'editarPerfil']);
+$router->post('/comprador/perfil/editar', [MarketplaceController::class, 'editarPerfil']);
+
 $router->get('/favoritos', [FavoritosController::class, 'index']);
 $router->post('/favoritos/toggle', [FavoritosController::class, 'toggle']);
 
@@ -80,7 +84,6 @@ $router->get('/mensajes/lista-conversaciones', [MensajesController::class, 'obte
 $router->get('/mensajes/unread-count', [MensajesController::class, 'getUnreadCount']);
 $router->post('/mensajes/marcar-vendido', [MensajesController::class, 'marcarVendido']);
 $router->post('/api/heartbeat', [AuthController::class, 'heartbeat']);
-
 
 $router->post('/valoraciones/guardar', [ValoracionesController::class, 'guardar']);
 

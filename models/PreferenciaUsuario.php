@@ -17,7 +17,7 @@ class PreferenciaUsuario extends ActiveRecord {
     public function __construct($args = [])
     {
         $this->id = $args['id'] ?? NULL;
-        $this->categorias = $args['categorias'] ?? ''; // json de categorias que le interesan al usuario
+        $this->categorias = $args['categorias'] ?? '[]'; // json de categorias que le interesan al usuario
         $this->usuarioId = $args['usuarioId'];
     }
 }
