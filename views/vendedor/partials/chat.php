@@ -106,7 +106,7 @@
         <!-- Campos ocultos con datos del VENDEDOR -->
         <input type="hidden" id="vendedorTelefono" value="<?= $vendedor->telefono ?? '' ?>">
         <input type="hidden" id="vendedorEmail" value="<?= $vendedor->email ?? '' ?>">
-        <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial[0] ?? []), ENT_QUOTES) ?>">
+        <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial ?? new stdClass()), ENT_QUOTES) ?>">
 
         <div class="preview-archivo" id="preview-archivo">
             <div class="preview-archivo-contenido">

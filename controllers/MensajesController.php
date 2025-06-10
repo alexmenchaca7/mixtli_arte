@@ -521,9 +521,8 @@ class MensajesController {
         }
 
         $usuarioId = $_SESSION['id'];
-        // Llamamos a Mensaje::obtenerConversaciones que ya debería devolver los últimos mensajes
-        // de cada conversación para el usuario.
         $conversacionesRaw = Mensaje::obtenerConversaciones($usuarioId);
+        $conteosNoLeidos = Mensaje::obtenerConteosNoLeidosPorConversacion($usuarioId);
         $conversacionesCompletas = [];
 
         foreach ($conversacionesRaw as $convData) { // $convData es el array ['productoId', 'contactoId', 'ultimoMensaje', 'fecha']
@@ -534,24 +533,26 @@ class MensajesController {
 
             $contacto = Usuario::find($convData['contactoId']);
             $producto = Producto::find($convData['productoId']);
-            $ultimoMensaje = $convData['ultimoMensaje']; // Esto ya es un objeto Mensaje
+            $ultimoMensaje = $convData['ultimoMensaje']; 
 
             if (!$contacto || !$producto) {
-                // Podría pasar si un usuario o producto fue eliminado.
-                // Considera si quieres mostrar estas conversaciones o filtrarlas.
                 continue;
             }
+
+            // Crear la clave y buscar el conteo en el mapa
+            $keyConteo = $producto->id . '-' . $contacto->id;
+            $unread_count = $conteosNoLeidos[$keyConteo] ?? 0;
 
             $conversacionesCompletas[] = [
                 'contacto' => $contacto->toArray(), // Convertir a array para JSON
                 'producto' => $producto->toArray(), // Convertir a array para JSON
                 'ultimoMensaje' => $ultimoMensaje ? $ultimoMensaje->toArray() : null, // Convertir a array
-                'fecha' => $convData['fecha']
+                'fecha' => $convData['fecha'],
+                'unread_count' => $unread_count
             ];
         }
 
         // Ordenar por fecha descendente (más reciente primero)
-        // La consulta en Mensaje::obtenerConversaciones ya debería ordenarlas, pero una doble verificación no hace daño.
         usort($conversacionesCompletas, function($a, $b) {
             return strtotime($b['fecha']) - strtotime($a['fecha']);
         });

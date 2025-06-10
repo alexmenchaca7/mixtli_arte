@@ -739,12 +739,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function actualizarListaConversaciones(conversaciones) {
         const lista = document.querySelector('.contactos__lista');
         if (!lista) return; // Salir si no se encuentra la lista
+
+        // Almacenar el chat activo para no perderlo si sigue en la lista
+        const chatActivo = document.querySelector('.contacto.activo');
+        const activoId = chatActivo ? chatActivo.dataset.productoId + '-' + chatActivo.dataset.contactoId : null;
+        
         lista.innerHTML = ''; // Limpiar lista actual
 
         conversaciones.forEach(conv => {
             const contacto = conv.contacto;
             const producto = conv.producto;
             const mensaje = conv.ultimoMensaje;
+            const esNoLeido = conv.unread_count > 0;
 
             let preview = '';
             if (mensaje) {
@@ -784,7 +790,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const contactoHTML = `
-                <div class="contacto" 
+                <div class="contacto ${ esNoLeido ? 'contacto--no-leido' : '' } ${ (activoId === producto.id + '-' + contacto.id) ? 'activo' : '' }" 
                     data-producto-id="${producto.id}"
                     data-contacto-id="${contacto.id}">
                     <picture>
@@ -795,7 +801,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="contacto__info">
                         <div class="contacto__titulo">
                             <h3>${escapeHTML(contacto.nombre)} • ${escapeHTML(producto.nombre)}</h3>
-                        </div>
+                            ${esNoLeido ? `<span class="unread-dot"></span>` : ''} </div>
                         ${mensaje ? `<small class="mensaje-preview">${previewHTML}</small>` : ''}
                     </div>
                     <span class="contacto__fecha">

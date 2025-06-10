@@ -294,9 +294,29 @@ class Mensaje extends ActiveRecord {
         $resultado = self::$conexion->query($query);
         if ($resultado) {
             $data = $resultado->fetch_assoc();
-            $resultado->free(); // Free the result set
+            $resultado->free(); // Liberar el resultado
             return (int)$data['total'];
         }
-        return 0; // Return 0 in case of query error or no result
+        return 0; // Devolver 0 en caso de error
+    }
+
+    public static function obtenerConteosNoLeidosPorConversacion($usuarioId) {
+        $usuarioId = self::$conexion->escape_string($usuarioId);
+        $query = "SELECT remitenteId, productoId, COUNT(*) as total 
+                  FROM " . static::$tabla . " 
+                  WHERE destinatarioId = '{$usuarioId}' AND leido = 0 
+                  GROUP BY remitenteId, productoId";
+
+        $resultado = self::$conexion->query($query);
+        $conteos = [];
+        if($resultado) {
+            while($fila = $resultado->fetch_assoc()) {
+                // Creamos una clave única para cada conversación
+                $key = $fila['productoId'] . '-' . $fila['remitenteId'];
+                $conteos[$key] = (int)$fila['total'];
+            }
+            $resultado->free();
+        }
+        return $conteos;
     }
 }
