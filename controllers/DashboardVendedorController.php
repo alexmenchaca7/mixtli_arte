@@ -5,7 +5,9 @@ namespace Controllers;
 use MVC\Router;
 use Classes\Email;
 use Model\Usuario;
+use Model\Producto;
 use Model\Direccion;
+use Model\Valoracion;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -201,6 +203,39 @@ class DashboardVendedorController {
         $router->render('vendedor/perfil/cambiar-password', [
             'titulo' => 'Cambiar Password',
             'alertas' => $alertas
+        ], 'vendedor-layout');
+    }
+
+    public static function valoraciones(Router $router) {
+        if(!is_auth('vendedor')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $idUsuario = $_SESSION['id'];
+
+        // Obtener todas las valoraciones donde el vendedor fue el calificado
+        // y que ya han sido completadas por el calificador.
+        $valoracionesRecibidas = Valoracion::whereArray([
+            'calificadoId' => $idUsuario,
+            'estrellas IS NOT' => 'NULL' 
+        ]);
+
+        $totalEstrellas = 0;
+        foreach($valoracionesRecibidas as $valoracion) {
+            $valoracion->calificador = Usuario::find($valoracion->calificadorId);
+            $valoracion->producto = Producto::find($valoracion->productoId);
+            if ($valoracion->estrellas) {
+                $totalEstrellas += $valoracion->estrellas;
+            }
+        }
+
+        $promedio = !empty($valoracionesRecibidas) ? $totalEstrellas / count($valoracionesRecibidas) : 0;
+        
+        $router->render('vendedor/perfil/valoraciones', [
+            'titulo' => 'Mis Valoraciones Recibidas',
+            'valoraciones' => $valoracionesRecibidas,
+            'promedio' => number_format($promedio, 1)
         ], 'vendedor-layout');
     }
 }

@@ -8,6 +8,7 @@ use Model\Mensaje;
 use Model\Usuario;
 use Model\Producto;
 use Model\Valoracion;
+use Model\Notificacion;
 
 class MensajesController {
     protected static $plantillasMensajes = [
@@ -292,6 +293,8 @@ class MensajesController {
         }
     
         $producto = Producto::find($productoId);
+        $comprador = Usuario::find($compradorId);
+        $vendedor = Usuario::find($vendedorId);
     
         if (!$producto || $producto->usuarioId != $vendedorId) {
             http_response_code(403);
@@ -339,6 +342,32 @@ class MensajesController {
         // Seller rates buyer
         $valoracionVendedor = new Valoracion(['calificadorId' => $vendedorId, 'calificadoId' => $compradorId, 'productoId' => $productoId, 'tipo' => 'vendedor']);
         $valoracionVendedor->guardar();
+
+        // 1. Notificación al VENDEDOR
+        $urlVendedor = "/vendedor/mensajes?productoId={$producto->id}&contactoId={$comprador->id}";
+        $notificacionVendedor = new Notificacion([
+            'usuarioId' => $vendedor->id,
+            'tipo' => 'valoracion',
+            'mensaje' => "¡Ya puedes calificar a {$comprador->nombre} por la venta de {$producto->nombre}!",
+            'url' => $urlVendedor
+        ]);
+        $notificacionVendedor->guardar();
+
+        $emailVendedor = new Email($vendedor->email, $vendedor->nombre, 'Calificación Pendiente');
+        $emailVendedor->enviarNotificacionCalificacion($comprador->nombre, $producto->nombre, $urlVendedor);
+
+        // 2. Notificación al COMPRADOR
+        $urlComprador = "/mensajes?productoId={$producto->id}&contactoId={$vendedor->id}";
+        $notificacionComprador = new Notificacion([
+            'usuarioId' => $comprador->id,
+            'tipo' => 'valoracion',
+            'mensaje' => "¡Transacción completada! Ya puedes calificar a {$vendedor->nombre} por tu compra de {$producto->nombre}.",
+            'url' => $urlComprador
+        ]);
+        $notificacionComprador->guardar();
+
+        $emailComprador = new Email($comprador->email, $comprador->nombre, 'Califica tu compra');
+        $emailComprador->enviarNotificacionCalificacion($vendedor->nombre, $producto->nombre, $urlComprador);
     
         echo json_encode(['success' => true, 'message' => 'Producto marcado como vendido. Sistema de calificación desbloqueado.']);
         exit();

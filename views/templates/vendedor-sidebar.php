@@ -24,9 +24,15 @@
             </span>  
         </a>
 
+        <a href="/vendedor/valoraciones" class="dashboard__enlace <?php echo pagina_actual('/valoraciones') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-star-half-stroke dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                Valoraciones
+            </span>
+        </a>
+
         <a href="/vendedor/perfil" class="dashboard__enlace <?php echo pagina_actual('/perfil') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-user dashboard__icono"></i>
-
             <span class="dashboard__menu-texto">
                 Perfil
             </span>  

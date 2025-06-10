@@ -177,18 +177,35 @@ class ActiveRecord {
         $clauses = [];
     
         foreach ($array as $key => $value) {
-            if (preg_match('/\s*(LIKE|>|<|>=|<=|!=|=)\s*$/', $key, $matches)) {
+            // Estandarizar la clave para facilitar la coincidencia
+            $upperKey = strtoupper(trim($key));
+
+            // Manejar específicamente los casos IS NULL y IS NOT NULL
+            if (str_ends_with($upperKey, 'IS NOT')) {
+                $field = trim(substr($key, 0, -6)); // Quita "IS NOT" del final
+                $clauses[] = "$field IS NOT NULL";  // El valor es ignorado, solo se usa el operador
+            } elseif (str_ends_with($upperKey, 'IS')) {
+                $field = trim(substr($key, 0, -2)); // Quita "IS" del final
+                $clauses[] = "$field IS NULL";      // El valor es ignorado
+            } 
+            // Manejar otros operadores comunes
+            elseif (preg_match('/\s*(LIKE|>|<|>=|<=|!=|=)\s*$/', $key, $matches)) {
                 $operator = $matches[1];
                 $field = trim(str_replace($operator, '', $key));
-                $clauses[] = "$field $operator '$value'";
-            } else {
-                $clauses[] = "$key = '$value'";
+                $escapedValue = self::$conexion->escape_string($value);
+                $clauses[] = "$field $operator '$escapedValue'";
+            } 
+            // Manejar el caso por defecto (igualdad)
+            else {
+                $escapedValue = self::$conexion->escape_string($value);
+                $clauses[] = "$key = '$escapedValue'";
             }
         }
     
         $query .= implode(' AND ', $clauses);
         return self::consultarSQL($query);
     }
+
 
     // Retornar los registros por un orden
     public static function ordenar($columna, $orden) {

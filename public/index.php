@@ -103,6 +103,8 @@ $router->post('/vendedor/cambiar-password', [DashboardVendedorController::class,
 
 $router->get('/vendedor/mensajes', [MensajesController::class, 'index']);
 
+$router->get('/vendedor/valoraciones', [DashboardVendedorController::class, 'valoraciones']);
+
 
 
 

@@ -130,4 +130,26 @@ class Email {
         }
         return true;
     }
+
+    public function enviarNotificacionCalificacion($nombreUsuario, $nombreProducto, $url) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Califica tu transacción';
+        
+        $contenido = "<html>";
+        $contenido .= "<body>";
+        $contenido .= "<p><strong>Hola " . htmlspecialchars($this->nombre) . ",</strong></p>";
+        $contenido .= "<p>¡Tu transacción para el producto '" . htmlspecialchars($nombreProducto) . "' ha sido completada!</p>";
+        $contenido .= "<p>Ya puedes dejar una calificación para " . htmlspecialchars($nombreUsuario) . " sobre tu experiencia. Tu opinión es muy importante para la comunidad de Mixtli.</p>";
+        $contenido .= "<p>Puedes dejar tu calificación en el siguiente enlace:</p>";
+        
+        $contenido .= "<a href='" . $_ENV['HOST'] . $url . "'>Calificar ahora</a>";
+        $contenido .= "<p>Si no puedes acceder, copia y pega la siguiente URL en tu navegador:</p>";
+        $contenido .= "<p>" . $_ENV['HOST'] . $url . "</p>";
+
+        $contenido .= "</body>";
+        $contenido .= "</html>";
+
+        $mail->Body = $contenido;
+        $mail->send();
+    }
 }
