@@ -182,6 +182,43 @@
             </div>
         </footer>
     </div>
+
+    <div id="modal-valoracion" class="modal-valoracion" style="display: none;">
+        <div class="modal-valoracion__contenido">
+            <h3 id="modal-valoracion-titulo">Calificar Usuario</h3>
+            <form id="form-valoracion">
+                <input type="hidden" name="valoracion_id" id="input-valoracion-id">
+
+                <div class="modal-valoracion__campo">
+                    <label>Calificación:</label>
+                    <div class="rating-estrellas">
+                        <i class="fa-regular fa-star" data-valor="1"></i>
+                        <i class="fa-regular fa-star" data-valor="2"></i>
+                        <i class="fa-regular fa-star" data-valor="3"></i>
+                        <i class="fa-regular fa-star" data-valor="4"></i>
+                        <i class="fa-regular fa-star" data-valor="5"></i>
+                    </div>
+                    <input type="hidden" name="estrellas" id="input-estrellas" required>
+                </div>
+
+                <div class="modal-valoracion__campo">
+                    <label for="comentario-valoracion">Comentario (opcional):</label>
+                    <textarea name="comentario" id="comentario-valoracion" rows="4"></textarea>
+                </div>
+
+                <div class="modal-valoracion__campo">
+                    <label>Puntos Fuertes (opcional):</label>
+                    <div id="puntos-fuertes-contenedor" class="puntos-fuertes">
+                        </div>
+                </div>
+
+                <div class="modal-valoracion__acciones">
+                    <button type="button" class="modal-valoracion__boton-cancelar" id="btn-cancelar-valoracion">Cancelar</button>
+                    <button type="submit" class="modal-valoracion__boton-enviar">Enviar Calificación</button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="/build/js/app.js"></script>

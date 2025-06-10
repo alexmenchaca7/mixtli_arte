@@ -7,6 +7,7 @@ use Classes\Email;
 use Model\Mensaje;
 use Model\Usuario;
 use Model\Producto;
+use Model\Valoracion;
 
 class MensajesController {
     protected static $plantillasMensajes = [
@@ -65,6 +66,7 @@ class MensajesController {
         $contactoChat = null;
         $vendedor = null;
         $direccionComercial = [];
+        $valoraciones = [];
 
         // Si hay parámetros de chat en la URL
         if(isset($_GET['productoId']) && isset($_GET['contactoId'])) {
@@ -143,7 +145,8 @@ class MensajesController {
             'productoChat' => $productoChat,
             'contactoChat' => $contactoChat,
             'vendedor' => $vendedor,
-            'direccionComercial' => $direccionComercial
+            'direccionComercial' => $direccionComercial,
+            'valoraciones' => $valoraciones
         ];
 
         if ($rol === 'vendedor') {
@@ -208,6 +211,10 @@ class MensajesController {
         
         $mensajes = $conversacion['mensajes']; 
 
+        // --- Obtener valoraciones ---
+        $sql = "SELECT * FROM " . Valoracion::getTablaNombre() . " WHERE productoId = {$productoId} AND ((calificadorId = {$usuarioId} AND calificadoId = {$contactoId}) OR (calificadorId = {$contactoId} AND calificadoId = {$usuarioId}))";
+        $valoraciones = Valoracion::consultarSQL($sql);
+
         ob_start();
         extract([
             'productoChat' => $productoChat,
@@ -215,7 +222,8 @@ class MensajesController {
             'vendedor' => $vendedorParaVista, // Usar la variable preparada
             'direccionComercial' => $direccionComercialParaVista, // Usar la variable preparada
             'mensajes' => $mensajes,
-            'plantillasDefinidas' => ($_SESSION['rol'] === 'vendedor') ? self::obtenerPlantillasParaVista() : []
+            'plantillasDefinidas' => ($_SESSION['rol'] === 'vendedor') ? self::obtenerPlantillasParaVista() : [],
+            'valoraciones' => $valoraciones
         ]);
         
         $viewPathRoot = dirname(__DIR__) . '/views/'; // Esto apuntará a tu directorio 'mixtli_arte/views/'
@@ -255,6 +263,84 @@ class MensajesController {
             'html' => $html,
             'ultimoId' => $ultimoId
         ]);
+        exit();
+    }
+
+    // --- Metodo para marcar como vendido ---
+    public static function marcarVendido(Router $router) {
+        header('Content-Type: application/json');
+        if (!is_auth()) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'No autenticado']);
+            exit();
+        }
+    
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'error' => 'Método no permitido']);
+            exit();
+        }
+        
+        $vendedorId = $_SESSION['id'];
+        $productoId = filter_var($_POST['productoId'] ?? '', FILTER_VALIDATE_INT);
+        $compradorId = filter_var($_POST['compradorId'] ?? '', FILTER_VALIDATE_INT);
+    
+        if (!$productoId || !$compradorId) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Datos inválidos']);
+            exit();
+        }
+    
+        $producto = Producto::find($productoId);
+    
+        if (!$producto || $producto->usuarioId != $vendedorId) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'No autorizado para esta acción']);
+            exit();
+        }
+    
+        $existingValoracion = Valoracion::whereArray([
+            'productoId' => $productoId,
+            'calificadoId' => $compradorId,
+            'calificadorId' => $vendedorId
+        ]);
+    
+        if ($existingValoracion) {
+            http_response_code(409);
+            echo json_encode(['success' => false, 'error' => 'Este producto ya fue marcado como vendido a este comprador.']);
+            exit();
+        }
+    
+        if ($producto->estado === 'unico') {
+            $producto->estado = 'agotado';
+        } elseif ($producto->estado === 'disponible') {
+            $producto->stock = max(0, $producto->stock - 1);
+            if ($producto->stock == 0) {
+                $producto->estado = 'agotado';
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'El producto ya está agotado.']);
+            exit();
+        }
+    
+        $resultadoProducto = $producto->guardar();
+    
+        if (!$resultadoProducto) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'Error al actualizar el producto.']);
+            exit();
+        }
+    
+        // Buyer rates seller
+        $valoracionComprador = new Valoracion(['calificadorId' => $compradorId, 'calificadoId' => $vendedorId, 'productoId' => $productoId, 'tipo' => 'comprador']);
+        $valoracionComprador->guardar();
+        
+        // Seller rates buyer
+        $valoracionVendedor = new Valoracion(['calificadorId' => $vendedorId, 'calificadoId' => $compradorId, 'productoId' => $productoId, 'tipo' => 'vendedor']);
+        $valoracionVendedor->guardar();
+    
+        echo json_encode(['success' => true, 'message' => 'Producto marcado como vendido. Sistema de calificación desbloqueado.']);
         exit();
     }
 

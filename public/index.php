@@ -4,16 +4,17 @@ require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
 use Controllers\AuthController;
-use Controllers\CategoriasController;
 use Controllers\PaginasController;
 use Controllers\MensajesController;
 use Controllers\UsuariosController;
+use Controllers\FavoritosController;
 use Controllers\ProductosController;
 use Controllers\SeguridadController;
+use Controllers\CategoriasController;
 use Controllers\MarketplaceController;
+use Controllers\ValoracionesController;
 use Controllers\DashboardAdminController;
 use Controllers\DashboardVendedorController;
-use Controllers\FavoritosController;
 
 $router = new Router();
 
@@ -76,7 +77,11 @@ $router->get('/mensajes/nuevos', [MensajesController::class, 'obtenerNuevosMensa
 $router->get('/mensajes/buscar', [MensajesController::class, 'buscarConversaciones']);
 $router->get('/mensajes/lista-conversaciones', [MensajesController::class, 'obtenerListaConversaciones']);
 $router->get('/mensajes/unread-count', [MensajesController::class, 'getUnreadCount']);
+$router->post('/mensajes/marcar-vendido', [MensajesController::class, 'marcarVendido']);
 $router->post('/api/heartbeat', [AuthController::class, 'heartbeat']);
+
+
+$router->post('/valoraciones/guardar', [ValoracionesController::class, 'guardar']);
 
 
 // Dashboard del Artesano (VISTA VENDEDOR)

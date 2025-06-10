@@ -1,11 +1,9 @@
 <div class="mensajeria">
-    <!-- Lista de contactos -->
     <div class="mensajeria__contactos">
-        <!-- Header y buscador -->
         <div class="contactos__header">
             <h2 class="contactos__titulo">Chats</h2>
             <div class="contactos__busqueda">
-                <input type="text" 
+                <input type="text"
                        class="contactos__campo-busqueda"
                        id="input-busqueda"
                        placeholder="Buscar conversaciones...">
@@ -13,18 +11,17 @@
             </div>
         </div>
 
-        <!-- Lista de contactos -->
         <div class="contactos__lista">
             <?php foreach ($conversaciones as $conv):
                 $contacto = $conv['contacto'];
                 $producto = $conv['producto'];
                 $mensaje = $conv['ultimoMensaje'];
             ?>
-                <div class="contacto" 
+                <div class="contacto"
                      data-producto-id="<?= $producto->id ?>"
                      data-contacto-id="<?= $contacto->id ?>">
                     <picture>
-                        <img src="/img/usuarios/<?php echo isset($contacto->imagen) && $contacto->imagen ? $contacto->imagen . '.png' : 'default.png'; ?>" 
+                        <img src="/img/usuarios/<?php echo isset($contacto->imagen) && $contacto->imagen ? $contacto->imagen . '.png' : 'default.png'; ?>"
                              alt="<?= $contacto->nombre ?>"
                              class="contacto__imagen">
                     </picture>
@@ -33,8 +30,8 @@
                             <h3><?php echo $contacto->nombre . ' • ' . $producto->nombre; ?></h3>
                         </div>
                         <?php if ($mensaje): ?>
-                            <?php 
-                                $prefix = ($mensaje->remitenteId === $_SESSION['id']) ? 'Tú: ' : ''; 
+                            <?php
+                                $prefix = ($mensaje->remitenteId === $_SESSION['id']) ? 'Tú: ' : '';
                                 $contenidoPreview = '';
                                 if ($mensaje->tipo === 'imagen') {
                                     $contenidoPreview = '<i class="fa-regular fa-image"></i> ' . $prefix . 'Imagen';
@@ -57,7 +54,6 @@
                                     }
                                     $contenidoPreview = $prefix . '📌 ' . ((strlen($textoPreviewContacto) > 25) ? htmlspecialchars(substr($textoPreviewContacto, 0, 25)) . '...' : htmlspecialchars($textoPreviewContacto));
                                 } else { // Para 'texto' y 'plantilla_auto'
-                                    // Aplicar stripslashes ANTES de htmlspecialchars y substr
                                     $contenidoLimpio = stripslashes($mensaje->contenido);
                                     $contenidoPreview = $prefix . ((strlen($contenidoLimpio) > 30) ? htmlspecialchars(substr($contenidoLimpio, 0, 30)) . '...' : htmlspecialchars($contenidoLimpio));
                                 }
@@ -75,109 +71,9 @@
         </div>
     </div>
 
-    <!-- Área de chat -->
     <div class="chat" id="chat-activo">
         <?php if(isset($productoChat) && isset($contactoChat)): ?>
-            <!-- Cabecera dinámica -->
-            <div class="chat__header">
-                <picture>
-                    <img src="/img/usuarios/<?php echo isset($contactoChat->imagen) && $contactoChat->imagen ? $contactoChat->imagen . '.png' : 'default.png'; ?>"
-                         class="chat__imagen" 
-                         alt="<?= $contactoChat->nombre ?>">
-                </picture>
-                <div class="chat__info">
-                    <h3><?= $contactoChat->nombre . ' • ' . $productoChat->nombre ?></h3>
-                </div>
-            </div>
-
-            <!-- Mensajes -->
-            <div class="chat__mensajes" id="mensajes-container">
-                <!-- Mensaje del sistema -->
-                <div class="mensaje-sistema">
-                    <div class="mensaje-sistema__contenido">
-                        <i class="fa-solid fa-shield-halved mensaje-sistema__icono"></i>
-                        <div class="mensaje-sistema__texto">
-                            <strong>Chat seguro con cifrado de extremo a extremo</strong>
-                            <p>• Evite realizar pagos en efectivo en lugares públicos<br>
-                            • No compartimos su información personal<br>
-                            • Mensajes cifrados con protocolo TLS/SSL</p>
-                        </div>
-                    </div>
-                </div>
-
-                <?php foreach($mensajes as $mensaje): ?>
-                    <div class="mensaje mensaje--<?= $mensaje->remitenteId == $_SESSION['id'] ? 'enviado' : 'recibido' ?>" data-id="<?= $mensaje->id ?>">
-                        <div class="mensaje__burbuja <?= ($mensaje->tipo !== 'texto' && $mensaje->tipo !== 'plantilla_auto') ? 'mensaje--contenido-especial' : '' ?>">
-                            <?php switch($mensaje->tipo):
-                                case 'imagen': ?>
-                                    <picture>
-                                        <img loading="lazy" src="/<?= htmlspecialchars($mensaje->contenido) ?>" 
-                                            class="mensaje__imagen" 
-                                            alt="Imagen enviada">
-                                    </picture>
-                                <?php break; ?>
-
-                                <?php case 'documento': ?>
-                                    <a href="/<?= htmlspecialchars($mensaje->contenido) ?>" 
-                                    class="mensaje__documento"
-                                    download>
-                                        <i class="fa-regular fa-file-pdf mensaje__icono-documento"></i>
-                                        <div class="mensaje__archivo-info">
-                                            <div class="mensaje__nombre-archivo">
-                                                <?= htmlspecialchars(basename($mensaje->contenido)) ?>
-                                            </div>
-                                        </div>
-                                    </a>
-                                <?php break; ?>
-                                <?php default: ?>
-                                    <?php echo htmlspecialchars(stripslashes($mensaje->contenido)); ?>
-                            <?php endswitch; ?>
-
-                            <?php if ($mensaje->tipo === 'plantilla_auto'): ?>
-                                <small class="mensaje__indicador-auto">Mensaje automático</small>
-                            <?php endif; ?>
-
-                            <span class="mensaje__fecha">
-                                <?= date('h:i a', strtotime($mensaje->creado)) ?>
-                            </span>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-            <!-- Formulario de envío -->
-            <form class="chat__entrada" id="form-chat" enctype="multipart/form-data">
-                <input type="hidden" name="productoId" value="<?= $productoChat->id ?>">
-                <input type="hidden" name="destinatarioId" value="<?= $contactoChat->id ?>">
-
-                <div class="preview-archivo" id="preview-archivo">
-                    <div class="preview-archivo-contenido">
-                        <div class="preview-archivo-imagen"></div>
-                        <div class="preview-archivo-documento">
-                            <i class="fa-regular fa-file-pdf"></i>
-                            <span class="preview-archivo-nombre"></span>
-                        </div>
-                        <span class="preview-archivo-cerrar">&times;</span>
-                    </div>
-                </div>
-                
-                <button type="button" class="chat__adjuntar" title="Adjuntar archivo (imagen o PDF)">
-                    <i class="fa-regular fa-file"></i>
-                    <input type="file" 
-                           class="chat__input-archivo" 
-                           accept="image/*,.pdf"
-                           name="archivo"
-                           id="input-archivo">
-                </button>
-                
-                <input type="text" 
-                       class="chat__campo" 
-                       name="mensaje" 
-                       placeholder="Escribe un mensaje...">
-                <button type="submit" class="chat__boton" title="Enviar mensaje">
-                    <i class="fa-regular fa-paper-plane"></i>
-                </button>
-            </form>
+            <?php include __DIR__ . '/partials/chat.php'; ?>
         <?php else: ?>
             <div class="chat__vacio">
                 Selecciona una conversación para comenzar a chatear
@@ -199,6 +95,106 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let sidebarPollingInterval;
     const SIDEBAR_POLLING_RATE = 7000; // Consultar cada 7 segundos 
+
+    // --- INICIO: LÓGICA DEL SISTEMA DE CALIFICACIÓN ---
+    const puntosFuertesParaVendedor = ["Negociación justa", "Puntualidad", "Honestidad", "Comunicación efectiva"];
+    const puntosFuertesParaComprador = ["Puntualidad", "Buena comunicación", "Pago oportuno"];
+
+    // Usar delegación de eventos en un elemento estático superior
+    document.body.addEventListener('click', async function(e) {
+        const btnCalificar = e.target.closest('#btn-calificar');
+        const btnCancelarValoracion = e.target.closest('#btn-cancelar-valoracion');
+
+        // --- Manejar clic en "Calificar Usuario" ---
+        if (btnCalificar) {
+            const valoracionId = btnCalificar.dataset.valoracionId;
+            const tipoCalificacion = btnCalificar.dataset.tipoCalificacion; // 'comprador' o 'vendedor'
+
+            document.getElementById('input-valoracion-id').value = valoracionId;
+
+            const contenedorPuntos = document.getElementById('puntos-fuertes-contenedor');
+            contenedorPuntos.innerHTML = '';
+            const puntos = tipoCalificacion === 'vendedor' ? puntosFuertesParaVendedor : puntosFuertesParaComprador;
+
+            document.getElementById('modal-valoracion-titulo').textContent = `Calificar ${tipoCalificacion === 'vendedor' ? 'Vendedor' : 'Comprador'}`;
+
+            puntos.forEach(punto => {
+                contenedorPuntos.innerHTML += `
+                    <label>
+                        <input type="checkbox" name="puntos_fuertes[]" value="${punto}">
+                        ${punto}
+                    </label>
+                `;
+            });
+
+            document.getElementById('modal-valoracion').style.display = 'flex';
+        }
+
+        // --- Manejar clic en "Cancelar Calificación" ---
+        if (btnCancelarValoracion) {
+            document.getElementById('modal-valoracion').style.display = 'none';
+        }
+    });
+
+    // --- Lógica del Rating con Estrellas ---
+    const estrellasContenedor = document.querySelector('.rating-estrellas');
+    if (estrellasContenedor) {
+        const estrellas = estrellasContenedor.querySelectorAll('i');
+        const inputEstrellas = document.getElementById('input-estrellas');
+
+        estrellas.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = star.dataset.valor;
+                inputEstrellas.value = rating;
+                estrellas.forEach(s => {
+                    s.classList.remove('fa-solid', 'fa-regular');
+                    s.classList.add(s.dataset.valor <= rating ? 'fa-solid' : 'fa-regular');
+                });
+            });
+        });
+    }
+
+    // --- Envío del Formulario de Calificación ---
+    const formValoracion = document.getElementById('form-valoracion');
+    if(formValoracion) {
+        formValoracion.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            if (!formData.get('estrellas')) {
+                alert('Por favor, selecciona una calificación de estrellas.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+
+            try {
+                const response = await fetch('/valoraciones/guardar', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Error al guardar');
+
+                alert('¡Gracias por tu calificación!');
+                document.getElementById('modal-valoracion').style.display = 'none';
+                this.reset();
+
+                const mainForm = document.getElementById('form-chat');
+                const productoId = mainForm.querySelector('input[name="productoId"]').value;
+                const contactoId = mainForm.querySelector('input[name="destinatarioId"]').value;
+                const chatResponse = await fetch(`/mensajes/chat?productoId=${productoId}&contactoId=${contactoId}`);
+                const chatData = await chatResponse.json();
+                document.getElementById('chat-activo').innerHTML = chatData.html;
+                scrollToBottom();
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Calificación';
+            }
+        });
+    }
 
     // Función para iniciar el polling si un chat ya está cargado en la página
     function iniciarPollingParaChatActivo() {

@@ -25,7 +25,7 @@ class Valoracion extends ActiveRecord {
         $this->comentario = $args['comentario'] ?? '';
         $this->estrellas = $args['estrellas'] ?? '';
         $this->tipo = $args['tipo'] ?? ''; // comprador o vendedor
-        $this->moderado = $args['moderado'] ?? date('Y-m-d H:i:s');
+        $this->moderado = $args['moderado'] ?? 0; // Se establece 0 como valor por defecto, indicando "pendiente de moderación".
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
         $this->calificadorId = $args['calificadorId'] ?? '';
         $this->calificadoId = $args['calificadoId'] ?? '';

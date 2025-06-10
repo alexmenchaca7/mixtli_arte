@@ -1,0 +1,135 @@
+@use '../base/variables' as v;
+@use '../base/mixins' as m;
+@use 'sass:color';
+
+.modal-valoracion {
+    display: none; // Oculto por defecto
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(v.$negro, 0.6);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    
+    // Clase que se añadirá con JS para mostrar el modal
+    &.mostrar {
+        display: flex;
+    }
+
+    &__contenido {
+        background-color: v.$blanco;
+        padding: 3rem;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(v.$negro, 0.2);
+        width: 90%;
+        max-width: 50rem;
+    }
+
+    &__titulo {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 2rem;
+        font-weight: v.$bold;
+        font-size: 2.2rem;
+    }
+
+    &__campo {
+        margin-bottom: 2rem;
+
+        label {
+            display: block;
+            margin-bottom: 1rem;
+            font-weight: v.$bold;
+            font-size: 1.6rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid v.$gris-claro;
+            border-radius: .5rem;
+            font-size: 1.4rem;
+            resize: vertical;
+            min-height: 8rem;
+        }
+    }
+
+    .rating-estrellas {
+        font-size: 3rem;
+        color: v.$gris-claro;
+        cursor: pointer;
+        
+        i {
+            transition: color 0.2s ease-in-out;
+        }
+
+        .fa-solid {
+            color: #ffc107; // Amarillo para estrellas seleccionadas
+        }
+
+        // Efecto hover
+        &:hover i {
+            color: #ffda6a;
+        }
+
+        i:hover ~ i {
+            color: v.$gris-claro;
+        }
+    }
+
+    .puntos-fuertes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: v.$regular;
+            font-size: 1.4rem;
+            padding: .8rem;
+            border: 1px solid v.$gris-claro;
+            border-radius: .5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+
+            &:hover {
+                background-color: color.adjust(v.$primario, $lightness: 40%);
+                border-color: color.adjust(v.$primario, $lightness: 20%);
+            }
+        }
+
+        input[type="checkbox"] {
+            width: 1.8rem;
+            height: 1.8rem;
+        }
+    }
+
+    &__acciones {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        border-top: 1px solid v.$gris-claro;
+        padding-top: 2rem;
+    }
+
+    &__boton-cancelar,
+    &__boton-enviar {
+        @include m.boton(v.$primario, inline-block);
+        padding: 1rem 2rem;
+        font-size: 1.4rem;
+        border-radius: .5rem;
+    }
+    
+    &__boton-cancelar {
+        background-color: v.$gris;
+        &:hover {
+            background-color: color.adjust(v.$gris, $lightness: -10%);
+        }
+    }
+}

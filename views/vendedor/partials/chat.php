@@ -1,5 +1,20 @@
 <?php if(isset($productoChat) && isset($contactoChat)): ?>
-    <!-- Cabecera dinámica -->
+    <?php
+    // --- Lógica para determinar el estado de la venta y calificación ---
+    $esVendedor = ($_SESSION['id'] == $productoChat->usuarioId);
+    $ventaRealizada = false;
+    $miCalificacion = null;
+
+    if (!empty($valoraciones)) {
+        $ventaRealizada = true;
+        foreach($valoraciones as $v) {
+            if ($v->calificadorId == $_SESSION['id']) {
+                $miCalificacion = $v;
+                break;
+            }
+        }
+    }
+    ?>
     <div class="chat__header">
         <picture>
             <img src="/img/usuarios/<?php echo isset($contactoChat->imagen) && $contactoChat->imagen ? $contactoChat->imagen . '.png' : 'default.png'; ?>"
@@ -11,9 +26,7 @@
         </div>
     </div>
 
-    <!-- Mensajes -->
     <div class="chat__mensajes" id="mensajes-container">
-        <!-- Mensaje del sistema -->
         <div class="mensaje-sistema">
             <div class="mensaje-sistema__contenido">
                 <i class="fa-solid fa-shield-halved mensaje-sistema__icono"></i>
@@ -51,13 +64,9 @@
                             </a>
                         <?php break; ?>
                         <?php case 'contacto': 
-                            // Limpiar escapes y parsear
                             $contenidoLimpio = stripslashes($mensaje->contenido);
                             $contactoData = json_decode($contenidoLimpio);
-                            
-                            if (json_last_error() !== JSON_ERROR_NONE) {
-                                $contactoData = null; // Manejar error si es necesario
-                            }
+                            if (json_last_error() !== JSON_ERROR_NONE) $contactoData = null;
                             ?>
                             <div class="mensaje__contacto-info">
                                 <?php if ($contactoData && isset($contactoData->direccion) && isset($contactoData->direccion->calle)): ?>
@@ -95,61 +104,78 @@
             </div>
         <?php endforeach; ?>
     </div>
+    
+    <div class="chat__acciones-y-form">
+        <div class="chat__acciones-finales">
+            <?php if($esVendedor && !$ventaRealizada && $productoChat->estado !== 'agotado'): ?>
+                <button type="button" class="chat__boton chat__boton--accion" id="btn-marcar-vendido">
+                    <i class="fa-solid fa-handshake"></i> Marcar como Vendido
+                </button>
+            <?php endif; ?>
 
-    <!-- Formulario de envío -->
-    <form class="chat__entrada" id="form-chat" enctype="multipart/form-data">
-        <input type="hidden" name="productoId" value="<?= $productoChat->id ?>">
-        <input type="hidden" name="destinatarioId" value="<?= $contactoChat->id ?>">
-        <input type="hidden" id="vendedorId" value="<?= $productoChat->usuarioId ?>">
-        <input type="hidden" name="tipo" id="input-tipo" value="texto">
-
-        <!-- Campos ocultos con datos del VENDEDOR -->
-        <input type="hidden" id="vendedorTelefono" value="<?= $vendedor->telefono ?? '' ?>">
-        <input type="hidden" id="vendedorEmail" value="<?= $vendedor->email ?? '' ?>">
-        <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial ?? new stdClass()), ENT_QUOTES) ?>">
-
-        <div class="preview-archivo" id="preview-archivo">
-            <div class="preview-archivo-contenido">
-                <div class="preview-archivo-imagen"></div>
-                <div class="preview-archivo-documento">
-                    <i class="fa-regular fa-file-pdf"></i>
-                    <span class="preview-archivo-nombre"></span>
+            <?php if($ventaRealizada && $miCalificacion && is_null($miCalificacion->estrellas)): ?>
+                <button type="button" class="chat__boton chat__boton--accion" id="btn-calificar" data-valoracion-id="<?= $miCalificacion->id ?>" data-tipo-calificacion="comprador">
+                    <i class="fa-solid fa-star"></i> Calificar Comprador
+                </button>
+            <?php elseif($ventaRealizada && $miCalificacion && !is_null($miCalificacion->estrellas)): ?>
+                <div class="chat__accion-completa">
+                    <i class="fa-solid fa-check-circle"></i> Ya has calificado esta transacción.
                 </div>
-                <span class="preview-archivo-cerrar">&times;</span>
-            </div>
+            <?php endif; ?>
         </div>
         
-        <button type="button" class="chat__adjuntar" title="Adjuntar archivo (imagen o PDF)">
-            <i class="fa-regular fa-file"></i>
-            <input type="file" 
-                    class="chat__input-archivo" 
-                    accept="image/*,.pdf"
-                    name="archivo"
-                    id="input-archivo">
-        </button>
+        <form class="chat__entrada" id="form-chat" enctype="multipart/form-data">
+            <input type="hidden" name="productoId" value="<?= $productoChat->id ?>">
+            <input type="hidden" name="destinatarioId" value="<?= $contactoChat->id ?>">
+            <input type="hidden" id="vendedorId" value="<?= $productoChat->usuarioId ?>">
+            <input type="hidden" name="tipo" id="input-tipo" value="texto">
 
-        <button type="button" class="chat__contacto" id="btn-contacto" title="Compartir información de contacto del vendedor">
-            <i class="fa-regular fa-address-card"></i>
-        </button>
+            <input type="hidden" id="vendedorTelefono" value="<?= $vendedor->telefono ?? '' ?>">
+            <input type="hidden" id="vendedorEmail" value="<?= $vendedor->email ?? '' ?>">
+            <input type="hidden" id="direccionComercial" value="<?= htmlspecialchars(json_encode($direccionComercial ?? new stdClass()), ENT_QUOTES) ?>">
 
-        <div class="chat__plantillas-container">
-            <button type="button" class="chat__boton-plantillas" id="btn-mostrar-plantillas" title="Usar una plantilla de mensaje">
-                <i class="fa-regular fa-file-lines"></i> <!-- O un ícono más adecuado -->
+            <div class="preview-archivo" id="preview-archivo">
+                <div class="preview-archivo-contenido">
+                    <div class="preview-archivo-imagen"></div>
+                    <div class="preview-archivo-documento">
+                        <i class="fa-regular fa-file-pdf"></i>
+                        <span class="preview-archivo-nombre"></span>
+                    </div>
+                    <span class="preview-archivo-cerrar">&times;</span>
+                </div>
+            </div>
+            
+            <button type="button" class="chat__adjuntar" title="Adjuntar archivo (imagen o PDF)">
+                <i class="fa-regular fa-file"></i>
+                <input type="file" 
+                        class="chat__input-archivo" 
+                        accept="image/*,.pdf"
+                        name="archivo"
+                        id="input-archivo">
             </button>
-            <div class="chat__lista-plantillas" id="lista-plantillas" style="display: none;">
-                <!-- Las plantillas se cargarán aquí con JS -->
+
+            <button type="button" class="chat__contacto" id="btn-contacto" title="Compartir información de contacto del vendedor">
+                <i class="fa-regular fa-address-card"></i>
+            </button>
+
+            <div class="chat__plantillas-container">
+                <button type="button" class="chat__boton-plantillas" id="btn-mostrar-plantillas" title="Usar una plantilla de mensaje">
+                    <i class="fa-regular fa-file-lines"></i>
+                </button>
+                <div class="chat__lista-plantillas" id="lista-plantillas" style="display: none;">
+                    </div>
             </div>
-        </div>
-        
-        <input type="text" 
-                class="chat__campo" 
-                name="mensaje"
-                id="input-mensaje-chat"
-                placeholder="Escribe un mensaje...">
-        <button type="submit" class="chat__boton" title="Enviar mensaje">
-            <i class="fa-regular fa-paper-plane"></i>
-        </button>
-    </form>
+            
+            <input type="text" 
+                    class="chat__campo" 
+                    name="mensaje"
+                    id="input-mensaje-chat"
+                    placeholder="Escribe un mensaje...">
+            <button type="submit" class="chat__boton" title="Enviar mensaje">
+                <i class="fa-regular fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
 <?php else: ?>
     <div class="chat__vacio">
         Selecciona una conversación para comenzar a chatear
