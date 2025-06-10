@@ -24,5 +24,26 @@
         </div>
 
     <script src="/build/js/bundle.min.js" defer></script>
+    <?php if(is_auth()): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // Función para enviar el "latido" al servidor y mantener la sesión activa
+                const sendHeartbeat = () => {
+                    fetch('/api/heartbeat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }).catch(error => console.error('Error en el heartbeat:', error));
+                };
+
+                // Enviar un latido inicial tan pronto como la página cargue
+                sendHeartbeat();
+
+                // Configurar para que se envíe un latido cada 60 segundos (1 minuto)
+                setInterval(sendHeartbeat, 60000); 
+            });
+        </script>
+    <?php endif; ?>
 </body>
 </html>

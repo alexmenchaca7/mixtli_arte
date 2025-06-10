@@ -194,8 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatActivo = document.getElementById('chat-activo');
     const formChat = document.getElementById('form-chat');
 
+    const POLLING_RATE_ACTIVE = 1500;    // 1.5 segundos
+    const POLLING_RATE_INACTIVE = 10000; // 10 segundos
+
     let sidebarPollingInterval;
-    const SIDEBAR_POLLING_RATE = 7000; // Consultar cada 7 segundos (ajusta según necesidad)
+    const SIDEBAR_POLLING_RATE = 7000; // Consultar cada 7 segundos 
 
     // Función para iniciar el polling si un chat ya está cargado en la página
     function iniciarPollingParaChatActivo() {
@@ -398,6 +401,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                         currentUltimoId = Math.max(...data.mensajes.map(m => m.id), currentUltimoId);
                         scrollToBottom();
+
+                        // Al recibir un mensaje en el chat activo, eliminamos la notificación
+                        // del sidebar de inmediato para que la UI esté sincronizada.
+                        const conversacionActivaEnSidebar = document.querySelector(
+                            `.contacto[data-producto-id="${productoId}"][data-contacto-id="${contactoId}"]`
+                        );
+                        if (conversacionActivaEnSidebar) {
+                            conversacionActivaEnSidebar.classList.remove('contacto--no-leido');
+                            const unreadDot = conversacionActivaEnSidebar.querySelector('.unread-dot');
+                            if (unreadDot) {
+                                unreadDot.remove();
+                            }
+                        }
+
+                        // Forzamos la actualización del sidebar para que se sincronice al instante.
+                        fetchListaConversaciones(); 
                     }
 
                     // Procesar actualizaciones de estado "leído" 
@@ -473,12 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     scrollToBottom();
 
                     // Obtener conversaciones actualizadas del servidor
-                    fetch(`/mensajes/buscar?term=`)
-                        .then(response => response.json())
-                        .then(data => {
-                            actualizarListaConversaciones(data.conversaciones);
-                        })
-                        .catch(error => console.error('Error actualizando conversaciones:', error));
+                    fetchListaConversaciones();
                 }
             }
         })
@@ -616,9 +630,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let contenidoParaMostrar = mensaje.contenido;
 
         if (typeof contenidoParaMostrar === 'string') {
-            // Quita slashes que podrían haber venido del servidor si no se limpiaron antes de json_encode
-            // o si el proceso de renderizado PHP inicial los tenía y se re-leyó de alguna manera.
-            // Esto es una capa extra de seguridad/limpieza.
             contenidoParaMostrar = contenidoParaMostrar.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
         }
         
