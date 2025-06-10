@@ -4,6 +4,7 @@
     $esVendedor = ($_SESSION['id'] == $productoChat->usuarioId);
     $ventaRealizada = false;
     $miCalificacion = null;
+    $ratingExpired = false; 
 
     if (!empty($valoraciones)) {
         $ventaRealizada = true;
@@ -12,6 +13,15 @@
                 $miCalificacion = $v;
                 break;
             }
+        }
+    }
+
+    if ($miCalificacion && is_null($miCalificacion->estrellas)) {
+        $fechaCreacion = new \DateTime($miCalificacion->creado);
+        $fechaActual = new \DateTime();
+        $diferencia = $fechaActual->diff($fechaCreacion);
+        if ($diferencia->days > 30) {
+            $ratingExpired = true;
         }
     }
     ?>
@@ -113,10 +123,16 @@
                 </button>
             <?php endif; ?>
 
-            <?php if($ventaRealizada && $miCalificacion && is_null($miCalificacion->estrellas)): ?>
-                <button type="button" class="chat__boton chat__boton--accion" id="btn-calificar" data-valoracion-id="<?= $miCalificacion->id ?>" data-tipo-calificacion="comprador">
-                    <i class="fa-solid fa-star"></i> Calificar Comprador
+            <?php if($ventaRealizada && $miCalificacion && is_null($miCalificacion->estrellas) && !$ratingExpired): ?>
+                <button type="button" class="chat__boton chat__boton--accion" id="btn-calificar" data-valoracion-id="<?= $miCalificacion->id ?>" data-tipo-calificacion="<?= $miCalificacion->tipo === 'vendedor' ? 'comprador' : 'vendedor' ?>">
+                    <i class="fa-solid fa-star"></i> Calificar <?= $miCalificacion->tipo === 'vendedor' ? 'Comprador' : 'Vendedor' ?>
                 </button>
+
+            <?php elseif ($ventaRealizada && $miCalificacion && is_null($miCalificacion->estrellas) && $ratingExpired): ?>
+                <div class="chat__accion-completa chat__accion-completa--expirado">
+                    <i class="fa-solid fa-clock"></i> El período para calificar ha expirado.
+                </div>
+
             <?php elseif($ventaRealizada && $miCalificacion && !is_null($miCalificacion->estrellas)): ?>
                 <div class="chat__accion-completa">
                     <i class="fa-solid fa-check-circle"></i> Ya has calificado esta transacción.

@@ -24,7 +24,7 @@ class ValoracionesController {
         $usuarioId = $_SESSION['id'];
         $valoracionId = filter_var($_POST['valoracion_id'] ?? '', FILTER_VALIDATE_INT);
         $estrellas = filter_var($_POST['estrellas'] ?? '', FILTER_VALIDATE_INT);
-        $comentario = s($_POST['comentario'] ?? '');
+        $comentario = trim(s($_POST['comentario'] ?? ''));
         $puntosFuertes = $_POST['puntos_fuertes'] ?? [];
 
         if (!$valoracionId || !$estrellas || $estrellas < 1 || $estrellas > 5) {
@@ -41,15 +41,33 @@ class ValoracionesController {
             exit();
         }
 
+        // ESTA VALIDACIÓN PREVIENE CALIFICACIONES MÚLTIPLES
         if ($valoracion->estrellas !== null) {
-            http_response_code(409);
+            http_response_code(409); // Conflict
             echo json_encode(['success' => false, 'error' => 'Ya has enviado una calificación para esta transacción.']);
+            exit();
+        }
+
+        // --- VALIDACIÓN DE LÍMITE DE TIEMPO ---
+        $fechaCreacion = new \DateTime($valoracion->creado);
+        $fechaActual = new \DateTime();
+        $diferencia = $fechaActual->diff($fechaCreacion);
+        if ($diferencia->days > 30) {
+            http_response_code(403); // Forbidden
+            echo json_encode(['success' => false, 'error' => 'El período de 30 días para dejar una calificación ha expirado.']);
+            exit();
+        }
+
+        // --- VALIDACIÓN DE COMENTARIO OBLIGATORIO ---
+        if ($estrellas == 1 && empty($comentario)) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['success' => false, 'error' => 'Las calificaciones de una estrella requieren un comentario obligatorio.']);
             exit();
         }
 
         $valoracion->estrellas = $estrellas;
         $valoracion->comentario = $comentario;
-        $valoracion->moderado = 1; // RQF130: Auto-aprobado por ahora
+        $valoracion->moderado = 0; // 0 = Pendiente de Moderación para evitar mensajes inapropiados
         
         $resultadoValoracion = $valoracion->guardar();
 

@@ -162,7 +162,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(this);
             const submitBtn = this.querySelector('button[type="submit"]');
 
-            if (!formData.get('estrellas')) {
+            const estrellasValue = formData.get('estrellas');
+            const comentarioValue = formData.get('comentario').trim();
+
+            // --- VALIDACIÓN DE COMENTARIO OBLIGATORIO ---
+            if (estrellasValue === '1' && comentarioValue === '') {
+                alert('Las calificaciones de una estrella requieren un comentario obligatorio. Por favor, explica el motivo de tu calificación.');
+                return; // Detiene el envío del formulario
+            }
+
+            if (!estrellasValue) {
                 alert('Por favor, selecciona una calificación de estrellas.');
                 return;
             }

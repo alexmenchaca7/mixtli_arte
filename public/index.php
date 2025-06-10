@@ -14,6 +14,7 @@ use Controllers\CategoriasController;
 use Controllers\MarketplaceController;
 use Controllers\ValoracionesController;
 use Controllers\DashboardAdminController;
+use Controllers\AdminValoracionesController;
 use Controllers\DashboardVendedorController;
 
 $router = new Router();
@@ -128,6 +129,10 @@ $router->post('/admin/categorias/crear', [CategoriasController::class, 'crear'])
 $router->get('/admin/categorias/editar', [CategoriasController::class, 'editar']);
 $router->post('/admin/categorias/editar', [CategoriasController::class, 'editar']);
 $router->post('/admin/categorias/eliminar', [CategoriasController::class, 'eliminar']);
+
+$router->get('/admin/valoraciones', [AdminValoracionesController::class, 'index']);
+$router->post('/admin/valoraciones/aprobar', [AdminValoracionesController::class, 'aprobar']);
+$router->post('/admin/valoraciones/rechazar', [AdminValoracionesController::class, 'rechazar']);
 
 
 
