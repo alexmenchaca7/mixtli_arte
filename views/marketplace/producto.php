@@ -1,5 +1,4 @@
 <main class="seccion contenedor contenedor-producto">
-    <!-- Imagen del Producto -->
     <div class="producto-imagen">
         <?php if (!empty($producto->imagenes)): ?>
             <div class="slider">
@@ -20,7 +19,6 @@
         <?php endif; ?>
     </div>
 
-    <!-- Información del Producto -->
     <div class="producto-detalle">
         <div class="producto-header">
             <h1><?= htmlspecialchars($producto->nombre) ?></h1>
@@ -34,12 +32,11 @@
         </div>
 
         <div class="producto-ubicacion">
-            <img src="/build/img/mapa.png" alt="Mapa de ubicación">
+            <div id="mapa" style="height: 300px; border-radius: 8px;"></div>
             <p>Guadalajara, Jal</p>
             <small>La ubicación es aproximada</small>
         </div>
 
-        <!-- Información del Vendedor -->
         <h2>Información del vendedor</h2>
         <div class="producto-vendedor">
             <div class="vendedor-info">
@@ -62,7 +59,6 @@
             </div>
         </div>
 
-        <!-- Contacto con el Vendedor -->
         <h2>Contacto</h2>
         <div class="producto-contacto">
             <form id="form-mensaje" method="POST" action="/mensajes/enviar">
@@ -81,18 +77,40 @@
 </main>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const direccion = "<?php echo $vendedor->direccion->calle . ', ' . $vendedor->direccion->colonia . ', ' . $vendedor->direccion->ciudad . ', ' . $vendedor->direccion->estado; ?>";
+    
+    // Usar un servicio de geocodificación para obtener las coordenadas
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const lat = data[0].lat;
+                const lon = data[0].lon;
+                
+                const mapa = L.map('mapa').setView([lat, lon], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(mapa);
+                L.marker([lat, lon]).addTo(mapa);
+            }
+        });
+});
+</script>
+
+<script>
 document.getElementById('form-mensaje').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const form = e.target;
     const formData = new FormData(form);
     const successDiv = document.getElementById('mensaje-exito');
     const errorDiv = document.getElementById('mensaje-error');
     const submitBtn = form.querySelector('button[type="submit"]');
-    
+
     submitBtn.disabled = true;
     submitBtn.innerHTML = 'Enviando...';
-    
+
     fetch(form.action, {
         method: 'POST',
         body: formData,
@@ -104,7 +122,7 @@ document.getElementById('form-mensaje').addEventListener('submit', function(e) {
             successDiv.textContent = '✓ Mensaje enviado!';
             successDiv.style.display = 'block';
             form.reset();
-            
+
             // Redirigir al índice de mensajes después de 1 segundo
             setTimeout(() => {
                 window.location.href = '/mensajes';

@@ -6,6 +6,7 @@ use Model\Usuario;
 use Model\Favorito;
 use Model\Producto;
 use Model\Categoria;
+use Model\Direccion;
 use Classes\Paginacion;
 use Model\ImagenProducto;
 
@@ -143,6 +144,7 @@ class MarketplaceController {
 
         // Obtener información del vendedor
         $vendedor = Usuario::find($producto->usuarioId);
+        $vendedor->direccion = Direccion::where('usuarioId', $vendedor->id);
         
         $router->render('marketplace/producto', [
             'titulo' => "$producto->nombre",
