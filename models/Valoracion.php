@@ -5,8 +5,8 @@ namespace Model;
 class Valoracion extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'comentario', 'estrellas', 'tipo', 'moderado', 'creado', 'calificadorId', 'calificadoId'];
-    protected static $tabla = 'resenas';
+    protected static $columnasDB = ['id', 'comentario', 'estrellas', 'tipo', 'moderado', 'creado', 'calificadorId', 'calificadoId', 'productoId'];
+    protected static $tabla = 'valoraciones';
 
     public $id;
     public $comentario;
@@ -16,6 +16,7 @@ class Valoracion extends ActiveRecord {
     public $creado;
     public $calificadorId;
     public $calificadoId;
+    public $productoId;
 
 
     public function __construct($args = [])
@@ -28,5 +29,6 @@ class Valoracion extends ActiveRecord {
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
         $this->calificadorId = $args['calificadorId'] ?? '';
         $this->calificadoId = $args['calificadoId'] ?? '';
+        $this->productoId = $args['productoId'] ?? '';
     }
 }
