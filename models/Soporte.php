@@ -6,6 +6,7 @@ class Soporte extends ActiveRecord {
 
     protected static $tabla = 'consultas_soporte';
     protected static $columnasDB = ['id', 'email', 'asunto', 'mensaje', 'numero_caso', 'estado', 'creado', 'actualizado', 'fecha_resolucion'];
+    protected static $buscarColumns = ['email', 'asunto', 'mensaje', 'numero_caso'];
 
     public $id;
     public $email;
@@ -15,7 +16,7 @@ class Soporte extends ActiveRecord {
     public $estado;
     public $creado;
     public $actualizado;
-    public $fecha_resolucion; // Nueva propiedad
+    public $fecha_resolucion; 
 
     public function __construct($args = []) {
         $this->id = $args['id'] ?? null;

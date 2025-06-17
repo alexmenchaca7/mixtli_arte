@@ -26,12 +26,17 @@ class AdminSoporteController {
         $registros_por_pagina = 10;
         $condiciones = [];
 
+        // Build conditions using the model's capabilities
         if (!empty($estado_filtro)) {
-            $condiciones[] = "estado = '" . Soporte::$conexion->escape_string($estado_filtro) . "'";
+            // No need to escape here, metodoSQL will handle it for specific fields
+            $condiciones[] = "estado = '{$estado_filtro}'";
         }
         if (!empty($busqueda)) {
-            $busquedaEscaped = Soporte::$conexion->escape_string("%{$busqueda}%");
-            $condiciones[] = "(asunto LIKE '{$busquedaEscaped}' OR mensaje LIKE '{$busquedaEscaped}' OR email LIKE '{$busquedaEscaped}' OR numero_caso LIKE '{$busquedaEscaped}')";
+            // Use Soporte::buscar which is configured to use $buscarColumns and handles escaping
+            $buscarCondiciones = Soporte::buscar($busqueda);
+            if (!empty($buscarCondiciones)) {
+                $condiciones[] = "(" . implode(' OR ', $buscarCondiciones) . ")"; // Combine search conditions with OR
+            }
         }
 
         $total = Soporte::totalCondiciones($condiciones);
