@@ -336,11 +336,23 @@ class MensajesController {
         }
     
         // Buyer rates seller
-        $valoracionComprador = new Valoracion(['calificadorId' => $compradorId, 'calificadoId' => $vendedorId, 'productoId' => $productoId, 'tipo' => 'comprador']);
+        $valoracionComprador = new Valoracion([
+            'calificadorId' => $compradorId,
+            'calificadoId' => $vendedorId,
+            'productoId' => $productoId,
+            'tipo' => 'comprador',
+            'sale_completed_at' => date('Y-m-d H:i:s') // Set timestamp here
+        ]);
         $valoracionComprador->guardar();
         
         // Seller rates buyer
-        $valoracionVendedor = new Valoracion(['calificadorId' => $vendedorId, 'calificadoId' => $compradorId, 'productoId' => $productoId, 'tipo' => 'vendedor']);
+        $valoracionVendedor = new Valoracion([
+            'calificadorId' => $vendedorId,
+            'calificadoId' => $compradorId,
+            'productoId' => $productoId,
+            'tipo' => 'vendedor',
+            'sale_completed_at' => date('Y-m-d H:i:s') // Set timestamp here
+        ]);
         $valoracionVendedor->guardar();
 
         // 1. Notificación al VENDEDOR

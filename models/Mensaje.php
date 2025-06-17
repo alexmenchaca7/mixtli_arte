@@ -367,4 +367,20 @@ class Mensaje extends ActiveRecord {
         }
         return $ids;
     }
+
+    public static function eliminarConversacionPorProductoYUsuarios($productoId, $usuario1Id, $usuario2Id) {
+        $productoId = self::$conexion->escape_string($productoId);
+        $usuario1Id = self::$conexion->escape_string($usuario1Id);
+        $usuario2Id = self::$conexion->escape_string($usuario2Id);
+
+        // Delete messages where (remitente is u1 AND destinatario is u2) OR (remitente is u2 AND destinatario is u1)
+        $query = "DELETE FROM " . static::$tabla . "
+                WHERE productoId = '{$productoId}'
+                AND (
+                    (remitenteId = '{$usuario1Id}' AND destinatarioId = '{$usuario2Id}')
+                    OR
+                    (remitenteId = '{$usuario2Id}' AND destinatarioId = '{$usuario1Id}')
+                )";
+        return self::$conexion->query($query);
+    }
 }

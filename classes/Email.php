@@ -152,4 +152,28 @@ class Email {
         $mail->Body = $contenido;
         $mail->send();
     }
+
+    public function enviarAvisoEliminacionConversacion($otherUserName, $productName, $conversationUrl, $daysRemaining) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Aviso Importante: Conversación será eliminada en MixtliArte';
+
+        $contenido = '<html>';
+        $contenido .= "<body>";
+        $contenido .= "<h1>Hola " . htmlspecialchars($this->nombre) . ",</h1>";
+        $contenido .= "<p>Te informamos que la conversación que mantuviste con <strong>" . htmlspecialchars($otherUserName) . "</strong> sobre el producto \"<strong>" . htmlspecialchars($productName) . "</strong>\" será eliminada permanentemente en <strong>{$daysRemaining} días</strong>.</p>";
+        $contenido .= "<p>Esto se debe a que la transacción relacionada con este producto ha finalizado.</p>";
+        $contenido .= "<p>Si hay información importante que deseas conservar de esta conversación, por favor, guárdala antes de la fecha límite.</p>";
+        $contenido .= "<p>Puedes acceder a la conversación aquí: <a href='" . htmlspecialchars($_ENV['HOST'] . $conversationUrl) . "'>Ver Conversación</a></p>";
+        $contenido .= "<p>Gracias por usar MixtliArte.</p>";
+        $contenido .= "<p>Atentamente,<br>El equipo de MixtliArte</p>";
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        if(!$mail->send()) {
+            error_log("Error al enviar email de aviso de eliminación de conversación a {$this->email}: " . $mail->ErrorInfo);
+            return false;
+        }
+        return true;
+    }
 }

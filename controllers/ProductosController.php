@@ -18,6 +18,9 @@ class ProductosController {
             exit();
         }
 
+        // Obtener el ID del vendedor autenticado
+        $usuarioId = $_SESSION['id']; // Get the authenticated user's ID
+
         // Obtener término de búsqueda si existe
         $busqueda = $_GET['busqueda'] ?? '';
         $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
@@ -30,11 +33,18 @@ class ProductosController {
         $registros_por_pagina = 10;
         $condiciones = [];
 
+        // Add condition to filter by the current seller's ID
+        $condiciones[] = "usuarioId = '$usuarioId'"; // Filter products by the current user's ID
+
         if(!empty($busqueda)) {
-            $condiciones = Producto::buscar($busqueda);
+            // Apply search conditions in addition to the user ID filter
+            $searchConditions = Producto::buscar($busqueda);
+            if (!empty($searchConditions)) {
+                $condiciones[] = "(" . implode(' AND ', $searchConditions) . ")";
+            }
         }
 
-        // Obtener total de registros
+        // Obtener total de registros con las nuevas condiciones
         $total = Producto::totalCondiciones($condiciones);
         
         // Crear instancia de paginación
@@ -190,7 +200,7 @@ class ProductosController {
         // Obtener categorias disponibles
         $categorias = Categoria::all();
 
-        if (!$producto) {
+        if (!$producto || $producto->usuarioId !== $_SESSION['id']) { // Validate ownership
             header('Location: /vendedor/productos');
             exit();
         }
@@ -316,7 +326,7 @@ class ProductosController {
             $id = $_POST['id'];
             $producto = Producto::find($id);
     
-            if(!$producto) {
+            if(!$producto || $producto->usuarioId !== $_SESSION['id']) { // Validate ownership
                 header('Location: /vendedor/productos');
                 exit;
             }
