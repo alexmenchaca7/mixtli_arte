@@ -408,11 +408,62 @@ class MensajesController {
 
         // Validación de errores
         $errores = [];
-        if (empty($mensajeTexto) && $tipo !== 'contacto') {
+        
+        // --- INICIO: LÓGICA ANTI-SPAM ---
+        $tiempoEspera = 3; // segundos
+        $maxMensajesConsecutivos = 3; // mensajes
+        
+        $claveSesionConversacion = 'last_message_time_' . $productoId . '_' . $destinatarioId;
+        $claveSesionContador = 'message_count_' . $productoId . '_' . $destinatarioId;
+
+        // Asegurarse de que la sesión esté iniciada
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $ultimoEnvio = $_SESSION[$claveSesionConversacion] ?? 0;
+        $conteoMensajes = $_SESSION[$claveSesionContador] ?? 0;
+        $tiempoActual = time();
+
+        // Si el último envío fue hace menos del tiempo de espera
+        if (($tiempoActual - $ultimoEnvio) < $tiempoEspera) {
+            $conteoMensajes++;
+            $_SESSION[$claveSesionContador] = $conteoMensajes;
+
+            if ($conteoMensajes > $maxMensajesConsecutivos) {
+                $errores[] = 'Has enviado demasiados mensajes en poco tiempo. Por favor, espera antes de enviar otro mensaje.';
+            }
+        } else {
+            // Si ha pasado el tiempo de espera, reiniciar el contador y el tiempo
+            $_SESSION[$claveSesionConversacion] = $tiempoActual;
+            $_SESSION[$claveSesionContador] = 1;
+        }
+        // --- FIN: LÓGICA ANTI-SPAM ---
+
+        if (empty($mensajeTexto) && $tipo !== 'contacto' && $tipo !== 'imagen' && $tipo !== 'documento') {
             $errores[] = 'El mensaje no puede estar vacío';
         }
         if (empty($productoId) || empty($destinatarioId)) {
             $errores[] = 'Datos de destinatario o producto inválidos';
+        }
+
+        // Excluir mensajes de tipo 'contacto' (ya que son la forma aprobada de compartir contacto)
+        if ($tipo === 'texto' || $tipo === 'plantilla_auto') {
+            // Patrones para detectar emails, teléfonos (México), y direcciones (simplificado)
+            $patrones = [
+                'email' => '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/',
+                'telefono' => '/\b(?:\d{2,4}[-.\s]?){2}\d{4}\b/', // Adapta según el formato de teléfono mexicano más común
+                'direccion' => '/\b(calle|av\.|avenida|num\.|número|colonia|col\.|fracc\.|fraccionamiento|cp|c\.p\.|codigo\s*postal)\b/i'
+            ];
+
+            $mensajeLower = strtolower($mensajeTexto);
+
+            foreach ($patrones as $nombre => $patron) {
+                if (preg_match($patron, $mensajeLower)) {
+                    $errores[] = 'No está permitido compartir información de contacto personal (' . $nombre . ') directamente en el chat. Por favor, utiliza la opción "Compartir Contacto" si está disponible o reformula tu mensaje.';
+                    break; // Salir después de la primera coincidencia
+                }
+            }
         }
 
         if (!empty($errores)) {

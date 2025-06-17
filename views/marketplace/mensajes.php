@@ -86,6 +86,31 @@
 let pollingInterval;
 let currentUltimoId = 0;
 
+const fetchListaConversaciones = async () => { /* */
+    try {
+        // Solo hacer fetch si la ventana está visible para ahorrar recursos
+        if (document.hidden) {
+            return;
+        }
+        const response = await fetch('/mensajes/lista-conversaciones');
+        if (!response.ok) {
+            // Si no está autenticado o hay otro error, detener el polling
+            if (response.status === 401 || response.status === 403) {
+                clearInterval(sidebarPollingInterval);
+                console.warn('Polling de sidebar detenido por error de autenticación o autorización.');
+            }
+            throw new Error(`Error en la respuesta del servidor: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.conversaciones) {
+            actualizarListaConversaciones(data.conversaciones);
+        }
+    } catch (error) {
+        console.error('Error obteniendo lista de conversaciones para sidebar:', error);
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const chatActivo = document.getElementById('chat-activo');
     const formChat = document.getElementById('form-chat');
@@ -346,33 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function inicializarSidebarPolling() {
         if (sidebarPollingInterval) clearInterval(sidebarPollingInterval);
 
-        const fetchListaConversaciones = async () => {
-            try {
-                // Solo hacer fetch si la ventana está visible para ahorrar recursos
-                if (document.hidden) {
-                    return;
-                }
-                const response = await fetch('/mensajes/lista-conversaciones');
-                if (!response.ok) {
-                    // Si no está autenticado o hay otro error, detener el polling
-                    if (response.status === 401 || response.status === 403) {
-                        clearInterval(sidebarPollingInterval);
-                        console.warn('Polling de sidebar detenido por error de autenticación o autorización.');
-                    }
-                    throw new Error(`Error en la respuesta del servidor: ${response.status}`);
-                }
-                const data = await response.json();
-
-                if (data.conversaciones) {
-                    actualizarListaConversaciones(data.conversaciones);
-                }
-            } catch (error) {
-                console.error('Error obteniendo lista de conversaciones para sidebar:', error);
-                // Podrías querer detener el polling aquí también si el error es persistente
-                // clearInterval(sidebarPollingInterval);
-            }
-        };
-
         // Ejecutar inmediatamente la primera vez
         fetchListaConversaciones();
         // Luego, establecer el intervalo
@@ -481,13 +479,41 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Enviar la solicitud
+        // Función para mostrar errores
+        function showChatError(message) {
+            const errorDiv = document.getElementById('chat-error-message');
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                    errorDiv.textContent = '';
+                }, 5000); // Ocultar después de 5 segundos
+            }
+        }
+
         fetch(tieneArchivo ? '/mensajes/upload' : '/mensajes/enviar', {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            // Clonar la respuesta para poder leer el cuerpo dos veces si es necesario
+            // Aunque para este caso, solo necesitamos response.ok y luego el JSON
+            if (!response.ok) {
+                // Si la respuesta no es OK (ej. 400 Bad Request, 500 Internal Server Error),
+                // se procesa el JSON para obtener el mensaje de error del servidor.
+                return response.json().then(errorData => {
+                    throw new Error(errorData.errores ? errorData.errores.join(', ') : 'Ocurrió un error inesperado en el servidor.');
+                });
+            }
+            // Si la respuesta es OK, intentar parsear el JSON.
+            // Si el servidor cierra la conexión prematuramente, response.json() podría fallar.
+            // En ese caso, si response.ok es true, asumimos éxito.
+            return response.json(); 
+        })
         .then(data => {
+            // Este bloque solo se ejecuta si response.json() fue exitoso.
+            // Si la conexión se cerró y no se pudo parsear el JSON, no se llega aquí.
             if (data.success) {
                 cerrarPreview(); // Resetear preview
                 form.reset();
@@ -497,11 +523,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     scrollToBottom();
 
                     // Obtener conversaciones actualizadas del servidor
+                    // No es estrictamente necesario, ya que el polling del sidebar se encarga de esto.
+                    // Sin embargo, mantenerlo aquí asegura una actualización más rápida.
                     fetchListaConversaciones();
                 }
+            } else {
+                // Si data.success es false, significa que el servidor devolvió un error esperado en el JSON.
+                showChatError(data.errores ? data.errores.join(', ') : 'Ocurrió un error inesperado al procesar el mensaje.');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            // Este catch ahora manejará errores de red (conexión fallida/interrumpida)
+            // O errores lanzados explícitamente desde el primer .then()
+            console.error('Error en fetch:', error);
+            // Verificar si el error es de parsing o de red.
+            // Si el mensaje se envió correctamente (lo confirmas en la DB),
+            // entonces el error es probablemente de la conexión prematura.
+            // Puedes intentar ser más indulgente aquí.
+            if (error.message.includes("Unexpected token") || error.message.includes("JSON")) {
+                // Esto es un indicio de que el JSON no se pudo parsear.
+                // Si sabes que el mensaje se envió, puedes simplemente ignorar este error visual.
+                console.warn("Posiblemente, el mensaje se envió, pero hubo un error en la respuesta JSON o en el cierre de conexión.");
+                // Opcional: recargar la lista de mensajes para asegurar consistencia
+                // fetchListaConversaciones();
+                // No mostrar error visual al usuario si el mensaje de hecho fue enviado.
+                // showChatError('El mensaje fue enviado, pero hubo un problema al confirmar la entrega.');
+            } else {
+                showChatError('Error de conexión o problema en el servidor: ' + error.message);
+            }
+        });
     }
 
     // Método para actualizar conversaciones

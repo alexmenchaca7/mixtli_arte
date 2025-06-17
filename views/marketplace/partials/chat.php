@@ -132,6 +132,8 @@
     </div>
 
     <div class="chat__acciones-y-form">
+        <div id="chat-error-message" style="color: red; text-align: center; margin-bottom: 1rem; display: none;"></div>
+        
         <div class="chat__acciones-finales">
             <?php if($esVendedor && !$ventaRealizada && $productoChat->estado !== 'agotado'): ?>
                 <button type="button" class="chat__boton chat__boton--accion" id="btn-marcar-vendido">
