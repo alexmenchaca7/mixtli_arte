@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
 use Controllers\AuthController;
+use Controllers\FaqsController;
 use Controllers\PaginasController;
 use Controllers\MensajesController;
 use Controllers\UsuariosController;
@@ -58,6 +59,8 @@ $router->post('/verificar-2fa', [AuthController::class, 'verificar2FA']);
 $router->get('/', [PaginasController::class, 'index']);
 $router->get('/nosotros', [PaginasController::class, 'nosotros']);
 $router->get('/contacto', [PaginasController::class, 'contacto']);
+$router->get('/faqs', [FaqsController::class, 'index']); 
+$router->post('/faqs', [FaqsController::class, 'index']);
 
 
 
@@ -138,6 +141,13 @@ $router->post('/admin/categorias/eliminar', [CategoriasController::class, 'elimi
 $router->get('/admin/valoraciones', [AdminValoracionesController::class, 'index']);
 $router->post('/admin/valoraciones/aprobar', [AdminValoracionesController::class, 'aprobar']);
 $router->post('/admin/valoraciones/rechazar', [AdminValoracionesController::class, 'rechazar']);
+
+$router->get('/admin/faqs', [FaqsController::class, 'adminIndex']);
+$router->get('/admin/faqs/crear', [FaqsController::class, 'adminCrear']);
+$router->post('/admin/faqs/crear', [FaqsController::class, 'adminCrear']);
+$router->get('/admin/faqs/editar', [FaqsController::class, 'adminEditar']);
+$router->post('/admin/faqs/editar', [FaqsController::class, 'adminEditar']);
+$router->post('/admin/faqs/eliminar', [FaqsController::class, 'adminEliminar']);
 
 
 

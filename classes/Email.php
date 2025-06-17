@@ -176,4 +176,29 @@ class Email {
         }
         return true;
     }
+
+    public function enviarNotificacionNuevaFaq($preguntaUsuario, $categoriaNombre, $palabrasClave, $frecuencia) {
+        $mail = $this->configurarEmailBasico(); // Ya configura el FROM y el ADDADDRESS con los datos del constructor (email del admin soporte)
+        $mail->Subject = 'NUEVA PREGUNTA FRECUENTE IDENTIFICADA - REQUIERE ACTUALIZACIÓN FAQ';
+
+        $contenido = '<html>';
+        $contenido .= "<body>";
+        $contenido .= "<h1>Aviso: Nueva Pregunta Frecuente Identificada</h1>";
+        $contenido .= "<p>Una pregunta de usuario ha superado el umbral de frecuencia y debe ser considerada para añadir a las FAQs.</p>";
+        $contenido .= "<p><strong>Pregunta del Usuario:</strong> " . htmlspecialchars($preguntaUsuario) . "</p>";
+        $contenido .= "<p><strong>Categoría Sugerida:</strong> " . htmlspecialchars($categoriaNombre) . "</p>";
+        $contenido .= "<p><strong>Palabras Clave:</strong> " . htmlspecialchars(implode(', ', $palabrasClave)) . "</p>";
+        $contenido .= "<p><strong>Frecuencia Actual:</strong> " . htmlspecialchars($frecuencia) . "</p>";
+        $contenido .= "<p>Por favor, revisa esta pregunta y añade la respuesta correspondiente a la sección de Preguntas Frecuentes de la plataforma.</p>";
+        $contenido .= "<p>Gracias,<br>Sistema Automático MixtliArte</p>";
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        if(!$mail->send()) {
+            error_log("Error al enviar notificación de FAQ a {$this->email}: " . $mail->ErrorInfo);
+            return false;
+        }
+        return true;
+    }
 }

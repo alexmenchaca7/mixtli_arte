@@ -95,6 +95,10 @@ class ActiveRecord {
             // Verificamos si el valor es null o vacío y lo reemplazamos por null
             if ($value === NULL || $value === '') {
                 $sanitizado[$key] = NULL;  // Reemplazamos con NULL
+            } elseif ($key === 'palabras_clave') { //
+                // For JSON columns like 'palabras_clave', do NOT escape the string.
+                // The JSON string should be inserted as is. MySQL will validate it.
+                $sanitizado[$key] = $value; //
             } else {
                 $sanitizado[$key] = self::$conexion->escape_string($value);
             }

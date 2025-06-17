@@ -27,5 +27,12 @@
                 Moderación
             </span>
         </a>
+
+        <a href="/admin/faqs" class="dashboard__enlace <?php echo pagina_actual('/faqs') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-question-circle dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                FAQs
+            </span>
+        </a>
     </nav>
 </aside>
