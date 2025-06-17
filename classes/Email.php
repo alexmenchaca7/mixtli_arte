@@ -201,4 +201,83 @@ class Email {
         }
         return true;
     }
+
+    public function enviarConfirmacionSoporteUsuario($numeroCaso, $asuntoConsulta) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Confirmación de Recepción de Consulta - MixtliArte (Caso #' . $numeroCaso . ')';
+
+        $contenido = '<html>';
+        $contenido .= "<body>";
+        $contenido .= "<h1>Hola " . htmlspecialchars($this->nombre) . ",</h1>";
+        $contenido .= "<p>Hemos recibido tu consulta de soporte con el asunto: <strong>" . htmlspecialchars($asuntoConsulta) . "</strong>.</p>";
+        $contenido .= "<p>Tu número de caso es: <strong>" . htmlspecialchars($numeroCaso) . "</strong>. Por favor, guarda este número para futuras referencias.</p>";
+        $contenido .= "<p>Nuestro equipo de soporte revisará tu consulta y te responderá a la brevedad posible.</p>";
+        $contenido .= "<p>Gracias por contactarnos,<br>El equipo de MixtliArte</p>";
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        if(!$mail->send()) {
+            error_log("Error al enviar email de confirmación de soporte a {$this->email}: " . $mail->ErrorInfo);
+            return false;
+        }
+        return true;
+    }
+
+    public function enviarNotificacionSoporteAdmin($emailUsuario, $asunto, $mensaje, $numeroCaso) {
+        $mail = $this->configurarEmailBasico();
+        $mail->clearAddresses(); // Limpiar direcciones previas
+        $mail->addAddress($this->email, $this->nombre); // Asignar la dirección del admin de soporte
+        $mail->Subject = 'NUEVA CONSULTA DE SOPORTE - MixtliArte (Caso #' . $numeroCaso . ')';
+
+        $contenido = '<html>';
+        $contenido .= "<body>";
+        $contenido .= "<h1>Nueva Consulta de Soporte Recibida</h1>";
+        $contenido .= "<p>Se ha recibido una nueva consulta de soporte en MixtliArte con los siguientes detalles:</p>";
+        $contenido .= "<p><strong>Número de Caso:</strong> " . htmlspecialchars($numeroCaso) . "</p>";
+        $contenido .= "<p><strong>Email del Usuario:</strong> " . htmlspecialchars($emailUsuario) . "</p>";
+        $contenido .= "<p><strong>Asunto:</strong> " . htmlspecialchars($asunto) . "</p>";
+        $contenido .= "<p><strong>Mensaje:</strong></p>";
+        $contenido .= "<p style='border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f9f9f9;'>" . nl2br(htmlspecialchars($mensaje)) . "</p>";
+        $contenido .= "<p>Por favor, accede al panel de administración para gestionar esta consulta.</p>";
+        $contenido .= "<p>Atentamente,<br>Sistema Automático MixtliArte</p>";
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        if(!$mail->send()) {
+            error_log("Error al enviar email de notificación de soporte al admin {$this->email}: " . $mail->ErrorInfo);
+            return false;
+        }
+        return true;
+    }
+
+    public function enviarRespuestaSoporte($usuarioEmail, $numeroCaso, $asuntoOriginal, $respuestaMensaje, $nombreAdminRemitente) {
+        $mail = $this->configurarEmailBasico();
+        $mail->clearAddresses(); // Limpiar direcciones previas
+        $mail->addAddress($usuarioEmail, 'Usuario MixtliArte'); // Enviar al email del usuario
+
+        $mail->Subject = 'Respuesta a tu consulta de soporte (Caso #' . htmlspecialchars($numeroCaso) . ') - ' . htmlspecialchars($asuntoOriginal);
+
+        $contenido = '<html>';
+        $contenido .= "<body>";
+        $contenido .= "<h1>Hola,</h1>";
+        $contenido .= "<p>Hemos recibido tu consulta de soporte con el número de caso <strong>#" . htmlspecialchars($numeroCaso) . "</strong> y el asunto \"<strong>" . htmlspecialchars($asuntoOriginal) . "</strong>\".</p>";
+        $contenido .= "<p>El equipo de soporte te ha respondido lo siguiente:</p>";
+        $contenido .= "<div style='border: 1px solid #ccc; padding: 15px; border-radius: 8px; background-color: #f9f9f9; margin: 15px 0;'>";
+        $contenido .= "<p style='font-weight: bold; margin-top: 0;'>Respuesta de " . htmlspecialchars($nombreAdminRemitente) . ":</p>";
+        $contenido .= "<p>" . nl2br(htmlspecialchars($respuestaMensaje)) . "</p>";
+        $contenido .= "</div>";
+        $contenido .= "<p>Si tienes más preguntas o tu problema persiste, puedes responder a este correo o abrir una nueva consulta referenciando este número de caso.</p>";
+        $contenido .= "<p>Gracias,<br>El equipo de MixtliArte</p>";
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        if(!$mail->send()) {
+            error_log("Error al enviar email de respuesta de soporte a {$usuarioEmail}: " . $mail->ErrorInfo);
+            return false;
+        }
+        return true;
+    }
 }

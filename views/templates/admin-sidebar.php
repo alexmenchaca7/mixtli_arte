@@ -34,5 +34,12 @@
                 FAQs
             </span>
         </a>
+
+        <a href="/admin/soporte" class="dashboard__enlace <?php echo pagina_actual('/soporte') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-headset dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                Soporte
+            </span>
+        </a>
     </nav>
 </aside>

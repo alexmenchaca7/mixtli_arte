@@ -164,29 +164,50 @@
 
     &__busqueda {
         display: flex;
+        flex-direction: column; /* Cambio para apilar en móviles */
+        gap: 1rem; /* Espacio entre los campos de búsqueda y filtro */
         position: relative;
         width: 100%;
         max-width: 100%;
         background-color: v.$blanco;
         border: 1px solid v.$gris-claro;
+        border-radius: 1rem; /* Borde redondeado para el contenedor de búsqueda */
         overflow: hidden;
+        padding: 1rem; /* Añadir padding dentro del contenedor de búsqueda */
 
         @include m.tablet {
-            flex: 1;
+            flex-direction: row; /* Volver a fila en tablet y desktop */
+            flex-wrap: wrap; /* Permitir que los elementos se envuelvan */
+            justify-content: space-between; /* Espaciar elementos */
+            align-items: center;
+            border: none; /* Eliminar borde del contenedor si se desea */
+            padding: 0;
+            background-color: transparent; /* Fondo transparente */
+            gap: 1rem 2rem; /* Espacio entre filas y columnas */
         }
     }
 
     .campo-busqueda {
         display: flex;
         width: 100%;
-        min-width: 0; // Permite que el input se reduzca
+        min-width: 0;
+        border: 1px solid v.$gris-claro; /* Borde para el input de búsqueda */
+        border-radius: 1rem; /* Redondear el input de búsqueda */
+        overflow: hidden; /* Ocultar el desbordamiento si el contenido es demasiado grande */
+
+        @include m.tablet {
+            flex-grow: 1; /* Permite que el campo de búsqueda ocupe el espacio disponible */
+            max-width: 30rem; /* Limitar ancho del input de búsqueda en desktop */
+            border: none; /* Eliminar el borde si el contenedor principal ya tiene uno */
+            padding: 0;
+        }
     }
 
     .input-busqueda {
         flex: 1;
-        min-width: 0; // Importante para que funcione el text-overflow
+        min-width: 0;
         padding: 1.4rem 1rem;
-        border: none;
+        border: none; /* Eliminar borde individual ya que el .campo-busqueda tiene uno */
         outline: none;
         background: transparent;
         color: v.$negro;
@@ -208,11 +229,46 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0; // Evita que el botón se reduzca
+        flex-shrink: 0;
         cursor: pointer;
+        
+        @include m.tablet {
+            border-radius: 0 1rem 1rem 0; /* Solo redondear los extremos si está al lado del input */
+        }
 
         i {
             font-size: 1.6rem;
+        }
+    }
+
+    // Nuevos estilos para el campo de filtro
+    .campo-filtro {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%; /* Ocupar todo el ancho en móviles */
+        
+        @include m.tablet {
+            width: auto; /* Ancho automático en tablet y desktop */
+            flex-shrink: 0; /* Evitar que se encoja */
+        }
+
+        .formulario__label {
+            margin-bottom: 0;
+            white-space: nowrap;
+            font-size: 1.4rem; /* Ajustar tamaño de fuente */
+        }
+        .formulario__input {
+            flex-grow: 1;
+            padding: 0.8rem;
+            font-size: 1.4rem;
+            height: auto;
+            border-radius: 1rem; /* Redondear el select */
+        }
+        .boton-busqueda { /* Reutilizar el estilo del botón de búsqueda */
+            padding: 0.8rem 1.5rem;
+            font-size: 1.4rem;
+            border-radius: 1rem; /* Redondear completamente el botón */
         }
     }
 
@@ -221,6 +277,7 @@
 
         @include m.tablet {
             @include m.boton(v.$primario, inline-block);
+            width: auto; /* Asegurar ancho automático en tablet */
         }
     }
 

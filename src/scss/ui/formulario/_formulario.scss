@@ -10,6 +10,10 @@
         border: none;
         margin-top: 1rem;
         padding: 0;
+
+        &:not(:first-of-type) {
+            margin-top: 5rem;
+        }
     }
 
     &__legend {

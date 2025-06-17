@@ -13,6 +13,7 @@ use Controllers\ProductosController;
 use Controllers\SeguridadController;
 use Controllers\CategoriasController;
 use Controllers\MarketplaceController;
+use Controllers\AdminSoporteController;
 use Controllers\ValoracionesController;
 use Controllers\DashboardAdminController;
 use Controllers\AdminValoracionesController;
@@ -59,6 +60,7 @@ $router->post('/verificar-2fa', [AuthController::class, 'verificar2FA']);
 $router->get('/', [PaginasController::class, 'index']);
 $router->get('/nosotros', [PaginasController::class, 'nosotros']);
 $router->get('/contacto', [PaginasController::class, 'contacto']);
+$router->post('/contacto', [PaginasController::class, 'contacto']);
 $router->get('/faqs', [FaqsController::class, 'index']); 
 $router->post('/faqs', [FaqsController::class, 'index']);
 
@@ -149,6 +151,10 @@ $router->get('/admin/faqs/editar', [FaqsController::class, 'adminEditar']);
 $router->post('/admin/faqs/editar', [FaqsController::class, 'adminEditar']);
 $router->post('/admin/faqs/eliminar', [FaqsController::class, 'adminEliminar']);
 
+$router->get('/admin/soporte', [AdminSoporteController::class, 'index']);
+$router->get('/admin/soporte/ver', [AdminSoporteController::class, 'ver']);
+$router->post('/admin/soporte/ver', [AdminSoporteController::class, 'ver']);
+$router->post('/admin/soporte/eliminar', [AdminSoporteController::class, 'eliminar']);
 
 
 

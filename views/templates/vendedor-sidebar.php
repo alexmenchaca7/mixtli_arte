@@ -44,5 +44,11 @@
                 Perfil
             </span>  
         </a>
+
+        <a href="/contacto" class="dashboard__enlace <?php echo pagina_actual('/contacto') ? 'dashboard__enlace--actual' : ''; ?>"> <i class="fa-solid fa-headset dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                Contacto
+            </span>  
+        </a>
     </nav>
 </aside>

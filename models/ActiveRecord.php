@@ -293,7 +293,12 @@ class ActiveRecord {
         // Iterar para ir agregando cada campo de la BD
         $valores = [];
         foreach($atributos as $key => $value) {
-            $valores[] = "$key = '$value'";
+            // CAMBIO CRÍTICO: Asegurarse de que NULL se pase como NULL en SQL
+            if ($value === NULL) {
+                $valores[] = "$key = NULL";
+            } else {
+                $valores[] = "$key = '" . self::$conexion->escape_string($value) . "'";
+            }
         }
 
         // Consulta SQL
