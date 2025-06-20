@@ -22,7 +22,12 @@
                             <td class="table__td"><?= htmlspecialchars($valoracion->calificador->nombre . ' ' . $valoracion->calificador->apellido); ?></td>
                             <td class="table__td"><?= htmlspecialchars($valoracion->calificado->nombre . ' ' . $valoracion->calificado->apellido); ?></td>
                             <td class="table__td"><?= htmlspecialchars($valoracion->producto->nombre); ?></td>
-                            <td class="table__td" style="font-size: 1.5rem;"><?= str_repeat('⭐', $valoracion->estrellas); ?></td>
+                            <td class="table__td" style="font-size: 1.5rem;">
+                                <?php if ($valoracion->estrellas !== null): ?>
+                                    <?= str_repeat('⭐', $valoracion->estrellas); ?>
+                                <?php else: ?>
+                                    N/A <?php endif; ?>
+                            </td>
                             <td class="table__td"><?= $valoracion->comentario ? htmlspecialchars($valoracion->comentario) : '<em>Sin comentario</em>'; ?></td>
                             
                             <td class="table__td--acciones">

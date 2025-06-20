@@ -1,10 +1,20 @@
 <h2 class="dashboard__heading"><?= $titulo ?></h2>
 
 <div class="dashboard__contenedor-boton">
+    <a class="dashboard__boton" href="/admin/faqs/frequent-questions">
+        <i class="fa-solid fa-clipboard-question"></i>
+        Preg. Frecuentes Usuarios
+    </a>
+
     <a class="dashboard__boton" href="/admin/faqs/crear">
         <i class="fa-solid fa-circle-plus"></i>
         Añadir FAQ
     </a>
+</div>
+
+<div class="dashboard__contenedor">
+    <?php if(!empty($faqs)): ?>
+        <?php endif; ?>
 </div>
 
 <div class="dashboard__contenedor">

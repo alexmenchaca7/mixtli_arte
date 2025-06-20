@@ -28,27 +28,18 @@ class FaqsController {
             exit();
         }
 
-        // Obtener todas las categorías para el filtro
-        // Antes: $categorias = Categoria::all();
-        $categoriasFaq = CategoriaFaq::all(); // Cargar desde el nuevo modelo
-
-        // Obtener todas las FAQs, agrupadas por categoría si es necesario
-        // Antes: $faqs = Faq::metodoSQL(['orden' => 'categoriaId ASC']);
-        $faqs = Faq::metodoSQL(['orden' => 'categoriaFaqId ASC']); // Usar el nuevo ID de categoría
-
-        // Para mostrar el nombre de la categoría en las FAQs, necesitas unirlas
+        $categoriasFaq = CategoriaFaq::all();
+        $faqs = Faq::metodoSQL(['orden' => 'categoriaFaqId ASC']);
         foreach ($faqs as $faq) {
             $faq->categoria = CategoriaFaq::find($faq->categoriaFaqId);
         }
 
-        // Formulario de pregunta
         $preguntaUsuario = new PreguntaUsuario();
         $alertas = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $preguntaUsuario->sincronizar($_POST);
-            // Asegurarse de que el campo de categoría se mapee correctamente
-            $preguntaUsuario->categoriaFaqId = $_POST['categoriaFaqId'] ?? null; // Usar el nuevo nombre de campo en POST
+            $preguntaUsuario->categoriaFaqId = $_POST['categoriaFaqId'] ?? null;
             $preguntaUsuario->usuarioId = $_SESSION['id'];
             $alertas = $preguntaUsuario->validar();
 
@@ -62,9 +53,10 @@ class FaqsController {
                     $preguntaExistente = array_shift($preguntasSimilares);
                     $preguntaExistente->frecuencia = $preguntaExistente->frecuencia + 1;
 
-                    $umbralFrecuencia = 10; 
+                    $umbralFrecuencia = 3; // Reduced for testing. Adjust as needed.
                     if ($preguntaExistente->frecuencia >= $umbralFrecuencia && $preguntaExistente->marcada_frecuente == 0) {
                         $preguntaExistente->marcada_frecuente = 1;
+                        $preguntaExistente->estado_revision = 'pendiente'; // Set initial review status
                         self::notificarSoporteNuevaFaq($preguntaExistente);
                         Faq::setAlerta('exito', 'Hemos recibido tu pregunta. ¡Parece que es una pregunta frecuente y la añadiremos pronto a nuestras FAQs!');
                     } else {
@@ -83,7 +75,7 @@ class FaqsController {
 
         $router->render('paginas/faqs/index', [
             'titulo' => 'Preguntas Frecuentes',
-            'categorias' => $categoriasFaq, // Pasar las nuevas categorías de FAQ
+            'categorias' => $categoriasFaq,
             'faqs' => $faqs,
             'preguntaUsuario' => $preguntaUsuario,
             'alertas' => $alertas
@@ -240,5 +232,90 @@ class FaqsController {
         }
         header('Location: /admin/faqs');
         exit();
+    }
+
+    public static function adminFrequentQuestions(Router $router) {
+        if (!is_auth('admin')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $preguntasFrecuentes = PreguntaUsuario::findFrequentPendingReview();
+        
+        foreach ($preguntasFrecuentes as $pregunta) {
+            $pregunta->categoria = CategoriaFaq::find($pregunta->categoriaFaqId);
+            $pregunta->usuario = \Model\Usuario::find($pregunta->usuarioId); // Assuming you have a Usuario model
+        }
+
+        $router->render('admin/faqs/frequent-questions', [ // Create this new view
+            'titulo' => 'Preguntas Frecuentes de Usuarios',
+            'preguntas' => $preguntasFrecuentes
+        ], 'admin-layout');
+    }
+
+    public static function adminMarkFrequentQuestionReviewed() {
+        if (!is_auth('admin') || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /login');
+            exit();
+        }
+
+        $id = filter_var($_POST['id'], FILTER_VALIDATE_INT);
+        if ($id) {
+            $pregunta = PreguntaUsuario::find($id);
+            if ($pregunta) {
+                $pregunta->estado_revision = $_POST['estado_revision'] ?? 'en_revision'; // 'en_revision' or 'descartada'
+                $pregunta->guardar();
+            }
+        }
+        header('Location: /admin/faqs/frequent-questions');
+        exit();
+    }
+
+    public static function adminConvertFrequentToFaq(Router $router) {
+        if (!is_auth('admin') || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /login');
+            exit();
+        }
+
+        $id = filter_var($_POST['id'], FILTER_VALIDATE_INT);
+        if (!$id) {
+            header('Location: /admin/faqs/frequent-questions');
+            exit();
+        }
+
+        $preguntaUsuario = PreguntaUsuario::find($id);
+        if (!$preguntaUsuario) {
+            header('Location: /admin/faqs/frequent-questions');
+            exit();
+        }
+
+        $faq = new Faq([
+            'pregunta' => $preguntaUsuario->pregunta,
+            'respuesta' => 'Respuesta pendiente. Por favor, edita esta FAQ.', // Placeholder
+            'categoriaFaqId' => $preguntaUsuario->categoriaFaqId,
+        ]);
+        
+        $alertas = $faq->validar(); // Basic validation
+
+        if (empty($alertas)) {
+            $resultado = $faq->guardar();
+            if ($resultado) {
+                $preguntaUsuario->estado_revision = 'faq_creada'; // Mark as converted
+                $preguntaUsuario->marcada_frecuente = 1; // Ensure it stays marked
+                $preguntaUsuario->guardar();
+                Faq::setAlerta('exito', 'FAQ creada exitosamente. Por favor, edita la respuesta.');
+                header('Location: /admin/faqs/editar?id=' . $faq->id); // Redirect to edit the new FAQ
+                exit();
+            } else {
+                Faq::setAlerta('error', 'Hubo un error al crear la FAQ.');
+            }
+        }
+        $alertas = array_merge($alertas, Faq::getAlertas());
+        
+        $router->render('admin/faqs/frequent-questions', [ // Render the list with alerts
+            'titulo' => 'Preguntas Frecuentes de Usuarios',
+            'preguntas' => PreguntaUsuario::findFrequentPendingReview(), // Reload list
+            'alertas' => $alertas
+        ], 'admin-layout');
     }
 }

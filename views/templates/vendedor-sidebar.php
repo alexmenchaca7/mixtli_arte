@@ -30,19 +30,19 @@
                 Valoraciones
             </span>
         </a>
-
-        <a href="/faqs" class="dashboard__enlace <?php echo pagina_actual('/faqs') ? 'dashboard__enlace--actual' : ''; ?>">
-            <i class="fa-solid fa-question-circle dashboard__icono"></i>
-            <span class="dashboard__menu-texto">
-                FAQs
-            </span>
-        </a>
-
+        
         <a href="/vendedor/perfil" class="dashboard__enlace <?php echo pagina_actual('/perfil') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-user dashboard__icono"></i>
             <span class="dashboard__menu-texto">
                 Perfil
             </span>  
+        </a>
+        
+        <a href="/faqs" class="dashboard__enlace <?php echo pagina_actual('/faqs') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-question-circle dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                FAQs
+            </span>
         </a>
 
         <a href="/contacto" class="dashboard__enlace <?php echo pagina_actual('/contacto') ? 'dashboard__enlace--actual' : ''; ?>"> <i class="fa-solid fa-headset dashboard__icono"></i>

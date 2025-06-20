@@ -4,27 +4,29 @@ namespace Model;
 
 class PreguntaUsuario extends ActiveRecord {
     protected static $tabla = 'preguntas_usuarios';
-    // Cambiar categoriaId para que se relacione con la nueva tabla
-    protected static $columnasDB = ['id', 'pregunta', 'categoriaFaqId', 'usuarioId', 'palabras_clave', 'frecuencia', 'marcada_frecuente', 'creado'];
+    // Add 'estado_revision' to columnsDB
+    protected static $columnasDB = ['id', 'pregunta', 'categoriaFaqId', 'usuarioId', 'palabras_clave', 'frecuencia', 'marcada_frecuente', 'creado', 'estado_revision'];
 
     public $id;
     public $pregunta;
-    public $categoriaFaqId; // Cambiado de categoriaId a categoriaFaqId
+    public $categoriaFaqId;
     public $usuarioId;
-    public $palabras_clave; // JSON de palabras clave
-    public $frecuencia; // Contador de preguntas similares
-    public $marcada_frecuente; // Booleano para notificar al soporte
+    public $palabras_clave;
+    public $frecuencia;
+    public $marcada_frecuente;
     public $creado;
+    public $estado_revision; // New property: 'pendiente', 'en_revision', 'faq_creada', 'descartada'
 
     public function __construct($args = []) {
         $this->id = $args['id'] ?? null;
         $this->pregunta = $args['pregunta'] ?? '';
-        $this->categoriaFaqId = $args['categoriaFaqId'] ?? null; // Cambiado
+        $this->categoriaFaqId = $args['categoriaFaqId'] ?? null;
         $this->usuarioId = $args['usuarioId'] ?? null;
         $this->palabras_clave = $args['palabras_clave'] ?? '[]';
         $this->frecuencia = $args['frecuencia'] ?? 1;
         $this->marcada_frecuente = $args['marcada_frecuente'] ?? 0;
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
+        $this->estado_revision = $args['estado_revision'] ?? 'pendiente'; // Default status
     }
 
     public function validar() {
@@ -39,16 +41,20 @@ class PreguntaUsuario extends ActiveRecord {
 
     // Método para buscar preguntas similares
     public static function buscarPreguntasSimilares($pregunta, $umbral = 0.7) {
-        $preguntas = self::all(); // Obtener todas las preguntas existentes
+        $preguntas = self::all();
         $similares = [];
 
         foreach ($preguntas as $p) {
-            // Calcular similitud entre la nueva pregunta y las existentes
             similar_text(mb_strtolower($pregunta, 'UTF-8'), mb_strtolower($p->pregunta, 'UTF-8'), $percent);
             if ($percent >= ($umbral * 100)) {
                 $similares[] = $p;
             }
         }
         return $similares;
+    }
+
+    // New method to find frequent questions pending review
+    public static function findFrequentPendingReview() {
+        return self::whereArray(['marcada_frecuente' => 1, 'estado_revision' => 'pendiente']);
     }
 }

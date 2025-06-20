@@ -150,6 +150,9 @@ $router->post('/admin/faqs/crear', [FaqsController::class, 'adminCrear']);
 $router->get('/admin/faqs/editar', [FaqsController::class, 'adminEditar']);
 $router->post('/admin/faqs/editar', [FaqsController::class, 'adminEditar']);
 $router->post('/admin/faqs/eliminar', [FaqsController::class, 'adminEliminar']);
+$router->get('/admin/faqs/frequent-questions', [FaqsController::class, 'adminFrequentQuestions']); // To view frequent questions
+$router->post('/admin/faqs/mark-frequent-reviewed', [FaqsController::class, 'adminMarkFrequentQuestionReviewed']); // To mark as reviewed/discarded
+$router->post('/admin/faqs/convert-frequent', [FaqsController::class, 'adminConvertFrequentToFaq']); // To convert to a formal FAQ
 
 $router->get('/admin/soporte', [AdminSoporteController::class, 'index']);
 $router->get('/admin/soporte/ver', [AdminSoporteController::class, 'ver']);

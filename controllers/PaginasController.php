@@ -26,7 +26,7 @@ class PaginasController {
 
     public static function contacto(Router $router) {
 
-        $inicio = true;
+        $inicio = false; // Initialize $inicio here, it's typically 'false' for internal pages
         $alertas = [];
         $consulta = new Soporte(); // Instanciar el nuevo modelo
 
@@ -64,24 +64,24 @@ class PaginasController {
         $alertas = Soporte::getAlertas();
         
         // Lógica para determinar el layout
-        $layout = 'layout'; // Layout por defecto
+        $layout = 'layout'; // Layout por defecto (for guests and general public)
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
 
         if (isset($_SESSION['rol'])) {
-            if ($_SESSION['rol'] === 'vendedor') {
-                $layout = 'vendedor-layout';
-            } 
-            // Si es 'comprador' o 'admin', o cualquier otro rol no vendedor,
-            // se mantendrá el 'layout' principal.
-            // Para 'admin' no es necesario porque su sidebar ya tiene el enlace a /admin/soporte
-            // y su navegación es completamente separada.
+            if ($_SESSION['rol'] === 'comprador') {
+                $layout = 'layout'; // The main marketplace layout is already 'layout.php'
+            } elseif ($_SESSION['rol'] === 'vendedor') {
+                $layout = 'vendedor-layout'; // Use the specific vendor layout
+            } elseif ($_SESSION['rol'] === 'admin') {
+                $layout = 'admin-layout'; // Use the specific admin layout
+            }
         }
 
         $router->render('paginas/contacto', [
             'titulo' => 'Contacto',
-            'inicio' => $inicio,
+            'inicio' => $inicio, // This will now always be defined
             'alertas' => $alertas,
             'consulta' => $consulta // Pasar la instancia para mantener los datos en caso de error
         ], $layout); // Usar la variable $layout aquí
