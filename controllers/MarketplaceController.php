@@ -31,12 +31,11 @@ class MarketplaceController {
             exit();
         }
 
-        // Obtener término de búsqueda si existe
         $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
         $categoriaId = filter_var($_GET['categoria'] ?? null, FILTER_VALIDATE_INT);
-        
         $condiciones = [];
         $titulo = 'Para Ti';
+        $usuarioId = $_SESSION['id'];
 
         // Lógica de búsqueda
         if (!empty($busqueda)) {
@@ -81,6 +80,35 @@ class MarketplaceController {
             $condiciones[] = "categoriaId = '$categoriaId'";
             $categoria = Categoria::find($categoriaId);
             $titulo = $categoria ? $categoria->nombre : $titulo;
+        } else {
+            // --- LÓGICA DE PERSONALIZACIÓN ---
+            $preferencias = PreferenciaUsuario::where('usuarioId', $usuarioId);
+            $categoriasIdsPref = $preferencias ? json_decode($preferencias->categorias, true) : [];
+
+            if (!empty($categoriasIdsPref)) {
+                $titulo = 'Para Ti';
+                $idsSeguros = array_map('intval', $categoriasIdsPref);
+                $idsString = implode(',', $idsSeguros);
+                if (!empty($idsString)) {
+                    $condiciones[] = "categoriaId IN ($idsString)";
+                }
+            } else {
+                // FALLBACK: Si no hay preferencias, mostrar de categorías populares
+                $titulo = 'Productos Populares';
+                // Consulta para obtener IDs de las 5 categorías con más productos
+                $queryPopulares = "SELECT categoriaId, COUNT(id) as total FROM productos GROUP BY categoriaId ORDER BY total DESC LIMIT 5";
+                $resultadoPopulares = Producto::consultarSQL($queryPopulares);
+                
+                $idsPopulares = [];
+                foreach($resultadoPopulares as $fila) {
+                    $idsPopulares[] = $fila->categoriaId;
+                }
+
+                if (!empty($idsPopulares)) {
+                    $idsString = implode(',', $idsPopulares);
+                    $condiciones[] = "categoriaId IN ($idsString)";
+                }
+            }
         }
 
         // Configuración de paginación
@@ -101,25 +129,22 @@ class MarketplaceController {
         // Obtener productos con paginación
         $params = [
             'condiciones' => $condiciones,
-            'orden' => 'nombre ASC',
+            'orden' => 'creado DESC',
             'limite' => $registros_por_pagina,
             'offset' => $paginacion->offset()
         ];
         
         $productos = Producto::metodoSQL($params);
 
+        // Obtener favoritos del usuario
+        $favoritosIds = [];
+        $favoritos = Favorito::whereField('usuarioId', $usuarioId);
+        $favoritosIds = $favoritos ? array_column($favoritos, 'productoId') : [];
+
         // Obtener imágenes principales para cada producto
         foreach($productos as $producto) {
             $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id); 
             $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
-        }
-
-        // Obtener favoritos del usuario
-        $favoritosIds = [];
-        if(is_auth('comprador')) {
-            $usuarioId = $_SESSION['id'];
-            $favoritos = Favorito::whereField('usuarioId', $usuarioId);
-            $favoritosIds = $favoritos ? array_column($favoritos, 'productoId') : [];
         }
         
         // Obtener todas las categorías para el menú
@@ -341,10 +366,15 @@ class MarketplaceController {
                 // Actualizar preferencias
                 $categoriasPost = $_POST['categorias'] ?? [];
                 if ($preferencias) {
+                    // Si ya existen, se actualizan
                     $preferencias->categorias = json_encode($categoriasPost);
                     $preferencias->guardar();
                 } else {
-                    $nuevaPreferencia = new PreferenciaUsuario(['usuarioId' => $usuario->id, 'categorias' => json_encode($categoriasPost)]);
+                    // Si no existen (por si omitió el paso inicial), se crean
+                    $nuevaPreferencia = new PreferenciaUsuario([
+                        'usuarioId' => $usuario->id, 
+                        'categorias' => json_encode($categoriasPost)
+                    ]);
                     $nuevaPreferencia->guardar();
                 }   
 

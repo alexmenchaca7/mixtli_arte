@@ -13,9 +13,10 @@
             </div>
             <div class="perfil-usuario__acciones">
                 <a href="/comprador/perfil/editar" class="boton-rosa">Editar Perfil</a>
+                
                 <?php if(is_auth('comprador')): ?>
                     <form class="dashboard__form" method="POST" action="/logout">
-                        <input type="submit" value="Cerrar Sesión" class="dashboard__submit-logout">
+                        <input type="submit" value="Cerrar Sesión" class="boton-rosa">
                     </form>
                 <?php endif; ?>
             </div>
@@ -40,7 +41,7 @@
                         ?>
                     </p>
                 </div>
-                 <div class="perfil-card">
+                <div class="perfil-card">
                     <h3>Mis Preferencias</h3>
                     <?php if(!empty($categoriasInteres)): ?>
                         <ul class="lista-preferencias">

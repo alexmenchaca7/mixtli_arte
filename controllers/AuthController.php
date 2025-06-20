@@ -5,7 +5,9 @@ namespace Controllers;
 use MVC\Router;
 use Classes\Email;
 use Model\Usuario;
+use Model\Categoria;
 use Model\Autenticacion;
+use Model\PreferenciaUsuario;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 
 class AuthController {
@@ -112,6 +114,13 @@ class AuthController {
 
         // Redirección según rol
         if($usuario->rol === 'comprador') {
+            // Verificar si el comprador ya tiene preferencias guardadas
+            $preferenciasExistentes = PreferenciaUsuario::where('usuarioId', $usuario->id);
+            if(!$preferenciasExistentes) {
+                // Si no tiene, redirigir a la página de selección de preferencias
+                header('Location: /seleccionar-preferencias');
+                exit();
+            }
             header('Location: /marketplace');
         } elseif($usuario->rol === 'vendedor') {
             header('Location: /vendedor/dashboard');
@@ -377,6 +386,47 @@ class AuthController {
             'inicio' => $inicio,
             'alertas' => $alertas,
             'token_valido' => $token_valido
+        ]);
+    }
+
+    public static function seleccionarPreferencias(Router $router) {
+        if(!is_auth('comprador')) {
+            header('Location: /login');
+            exit();
+        }
+        
+        // Evitar que usuarios que ya tienen preferencias accedan a esta página
+        if(PreferenciaUsuario::where('usuarioId', $_SESSION['id'])) {
+            header('Location: /marketplace');
+            exit();
+        }
+
+        $alertas = [];
+        $categorias = Categoria::all(); // Obtener todas las categorías
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $categoriasSeleccionadas = $_POST['categorias'] ?? [];
+            
+            $preferencia = new PreferenciaUsuario([
+                'usuarioId' => $_SESSION['id'],
+                'categorias' => json_encode($categoriasSeleccionadas)
+            ]);
+            
+            $resultado = $preferencia->guardar();
+
+            if($resultado) {
+                header('Location: /marketplace'); // Redirigir al marketplace tras guardar
+                exit();
+            } else {
+                PreferenciaUsuario::setAlerta('error', 'Hubo un error al guardar tus preferencias. Inténtalo de nuevo.');
+                $alertas = PreferenciaUsuario::getAlertas();
+            }
+        }
+        
+        $router->render('auth/preferencias', [
+            'titulo' => 'Selecciona tus Intereses',
+            'categorias' => $categorias,
+            'alertas' => $alertas
         ]);
     }
 

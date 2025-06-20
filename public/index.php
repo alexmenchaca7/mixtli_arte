@@ -53,6 +53,10 @@ $router->post('/seguridad/2fa', [SeguridadController::class, 'configurar2FA']);
 $router->get('/verificar-2fa', [AuthController::class, 'verificar2FA']);
 $router->post('/verificar-2fa', [AuthController::class, 'verificar2FA']);
 
+// Rutas para la selección de preferencias
+$router->get('/seleccionar-preferencias', [AuthController::class, 'seleccionarPreferencias']);
+$router->post('/seleccionar-preferencias', [AuthController::class, 'seleccionarPreferencias']);
+
 
 
 
