@@ -11,7 +11,7 @@
     <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
     
     <form method="POST" action="/vendedor/cambiar-password" class="formulario">
-    <div class="formulario__campo">
+        <div class="formulario__campo">
             <label for="password_actual" class="formulario__label">Password Actual</label>
             <input 
                 type="password"
@@ -31,10 +31,11 @@
                 name="password_nuevo"
                 placeholder="Tu Nuevo Password"
             >
-            <p class="formulario__texto">El password debe contener al menos 6 caracteres</p>
+            <p style="font-size: 1.2rem; color: #666; margin-top: 0.5rem;">
+                Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.
+            </p>
         </div>
 
         <input type="submit" class="formulario__submit" value="Cambiar Password">
-
     </form>
 </div>

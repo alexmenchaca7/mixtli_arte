@@ -1,15 +1,3 @@
-<?php
-// Función helper para obtener valores de dirección
-function obtenerDireccion($direcciones, $tipo, $campo) {
-    foreach($direcciones as $direccion) {
-        if($direccion->tipo === $tipo) {
-            return htmlspecialchars($direccion->$campo ?? '');
-        }
-    }
-    return '';
-}
-?>
-
 <h2 class="dashboard__heading"><?php echo $titulo; ?></h2>
 
 <div class="dashboard__contenedor-boton">

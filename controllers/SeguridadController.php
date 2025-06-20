@@ -99,6 +99,15 @@ class SeguridadController {
             'MixtliArte'
         );
 
+        // --- LÓGICA DE LAYOUT DINÁMICO ---
+        $rol = $_SESSION['rol'] ?? 'comprador';
+        $layout = 'layout'; // Layout por defecto para comprador y público
+        if ($rol === 'vendedor') {
+            $layout = 'vendedor-layout';
+        } elseif ($rol === 'admin') {
+            $layout = 'admin-layout';
+        }
+
         $router->render('seguridad/2fa', [
             'titulo' => 'Configurar 2FA',
             'usuario' => $usuario,
@@ -106,6 +115,6 @@ class SeguridadController {
             'qrUrl' => $qrUrl,
             'backupCodes' => $backupCodes ?: json_decode($usuario2fa->backup_codes, true),
             'alertas' => $alertas
-        ], 'vendedor-layout');
+        ], $layout); // Usar la variable de layout dinámico
     }
 }

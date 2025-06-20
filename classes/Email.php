@@ -70,13 +70,17 @@ class Email {
 
     public function enviarNotificacionContraseña() {
         $mail = $this->configurarEmailBasico();
-        $mail->Subject = 'Cambiaste tu Contraseña';
+        $mail->Subject = 'Alerta de Seguridad: Tu contraseña ha sido cambiada';
 
         $contenido = '<html>';
-        $contenido .= "<h1>Hola " . $this->nombre .  ":</h1>";
-        $contenido .= "<p>Tu contraseña en MixtliArte ha sido cambiada exitosamente.</p>";     
-        $contenido .= "<p>Si no realizaste este cambio, por favor contacta a soporte inmediatamente.</p>";
-        $contenido .= '</html>';
+        $contenido .= "<head><style>body{font-family: Arial, sans-serif;}</style></head>";
+        $contenido .= "<body>";
+        $contenido .= "<h1>Hola " . htmlspecialchars($this->nombre) . ",</h1>";
+        $contenido .= "<p>Te informamos que la contraseña de tu cuenta en MixtliArte ha sido cambiada exitosamente.</p>";     
+        $contenido .= "<p><strong>Si tú realizaste este cambio, puedes ignorar este mensaje.</strong></p>";
+        $contenido .= "<p>Si <strong>no</strong> reconoces esta actividad, por favor, contacta a nuestro equipo de soporte inmediatamente para asegurar tu cuenta.</p>";
+        $contenido .= "<p>Gracias,<br>El equipo de MixtliArte</p>";
+        $contenido .= "</body></html>";
         $mail->Body = $contenido;
 
         //Enviar el mail

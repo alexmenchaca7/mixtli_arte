@@ -79,6 +79,8 @@ $router->get('/marketplace/producto', [MarketplaceController::class, 'producto']
 $router->get('/comprador/perfil', [MarketplaceController::class, 'perfil']);
 $router->get('/comprador/perfil/editar', [MarketplaceController::class, 'editarPerfil']);
 $router->post('/comprador/perfil/editar', [MarketplaceController::class, 'editarPerfil']);
+$router->get('/comprador/perfil/cambiar-password', [MarketplaceController::class, 'cambiarPassword']);
+$router->post('/comprador/perfil/cambiar-password', [MarketplaceController::class, 'cambiarPassword']);
 
 $router->get('/favoritos', [FavoritosController::class, 'index']);
 $router->post('/favoritos/toggle', [FavoritosController::class, 'toggle']);

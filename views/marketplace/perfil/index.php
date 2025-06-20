@@ -26,8 +26,8 @@
             <aside class="perfil-usuario__sidebar">
                 <div class="perfil-card">
                     <h3>Sobre Mí</h3>
-                    <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario->email); ?></p>
-                    <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($usuario->telefono) ?: 'No especificado'; ?></p>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($usuario->email ?? ''); ?></p>
+                    <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($usuario->telefono ?? 'No especificado'); ?></p>
                     <p><strong>Dirección:</strong> 
                         <?php 
                             $direccionResidencial = null;
@@ -37,7 +37,10 @@
                                     break;
                                 }
                             }
-                            echo ($direccionResidencial && $direccionResidencial->calle) ? htmlspecialchars($direccionResidencial->calle . ', ' . $direccionResidencial->colonia) : 'No especificada'; 
+                            $direccionCompleta = ($direccionResidencial && $direccionResidencial->calle) 
+                                ? ($direccionResidencial->calle . ', ' . $direccionResidencial->colonia) 
+                                : 'No especificada';
+                            echo htmlspecialchars($direccionCompleta);
                         ?>
                     </p>
                 </div>

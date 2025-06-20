@@ -99,13 +99,29 @@ class Usuario extends ActiveRecord {
         if(!$this->email) {
             self::$alertas['error'][] = 'El email es obligatorio';
         }
+        
         if(!$this->pass) {
-            self::$alertas['error'][] = 'El password no puede ir vacio';
-        } else if(strlen($this->pass) < 6) {
-            self::$alertas['error'][] = 'El password debe contener al menos 6 caracteres';
+            self::$alertas['error'][] = 'El password no puede ir vacío';
+        } else {
+            if(strlen($this->pass) < 8) {
+                self::$alertas['error'][] = 'El password debe contener al menos 8 caracteres';
+            }
+            if (!preg_match('/[A-Z]/', $this->pass)) {
+                self::$alertas['error'][] = 'El password debe contener al menos una letra mayúscula';
+            }
+            if (!preg_match('/[a-z]/', $this->pass)) {
+                self::$alertas['error'][] = 'El password debe contener al menos una letra minúscula';
+            }
+            if (!preg_match('/[0-9]/', $this->pass)) {
+                self::$alertas['error'][] = 'El password debe contener al menos un número';
+            }
+            if (!preg_match('/[^A-Za-z0-9]/', $this->pass)) {
+                self::$alertas['error'][] = 'El password debe contener al menos un carácter especial';
+            }
         }
+
         if($this->pass !== $this->pass2) {
-            self::$alertas['error'][] = 'Los password son diferentes';
+            self::$alertas['error'][] = 'Los passwords no coinciden';
         }
         return self::$alertas;
     }
@@ -163,17 +179,30 @@ class Usuario extends ActiveRecord {
         return self::$alertas;
     }
 
-    public function nuevo_password() : array {
+    public function validarNuevoPassword() {
         if(!$this->password_actual) {
-            self::$alertas['error'][] = 'El password actual no puede ir vacio';
+            self::$alertas['error'][] = 'El password actual no puede ir vacío';
         }
         if(!$this->password_nuevo) {
-            self::$alertas['error'][] = 'El password nuevo no puede ir vacio';
+            self::$alertas['error'][] = 'El password nuevo no puede ir vacío';
         }
-        if(strlen($this->password_nuevo) < 6) {
-            self::$alertas['error'][] = 'El password debe contener al menos 6 caracteres';
-        } else if($this->password_actual === $this->password_nuevo) {
-            self::$alertas['error'][] = 'El nuevo password debe ser diferente al actual';
+        if(strlen($this->password_nuevo) < 8) {
+            self::$alertas['error'][] = 'El password nuevo debe contener al menos 8 caracteres';
+        }
+        if (!preg_match('/[A-Z]/', $this->password_nuevo)) {
+            self::$alertas['error'][] = 'El password debe contener al menos una letra mayúscula';
+        }
+        if (!preg_match('/[a-z]/', $this->password_nuevo)) {
+            self::$alertas['error'][] = 'El password debe contener al menos una letra minúscula';
+        }
+        if (!preg_match('/[0-9]/', $this->password_nuevo)) {
+            self::$alertas['error'][] = 'El password debe contener al menos un número';
+        }
+        if (!preg_match('/[^A-Za-z0-9]/', $this->password_nuevo)) {
+            self::$alertas['error'][] = 'El password debe contener al menos un carácter especial';
+        }
+        if($this->password_actual === $this->password_nuevo) {
+            self::$alertas['error'][] = 'El nuevo password no puede ser igual al actual';
         }
         return self::$alertas;
     }

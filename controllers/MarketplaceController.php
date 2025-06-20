@@ -2,6 +2,7 @@
 
 namespace Controllers;
 use MVC\Router;
+use Classes\Email;
 use Model\Usuario;
 use Model\Favorito;
 use Model\Producto;
@@ -292,88 +293,70 @@ class MarketplaceController {
             exit();
         }
 
-        $usuario = Usuario::find($_SESSION['id']);
-        $usuario->imagen_actual = $usuario->imagen;
         $alertas = [];
-    
-        $direcciones = Direccion::whereField('usuarioId', $usuario->id);
+        $usuario = Usuario::find($_SESSION['id']);
         $categorias = Categoria::all();
+        
+        // Cargar preferencias existentes
         $preferencias = PreferenciaUsuario::where('usuarioId', $usuario->id);
         $categoriasSeleccionadas = $preferencias ? json_decode($preferencias->categorias, true) : [];
+
+        // Inicializar con la dirección de la BD o un objeto vacío
+        $direccionesDB = Direccion::whereField('usuarioId', $usuario->id);
+        $direccionResidencial = !empty($direccionesDB) ? $direccionesDB[0] : new Direccion(['tipo' => 'residencial']);
+        $direcciones = [$direccionResidencial];
     
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Procesamiento de imagen
-            $carpeta_imagenes = '../public/img/usuarios';
-            $nombre_imagen = '';
-
-            // Manejar nueva imagen
-            if (!empty($_FILES['imagen']['tmp_name'])) {
-                if (!is_dir($carpeta_imagenes)) {
-                    mkdir($carpeta_imagenes, 0755, true);
-                }
-
-                // Generar nombre único
-                $nombre_imagen = md5(uniqid(rand(), true));
-                $_POST['imagen'] = $nombre_imagen;
-
-                // Procesar la imagen en formatos PNG y WebP
-                $imagen_origen = imagecreatefromstring(file_get_contents($_FILES['imagen']['tmp_name']));
-                if ($imagen_origen) {
-                    // Guardar en formato PNG
-                    imagepng($imagen_origen, "$carpeta_imagenes/{$nombre_imagen}.png", 9);
-
-                    // Guardar en formato WebP
-                    imagewebp($imagen_origen, "$carpeta_imagenes/{$nombre_imagen}.webp", 85);
-
-                    // Liberar memoria
-                    imagedestroy($imagen_origen);
-                }
-            }
-
-            // Manejar eliminación de imagen
-            if (isset($_POST['eliminar_imagen']) && $_POST['eliminar_imagen'] === 'on') {
-                if (!empty($vendedor->imagen_actual)) {
-                    if (file_exists("$carpeta_imagenes/{$vendedor->imagen_actual}.png")) {
-                        unlink("$carpeta_imagenes/{$vendedor->imagen_actual}.png");
-                    }
-                    if (file_exists("$carpeta_imagenes/{$vendedor->imagen_actual}.webp")) {
-                        unlink("$carpeta_imagenes/{$vendedor->imagen_actual}.webp");
-                    }
-                }
-                $_POST['imagen'] = '';
-            }
-            
+            // Sincronizar usuario y dirección con los datos del POST
             $usuario->sincronizar($_POST);
+            $direccionResidencial->sincronizar([
+                'calle' => $_POST['calle_residencial'] ?? '',
+                'colonia' => $_POST['colonia_residencial'] ?? '',
+                'codigo_postal' => $_POST['codigo_postal_residencial'] ?? '',
+                'ciudad' => $_POST['ciudad_residencial'] ?? '',
+                'estado' => $_POST['estado_residencial'] ?? ''
+            ]);
+            // Sincronizar las categorías seleccionadas
+            $categoriasSeleccionadas = $_POST['categorias'] ?? [];
+
+            // Validar usuario
             $alertas = $usuario->validar_cuenta_dashboard();
     
+            // --- VALIDACIÓN DE DIRECCIÓN (TODO O NADA) ---
+            $camposDireccion = ['calle', 'colonia', 'codigo_postal', 'ciudad', 'estado'];
+            $camposLlenos = 0;
+            foreach ($camposDireccion as $campo) {
+                if (!empty($direccionResidencial->$campo)) {
+                    $camposLlenos++;
+                }
+            }
+            if ($camposLlenos > 0 && $camposLlenos < count($camposDireccion)) {
+                $alertas['error'][] = 'Si decides llenar tu dirección, todos los campos son requeridos.';
+            }
+
             if (empty($alertas)) {
+                // Guardar usuario
                 $usuario->guardar();
     
-                // Actualizar dirección
-                Direccion::eliminarPorUsuario($usuario->id);
-                if (!empty($_POST['calle_residencial'])) {
-                    $direccion = new Direccion();
-                    $direccion->tipo = 'residencial';
-                    $direccion->calle = $_POST['calle_residencial'] ?? '';
-                    $direccion->colonia = $_POST['colonia_residencial'] ?? '';
-                    $direccion->ciudad = $_POST['ciudad_residencial'] ?? '';
-                    $direccion->estado = $_POST['estado_residencial'] ?? '';
-                    $direccion->codigo_postal = $_POST['codigo_postal_residencial'] ?? '';
-                    $direccion->usuarioId = $usuario->id;
-                    $direccion->guardar();
+                // Guardar o actualizar dirección si está completa
+                if ($camposLlenos === count($camposDireccion)) {
+                    $direccionResidencial->usuarioId = $usuario->id;
+                    $direccionResidencial->guardar();
+                } else {
+                    // Si el usuario borró la dirección, eliminarla de la BD
+                    if ($direccionResidencial->id) {
+                        $direccionResidencial->eliminar();
+                    }
                 }
 
-                // Actualizar preferencias
-                $categoriasPost = $_POST['categorias'] ?? [];
+                // Guardar o actualizar preferencias
                 if ($preferencias) {
-                    // Si ya existen, se actualizan
-                    $preferencias->categorias = json_encode($categoriasPost);
+                    $preferencias->categorias = json_encode($categoriasSeleccionadas);
                     $preferencias->guardar();
                 } else {
-                    // Si no existen (por si omitió el paso inicial), se crean
                     $nuevaPreferencia = new PreferenciaUsuario([
                         'usuarioId' => $usuario->id, 
-                        'categorias' => json_encode($categoriasPost)
+                        'categorias' => json_encode($categoriasSeleccionadas)
                     ]);
                     $nuevaPreferencia->guardar();
                 }   
@@ -388,10 +371,51 @@ class MarketplaceController {
             'titulo' => 'Editar Mi Perfil',
             'usuario' => $usuario,
             'alertas' => $alertas,
-            'direcciones' => $direcciones,
+            'direcciones' => $direcciones, // Contendrá datos del POST si falla, o de la BD si es GET
             'categorias' => $categorias,
             'categoriasSeleccionadas' => $categoriasSeleccionadas,
             'fecha_hoy' => date('Y-m-d')
+        ]);
+    }
+
+
+    public static function cambiarPassword(Router $router) {
+        if(!is_auth('comprador')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $alertas = [];
+        $usuario = Usuario::find($_SESSION['id']);
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $usuario->sincronizar($_POST);
+            $alertas = $usuario->validarNuevoPassword();
+
+            if(empty($alertas)) {
+                if($usuario->comprobar_password()) {
+                    $usuario->pass = $usuario->password_nuevo;
+                    $usuario->hashPassword();
+                    $resultado = $usuario->guardar();
+
+                    if($resultado) {
+                        Usuario::setAlerta('exito', 'Contraseña actualizada correctamente.');
+                        $alertas = Usuario::getAlertas();
+                        
+                        // Enviar email de notificación
+                        $email = new Email($usuario->email, $usuario->nombre, ''); // El token no es necesario aquí
+                        $email->enviarNotificacionContraseña();
+                    }
+                } else {
+                    Usuario::setAlerta('error', 'La contraseña actual es incorrecta.');
+                    $alertas = Usuario::getAlertas();
+                }
+            }
+        }
+
+        $router->render('marketplace/perfil/cambiar-password', [
+            'titulo' => 'Cambiar Contraseña',
+            'alertas' => $alertas
         ]);
     }
 

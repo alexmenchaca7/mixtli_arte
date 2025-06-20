@@ -55,15 +55,16 @@
 
         .backup-codes {
             margin-bottom: 2rem;
-
-            @include m.grid(3, 5rem, 1rem);
-        
-            @include m.desktop {
-                @include m.grid(5, 5rem, 1rem);
-            }
-        
+            display: flex;
+            flex-wrap: wrap; // Permite que los elementos pasen a la siguiente línea
+            gap: 1.5rem 2rem;   // Espacio entre filas y columnas (1.5rem vertical, 2rem horizontal)
+            justify-content: center; // Centra los códigos para un mejor aspecto
+            
             .backup-code {
                 font-weight: v.$bold;
+                padding: 0.5rem; // Añade un poco de espacio interno
+                background-color: #e9ecef; // Un fondo sutil para cada código
+                border-radius: 4px;
             }
         }
     }

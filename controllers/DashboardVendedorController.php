@@ -172,26 +172,22 @@ class DashboardVendedorController {
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $usuario->sincronizar($_POST);
-            $alertas = $usuario->nuevo_password();
+            $alertas = $usuario->validarNuevoPassword();
 
             if(empty($alertas)) {
-                // Verificar que el password actual sea correcto
                 if($usuario->comprobar_password()) {
-                    // Asignar el nuevo password
                     $usuario->pass = $usuario->password_nuevo;
-                    // Hashear el nuevo password
                     $usuario->hashPassword();
-                    
-                    // Guardar en la BD
                     $resultado = $usuario->guardar();
 
                     if($resultado) {
                         Usuario::setAlerta('exito', 'Password actualizado correctamente');
                         $alertas = Usuario::getAlertas();
                         
-                        // Enviar email de notificación
-                        $email = new Email($usuario->email, $usuario->nombre, '');
+                        // Enviar email de notificación de cambio
+                        $email = new Email($usuario->email, $usuario->nombre, ''); // El token no es necesario aquí
                         $email->enviarNotificacionContraseña();
+                        
                     }
                 } else {
                     Usuario::setAlerta('error', 'El password actual es incorrecto');

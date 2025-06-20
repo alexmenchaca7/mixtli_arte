@@ -1,7 +1,11 @@
 <main class="contenedor seccion">
     
-    <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <a href="/comprador/perfil" class="boton-rosa" style="display: inline-block;">Volver al Perfil</a>
+        <div>
+            <a href="/comprador/perfil/cambiar-password" class="boton-rosa" style="background-color: #555;">Cambiar Contraseña</a>
+            <a href="/seguridad/2fa" class="boton-rosa" style="background-color: #555;">Seguridad (2FA)</a>
+        </div>
     </div>
 
     <div class="formulario-contenedor">
