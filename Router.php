@@ -19,8 +19,21 @@ class Router {
 
     // Método para comprobar qué ruta se ha solicitado y ejecutar la función asociada
     public function comprobarRutas() {
-        $urlProtegida = filter_var($_GET['url'] ?? '', FILTER_SANITIZE_URL); // Obtiene la URL solicitada y la sanitiza para evitar inyecciones de código
-        $urlActual = ($urlProtegida === '') ? '/' : '/' . $urlProtegida; // Si la URL está vacía, se establece como raíz, de lo contrario se agrega una barra al inicio
+        $urlActual = '';
+        if (isset($_GET['url'])) {
+            // Entorno de Producción (Apache/.htaccess)
+            // Se usa el parámetro 'url' que nos da el .htaccess
+            $urlActual = '/' . filter_var($_GET['url'], FILTER_SANITIZE_URL);
+        } else {
+            // Entorno de Desarrollo (PHP Built-in Server)
+            // Se usa la URI de la solicitud que nos da el servidor de PHP
+            $urlActual = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        }
+
+        // Asegurarse de que la ruta raíz sea solo '/'
+        if (strlen($urlActual) > 1 && substr($urlActual, -1) === '/') {
+            $urlActual = rtrim($urlActual, '/');
+        }
 
         $metodo = $_SERVER['REQUEST_METHOD']; // Obtiene el método HTTP de la solicitud (GET o POST)
 

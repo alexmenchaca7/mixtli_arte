@@ -1,7 +1,9 @@
 <?php 
 
 // INICIA LA SESIÓN EN TODA LA APLICACIÓN
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 use Dotenv\Dotenv;
 use Model\ActiveRecord;

@@ -27,7 +27,10 @@ class PaginasController {
 
     public static function contacto(Router $router) {
 
-        $inicio = false; // Initialize $inicio here, it's typically 'false' for internal pages
+        // Si el usuario NO está autenticado, $inicio será true.
+        // Si SÍ está autenticado, $inicio será false.
+        $inicio = !is_auth(); 
+
         $alertas = [];
         $consulta = new Soporte(); // Instanciar el nuevo modelo
 
@@ -63,12 +66,6 @@ class PaginasController {
         }
 
         $alertas = Soporte::getAlertas();
-        
-        // Lógica para determinar el layout
-        $layout = 'layout'; // Layout por defecto (for guests and general public)
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
 
         if (isset($_SESSION['rol'])) {
             if ($_SESSION['rol'] === 'comprador') {
@@ -82,7 +79,7 @@ class PaginasController {
 
         $router->render('paginas/contacto', [
             'titulo' => 'Contacto',
-            'inicio' => $inicio, // This will now always be defined
+            'inicio' => $inicio, 
             'alertas' => $alertas,
             'consulta' => $consulta // Pasar la instancia para mantener los datos en caso de error
         ], $layout); // Usar la variable $layout aquí
