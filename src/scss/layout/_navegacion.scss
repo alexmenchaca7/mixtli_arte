@@ -305,6 +305,10 @@
              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
+        .header.inicio & {
+            border-top: 1px solid rgba(v.$blanco, 0.2);
+        }
+
         // Mostrar y estilizar la barra de búsqueda DENTRO del menú
         .busqueda-mobile {
             display: block;
