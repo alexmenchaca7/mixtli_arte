@@ -31,39 +31,41 @@
             <?php endif; ?>
         </div>
 
-        <div class="faq-form-section">
-            <h3 class="dashboard__subtitle">¿No encuentras tu pregunta?</h3>
-            <p>Envíanos tu consulta y te responderemos lo antes posible.</p>
+        <?php if(is_auth()): ?>
+            <div class="faq-form-section">
+                <h3 class="dashboard__subtitle">¿No encuentras tu pregunta?</h3>
+                <p>Envíanos tu consulta y te responderemos lo antes posible.</p>
 
-            <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
+                <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
 
-            <form method="POST" class="formulario">
-                <div class="formulario__campo">
-                    <label for="pregunta" class="formulario__label">Tu Pregunta*</label>
-                    <textarea 
-                        class="formulario__input"
-                        placeholder="Escribe tu pregunta aquí..."
-                        id="pregunta"
-                        name="pregunta"
-                        rows="5"
-                    ><?php echo htmlspecialchars($preguntaUsuario->pregunta ?? ''); ?></textarea>
-                </div>
+                <form method="POST" class="formulario">
+                    <div class="formulario__campo">
+                        <label for="pregunta" class="formulario__label">Tu Pregunta*</label>
+                        <textarea 
+                            class="formulario__input"
+                            placeholder="Escribe tu pregunta aquí..."
+                            id="pregunta"
+                            name="pregunta"
+                            rows="5"
+                        ><?php echo htmlspecialchars($preguntaUsuario->pregunta ?? ''); ?></textarea>
+                    </div>
 
-                <div class="formulario__campo">
-                    <label for="categoriaFaqId" class="formulario__label">Categoría (opcional)</label>
-                    <select class="formulario__input" name="categoriaFaqId" id="categoriaFaqId">
-                        <option value="" selected>-- Selecciona una categoría --</option>
-                        <?php foreach($categorias as $categoriaFaq): ?>
-                            <option value="<?= $categoriaFaq->id ?>" <?= ($preguntaUsuario->categoriaFaqId == $categoriaFaq->id) ? 'selected' : ''; ?>>
-                                <?= htmlspecialchars($categoriaFaq->nombre) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                    <div class="formulario__campo">
+                        <label for="categoriaFaqId" class="formulario__label">Categoría (opcional)</label>
+                        <select class="formulario__input" name="categoriaFaqId" id="categoriaFaqId">
+                            <option value="" selected>-- Selecciona una categoría --</option>
+                            <?php foreach($categorias as $categoriaFaq): ?>
+                                <option value="<?= $categoriaFaq->id ?>" <?= ($preguntaUsuario->categoriaFaqId == $categoriaFaq->id) ? 'selected' : ''; ?>>
+                                    <?= htmlspecialchars($categoriaFaq->nombre) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-                <input type="submit" class="formulario__submit" value="Enviar Pregunta">
-            </form>
-        </div>
+                    <input type="submit" class="formulario__submit" value="Enviar Pregunta">
+                </form>
+            </div>
+        <?php endif; ?>
     </div>
 </main>
 

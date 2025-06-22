@@ -23,62 +23,71 @@ class FaqsController {
     ];
 
     public static function index(Router $router) {
-        if (!is_auth()) {
-            header('Location: /login');
-            exit();
-        }
-
+        // --- Esta parte es pública y se ejecuta para todos ---
         $categoriasFaq = CategoriaFaq::all();
         $faqs = Faq::metodoSQL(['orden' => 'categoriaFaqId ASC']);
         foreach ($faqs as $faq) {
             $faq->categoria = CategoriaFaq::find($faq->categoriaFaqId);
         }
 
-        $preguntaUsuario = new PreguntaUsuario();
         $alertas = [];
+        $preguntaUsuario = new PreguntaUsuario();
+        
+        // Determinamos el layout y el estado de la navegación
+        $autenticado = is_auth();
+        $inicio = !$autenticado; // Si no está autenticado, $inicio = true para el layout público
+        $layout = 'layout';      // Layout por defecto
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $preguntaUsuario->sincronizar($_POST);
-            $preguntaUsuario->categoriaFaqId = $_POST['categoriaFaqId'] ?? null;
-            $preguntaUsuario->usuarioId = $_SESSION['id'];
-            $alertas = $preguntaUsuario->validar();
+        // --- Esta parte solo se ejecuta para usuarios autenticados ---
+        if ($autenticado) {
+            // Ajustar el layout según el rol del usuario
+            if ($_SESSION['rol'] === 'vendedor') {
+                $layout = 'vendedor-layout';
+            }
 
-            if (empty($alertas)) {
-                $palabrasClaveEncontradas = self::etiquetarPalabrasClave($preguntaUsuario->pregunta);
-                $preguntaUsuario->palabras_clave = json_encode($palabrasClaveEncontradas);
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $preguntaUsuario->sincronizar($_POST);
+                $preguntaUsuario->categoriaFaqId = $_POST['categoriaFaqId'] ?? null;
+                $preguntaUsuario->usuarioId = $_SESSION['id'];
+                $alertas = $preguntaUsuario->validar();
 
-                $preguntasSimilares = PreguntaUsuario::buscarPreguntasSimilares($preguntaUsuario->pregunta);
-                
-                if (!empty($preguntasSimilares)) {
-                    $preguntaExistente = array_shift($preguntasSimilares);
-                    $preguntaExistente->frecuencia = $preguntaExistente->frecuencia + 1;
+                if (empty($alertas)) {
+                    $palabrasClaveEncontradas = self::etiquetarPalabrasClave($preguntaUsuario->pregunta);
+                    $preguntaUsuario->palabras_clave = json_encode($palabrasClaveEncontradas);
 
-                    $umbralFrecuencia = 3; // Reduced for testing. Adjust as needed.
-                    if ($preguntaExistente->frecuencia >= $umbralFrecuencia && $preguntaExistente->marcada_frecuente == 0) {
-                        $preguntaExistente->marcada_frecuente = 1;
-                        $preguntaExistente->estado_revision = 'pendiente'; // Set initial review status
-                        self::notificarSoporteNuevaFaq($preguntaExistente);
-                        Faq::setAlerta('exito', 'Hemos recibido tu pregunta. ¡Parece que es una pregunta frecuente y la añadiremos pronto a nuestras FAQs!');
+                    $preguntasSimilares = PreguntaUsuario::buscarPreguntasSimilares($preguntaUsuario->pregunta);
+                    
+                    if (!empty($preguntasSimilares)) {
+                        $preguntaExistente = array_shift($preguntasSimilares);
+                        $preguntaExistente->frecuencia = $preguntaExistente->frecuencia + 1;
+
+                        $umbralFrecuencia = 3; // Reduced for testing. Adjust as needed.
+                        if ($preguntaExistente->frecuencia >= $umbralFrecuencia && $preguntaExistente->marcada_frecuente == 0) {
+                            $preguntaExistente->marcada_frecuente = 1;
+                            $preguntaExistente->estado_revision = 'pendiente'; // Set initial review status
+                            self::notificarSoporteNuevaFaq($preguntaExistente);
+                            Faq::setAlerta('exito', 'Hemos recibido tu pregunta. ¡Parece que es una pregunta frecuente y la añadiremos pronto a nuestras FAQs!');
+                        } else {
+                            Faq::setAlerta('exito', 'Hemos recibido tu pregunta. Te contactaremos pronto con una respuesta.');
+                        }
+                        $preguntaExistente->guardar();
                     } else {
+                        $preguntaUsuario->guardar();
                         Faq::setAlerta('exito', 'Hemos recibido tu pregunta. Te contactaremos pronto con una respuesta.');
                     }
-                    $preguntaExistente->guardar();
-                } else {
-                    $preguntaUsuario->guardar();
-                    Faq::setAlerta('exito', 'Hemos recibido tu pregunta. Te contactaremos pronto con una respuesta.');
                 }
+                $alertas = array_merge($alertas, Faq::getAlertas());
             }
-            $alertas = array_merge($alertas, Faq::getAlertas());
         }
 
-        $layout = ($_SESSION['rol'] === 'vendedor') ? 'vendedor-layout' : 'layout';
-
+        // Renderizar la vista para todos, con la información y layout correctos
         $router->render('paginas/faqs/index', [
             'titulo' => 'Preguntas Frecuentes',
             'categorias' => $categoriasFaq,
             'faqs' => $faqs,
             'preguntaUsuario' => $preguntaUsuario,
-            'alertas' => $alertas
+            'alertas' => $alertas,
+            'inicio' => $inicio // Pasamos la variable para que el layout sepa qué navegación mostrar
         ], $layout);
     }
 

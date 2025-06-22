@@ -20,7 +20,7 @@
         <input type="submit" class="formulario__submit" value="Verificar">
     </form>
     
-    <div class="auth__acciones">
-        <a href="/login" class="auth__enlace">Volver a inicio de sesión</a>
+    <div class="acciones">
+        <a href="/login" class="acciones__enlace">Volver a inicio de sesión</a>
     </div>
 </main>

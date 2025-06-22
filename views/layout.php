@@ -85,14 +85,6 @@
                             <a href="/notificaciones">
                                 <i class="fa-regular fa-bell"></i>
                             </a>
-
-                            <a href="/faqs">
-                                <i class="fa-regular fa-question-circle"></i> 
-                            </a>
-
-                            <a href="/contacto"> 
-                                <i class="fa-solid fa-headset"></i> 
-                            </a>
             
                             <?php
                                 $perfilUrl = '/login';
@@ -184,10 +176,8 @@
                 <div class="footer-links">
                     <h3>Soporte</h3>
                     <a href="/faqs">Preguntas Frecuentes</a>
-                    <a href="/contacto">Centro de ayuda</a>
-                    <a href="#">Legal</a>
+                    <a href="/contacto">Contacto</a>
                     <a href="#">Términos de servicio</a>
-                    <a href="#">Legal</a>
                     <a href="#">Política de privacidad</a>
                 </div>
         

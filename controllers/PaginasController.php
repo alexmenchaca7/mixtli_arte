@@ -67,13 +67,14 @@ class PaginasController {
 
         $alertas = Soporte::getAlertas();
 
+        // Lógica para determinar el layout
+        $layout = 'layout'; 
+
         if (isset($_SESSION['rol'])) {
-            if ($_SESSION['rol'] === 'comprador') {
-                $layout = 'layout'; // The main marketplace layout is already 'layout.php'
-            } elseif ($_SESSION['rol'] === 'vendedor') {
-                $layout = 'vendedor-layout'; // Use the specific vendor layout
+            if ($_SESSION['rol'] === 'vendedor') {
+                $layout = 'vendedor-layout';
             } elseif ($_SESSION['rol'] === 'admin') {
-                $layout = 'admin-layout'; // Use the specific admin layout
+                $layout = 'admin-layout';
             }
         }
 
@@ -81,7 +82,7 @@ class PaginasController {
             'titulo' => 'Contacto',
             'inicio' => $inicio, 
             'alertas' => $alertas,
-            'consulta' => $consulta // Pasar la instancia para mantener los datos en caso de error
-        ], $layout); // Usar la variable $layout aquí
+            'consulta' => $consulta
+        ], $layout);
     }
 }
