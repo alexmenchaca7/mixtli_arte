@@ -1,25 +1,16 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
+    # RewriteBase /  
 
-    # --- REGLAS DE URL AMIGABLES ---
-
-    # Elimina la barra inclinada final de las URLs para evitar contenido duplicado
-    # Ejemplo: /marketplace/ -> /marketplace
+    # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # --- CONTROLADOR FRONTAL (FRONT CONTROLLER) ---
-
-    # Si la solicitud no es para un directorio físico...
+    # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
-    # ...y no es para un archivo físico (como un .css, .js, o .jpg)...
     RewriteCond %{REQUEST_FILENAME} !-f
     
-    # ...entonces, redirige la solicitud a index.php para que el Router de PHP la maneje.
-    RewriteRule ^ index.php [L]
+    # Captura todo en la URL (.*) y lo pasa a index.php
+    RewriteRule ^(.*)$ index.php [L]
 </IfModule>
-
-# Medida extra de seguridad para prevenir listado de directorios en /public
-Options -Indexes

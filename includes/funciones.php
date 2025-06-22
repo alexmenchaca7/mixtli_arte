@@ -49,11 +49,6 @@ function pagina_actual($path) : bool {
 }
 
 function is_auth($required_role = null) : bool {
-    // Verifica si la sesión no está iniciada para iniciar una nueva
-    if (session_status() == PHP_SESSION_NONE) {  
-        session_start();  
-    }
-
     // Verifica si el usuario está autenticado
     $authenticated = isset($_SESSION['login']) && $_SESSION['login'] === true && isset($_SESSION['verificado']) && $_SESSION['verificado'] === "1";
 

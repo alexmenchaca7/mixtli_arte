@@ -11,6 +11,7 @@ class PaginasController {
         $inicio = true;
 
         $router->render('paginas/index', [
+            'titulo' => 'Inicio',
             'inicio' => $inicio
         ]);
     }
