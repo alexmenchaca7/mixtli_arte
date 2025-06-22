@@ -213,3 +213,131 @@
     line-height: 1;
     z-index: 10;
 }
+
+
+
+// ===== INICIO: CÓDIGO RESPONSIVE FINAL Y COMPLETO =====
+
+// -- ESTILOS GLOBALES (AFECTAN A DESKTOP POR DEFECTO) --
+
+// 1. Ocultar el texto de los enlaces en desktop
+.link-text-mobile {
+    display: none;
+}
+
+// 2. Ocultar la barra de búsqueda en desktop, ya que ahora está dentro de los enlaces
+.barra .enlaces .busqueda {
+    display: none;
+}
+
+// 3. Ocultar el menú hamburguesa en desktop
+.mobile-menu {
+    display: none;
+    cursor: pointer;
+    i {
+        font-size: 3rem;
+        color: v.$negro;
+    }
+    .header.inicio & {
+        i {
+            color: v.$blanco;
+        }
+    }
+}
+
+// -- ESTILOS RESPONSIVE (TABLET Y MÓVIL < 1200px) --
+@media (max-width: (v.$desktop - 1px)) {
+
+    // Ocultar la barra de búsqueda de escritorio en móvil
+    .busqueda-desktop {
+        display: none;
+    }
+
+    // Ocultar el ícono y mostrar el texto
+    .icon-desktop {
+        display: none !important; 
+    }
+    .link-text-mobile {
+        display: inline;
+    }
+
+    .barra {
+        flex-direction: row;
+        justify-content: space-between; // Esto empuja los elementos a los extremos
+        align-items: center;             // Esto los alinea verticalmente
+    }
+
+    .logo h2 {
+        font-size: 2.2rem; 
+        margin: 0;
+    }
+    .logo img {
+        height: 4rem; // <-- Reduce este valor (antes era 5rem o más)
+        width: auto;  // <-- Asegura que la proporción se mantenga
+    }
+    
+    // Mostrar el ícono de hamburguesa
+    .mobile-menu {
+        display: block;
+    }
+    
+    // Ocultar la navegación por defecto
+    .barra .navegacion-principal {
+        display: none; 
+    }
+
+    // Estilos para el menú desplegado (cuando se hace clic)
+    .barra .navegacion-principal.mostrar {
+        display: flex; 
+        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: v.$dashboard;
+        padding: 2rem 0;
+        z-index: 100;
+
+        .header:not(.inicio) & {
+             background-color: v.$blanco;
+             border-top: 1px solid v.$gris-claro;
+             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        // Mostrar y estilizar la barra de búsqueda DENTRO del menú
+        .busqueda-mobile {
+            display: block;
+            width: 90%;
+            margin: 0 auto 2rem auto; // Mantiene el espaciado
+
+            .sugerencias {
+                display: none; // Nos aseguramos de que la lista no ocupe espacio
+            }
+        }
+        
+        // Estilos para los enlaces y botones
+        a, button.categorias-btn {
+            width: 100%;
+            padding: 1.2rem 0;
+            text-align: center;
+            color: v.$blanco;
+            font-size: 1.8rem;
+            border: none;
+            background: none;
+
+            .header:not(.inicio) & {
+                color: v.$negro;
+            }
+        }
+
+        // Linea separadora
+        > *:not(:last-child) {
+            border-bottom: 1px solid rgba(v.$blanco, 0.2);
+            .header:not(.inicio) & {
+                border-bottom: 1px solid v.$gris-claro;
+            }
+        }
+    }
+}
+// ===== FIN: CÓDIGO RESPONSIVE FINAL Y COMPLETO =====

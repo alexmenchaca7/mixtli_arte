@@ -39,9 +39,13 @@
                         <?php endif; ?>
                         <h2>MixtliArte</h2>
                     </a>
+
+                    <div class="mobile-menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </div>
                     
                     <?php if(!$inicio): ?>
-                        <div class="busqueda">
+                        <div class="busqueda busqueda-desktop">
                             <form action="/marketplace" method="GET">
                                 <input 
                                     type="text" 
@@ -58,35 +62,53 @@
                             </form>
                             <ul id="sugerencias" class="sugerencias"></ul>
                         </div>
-                    <?php endif; ?>
+                        <?php endif; ?>
                     
                     <?php if($inicio): ?>
-                        <div class="enlaces--inicio">
+                        <div class="enlaces--inicio navegacion-principal">
                             <a href="/">Inicio</a>
                             <a href="/nosotros">Nosotros</a>
                             <a href="/contacto">Contacto</a>
                             <a href="/login">Iniciar Sesión</a>
                         </div>      
                     <?php else: ?>
-                        <div class="enlaces">
-                            <!-- Botón de Categorías que activa el modal -->
-                            <button id="categorias-btn" class="categorias-btn">Categorías</button>
+                        <div class="enlaces navegacion-principal">
                             
+                            <div class="busqueda busqueda-mobile">
+                                <form action="/marketplace" method="GET">
+                                    <input 
+                                        type="text" 
+                                        name="q" 
+                                        id="busqueda-mobile" 
+                                        placeholder="Buscar productos..." 
+                                        aria-label="Buscar productos" 
+                                        value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>"
+                                        autocomplete="off"
+                                    >
+                                    <button type="submit">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </button>
+                                </form>
+                                <ul id="sugerencias-mobile" class="sugerencias"></ul>
+                            </div>
+
+                            <button id="categorias-btn" class="categorias-btn">Categorías</button>
                             <a href="/marketplace">Para Ti</a>
-
                             <a href="/mensajes">
-                                <i class="fa-regular fa-comment"></i>
+                                <i class="fa-regular fa-comment icon-desktop"></i>
+                                <span class="link-text-mobile">Mensajes</span>
                             </a>
-
                             <a href="/favoritos">
-                                <i class="fa-regular fa-heart"></i>
+                                <i class="fa-regular fa-heart icon-desktop"></i>
+                                <span class="link-text-mobile">Favoritos</span>
+                            </a>
+                            <a href="/notificaciones">
+                                <i class="fa-regular fa-bell icon-desktop"></i>
+                                <span class="link-text-mobile">Notificaciones</span>
                             </a>
 
-                            <a href="/notificaciones">
-                                <i class="fa-regular fa-bell"></i>
-                            </a>
-            
                             <?php
+                                // Tu código PHP para la URL del perfil no cambia
                                 $perfilUrl = '/login';
                                 if (isset($_SESSION['login'])) {
                                     if ($_SESSION['rol'] === 'vendedor') {
@@ -98,12 +120,14 @@
                                     }
                                 }
                             ?>
+                            
                             <a href="<?= $perfilUrl ?>">
                                 <?php if(isset($usuarioImagen)): ?>
-                                    <img class="icono_perfil" src="/img/usuarios/<?=$usuarioImagen;?>.png" alt="Icono de perfil">
+                                    <img class="icono_perfil icon-desktop" src="/img/usuarios/<?=$usuarioImagen;?>.png" alt="Icono de perfil">
                                 <?php else: ?>
-                                    <img class="icono_perfil" src="/img/usuarios/default.png" alt="Icono de perfil">
+                                    <img class="icono_perfil icon-desktop" src="/img/usuarios/default.png" alt="Icono de perfil">
                                 <?php endif; ?>
+                                <span class="link-text-mobile">Perfil</span>
                             </a>
                         </div>
                     <?php endif; ?>
@@ -398,6 +422,17 @@
                     listaSugerencias.innerHTML = '';
                 }
             });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.addEventListener('click', function() {
+                    const navegacion = document.querySelector('.navegacion-principal');
+                    navegacion.classList.toggle('mostrar');
+                });
+            }
         });
     </script>
 </body>

@@ -75,14 +75,4 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
-
-
-    // ===== CÓDIGO PARA EL MENÚ RESPONSIVE =====
-    const mobileMenu = document.querySelector('.mobile-menu');
-    if (mobileMenu) {
-        mobileMenu.addEventListener('click', function() {
-            const navegacion = document.querySelector('.navegacion-principal');
-            navegacion.classList.toggle('mostrar');
-        });
-    }
 });
