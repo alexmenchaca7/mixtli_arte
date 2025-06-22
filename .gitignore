@@ -1,36 +1,7 @@
-# 🔹 Dependencias de Node.js
-node_modules/
+node_modules
 package-lock.json
-
-# 🔹 Archivos de logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# 🔹 Directorios de compilación y caché
-dist/
-build/
-.cache/
-out/
-.next/
-coverage/
-
-# 🔹 Configuración de entorno y credenciales
 .env
-.env.local
-.env.development
-.env.production
 .DS_Store
-
-# 🔹 Archivos del sistema y configuraciones de IDE
-Thumbs.db
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# 🔹 Archivos de Git relacionados con parches o cambios descartados
-*.patch
-
-/vendor/
+.vscode
+vendor
+public/img/

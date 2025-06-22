@@ -1,0 +1,58 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # --- ENVIAR TODO EL TRÁFICO A LA CARPETA /public ---
+
+    # 1. Si la solicitud es para la raíz del dominio (ej. www.dominio.com), 
+    # la sirve desde la carpeta /public de forma interna.
+    RewriteRule ^$ public/ [L]
+
+    # 2. Si la solicitud no es un archivo o directorio real en la raíz,
+    # y no es una solicitud que ya va dirigida a la carpeta /public,
+    # la reescribe para que apunte a /public.
+    # Esto hace que /login se convierta internamente en /public/login.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# --- MEDIDAS DE SEGURIDAD ---
+
+# Prevenir que los visitantes puedan listar el contenido de los directorios.
+Options -Indexes
+
+# Bloquear el acceso directo a archivos de configuración y dependencias.
+<Files ".env">
+    Require all denied
+</Files>
+<Files "composer.json">
+    Require all denied
+</Files>
+<Files "composer.lock">
+    Require all denied
+</Files>
+<Files "package.json">
+    Require all denied
+</Files>
+<Files "package-lock.json">
+    Require all denied
+</Files>
+<Files "gulpfile.js">
+    Require all denied
+</Files>
+
+# Bloquear el acceso directo a las carpetas de la aplicación.
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "^/(classes|controllers|cron|includes|models|src|vendor|views)/">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <IfModule mod_access_compat.c>
+        <DirectoryMatch "^/(classes|controllers|cron|includes|models|src|vendor|views)/">
+            Deny from all
+        </DirectoryMatch>
+    </IfModule>
+</IfModule>
