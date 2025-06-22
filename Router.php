@@ -19,7 +19,9 @@ class Router {
 
     // Método para comprobar qué ruta se ha solicitado y ejecutar la función asociada
     public function comprobarRutas() {
-        $urlActual = $_SERVER['PATH_INFO'] ?? '/'; // Obtiene la URL actual o usa '/' si no está definida
+        $urlProtegida = filter_var($_GET['url'] ?? '', FILTER_SANITIZE_URL); // Obtiene la URL solicitada y la sanitiza para evitar inyecciones de código
+        $urlActual = ($urlProtegida === '') ? '/' : '/' . $urlProtegida; // Si la URL está vacía, se establece como raíz, de lo contrario se agrega una barra al inicio
+
         $metodo = $_SERVER['REQUEST_METHOD']; // Obtiene el método HTTP de la solicitud (GET o POST)
 
         if($metodo === 'GET') {
