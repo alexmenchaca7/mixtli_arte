@@ -70,7 +70,6 @@ function obtenerDireccion($direcciones, $tipo, $campo) {
 }
 
 function get_asset($filename) {
-    // 1. Apuntar a la ubicación correcta del manifiesto
     $manifest_path = __DIR__ . '/../public/build/rev-manifest.json';
 
     if (!file_exists($manifest_path)) {
@@ -79,15 +78,14 @@ function get_asset($filename) {
 
     $manifest = json_decode(file_get_contents($manifest_path), true);
 
-    // 2. Construir la clave correcta que Gulp guardó (ej: "css/app.css")
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    $key = $ext . '/' . $filename;
-
-    if (isset($manifest[$key])) {
-        // 3. Devolver la ruta completa al archivo con el hash
-        return '/build/' . $manifest[$key];
+    // La clave es el nombre del archivo original, ej: "app.css"
+    if (isset($manifest[$filename])) {
+        // Obtenemos la extensión (css o js) para construir la subcarpeta
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        
+        // Construimos la ruta correcta: /build/ + css/ + app-52b33daa5a.css
+        return '/build/' . $ext . '/' . $manifest[$filename];
     }
     
-    // Si, por alguna razón, la clave no existe, devuelve la original como fallback
     return "/build/" . $filename;
 }
