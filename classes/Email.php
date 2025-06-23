@@ -19,16 +19,21 @@ class Email {
 
 
     private function configurarEmailBasico() {
+        // create a new object
         $mail = new PHPMailer();
         $mail->isSMTP();
-        $mail->Host = $_ENV['EMAIL_HOST'];
-        $mail->SMTPAuth = true;
-        $mail->Port = $_ENV['EMAIL_PORT'];
-        $mail->Username = $_ENV['EMAIL_USER'];
-        $mail->Password = $_ENV['EMAIL_PASS'];
-        $mail->setFrom('noreply@mixtliarte.com', 'MixtliArte');
+        $mail->Host       = $_ENV['EMAIL_HOST'];
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $_ENV['EMAIL_USER'];
+        $mail->Password   = $_ENV['EMAIL_PASS'];
+        $mail->SMTPSecure = 'ssl'; 
+        $mail->Port       = $_ENV['EMAIL_PORT'];
+
+        $mail->setFrom('no-reply@mixtliarte.com', 'MixtliArte');
         $mail->addAddress($this->email, $this->nombre);
-        $mail->isHTML(true);
+
+        // Set HTML
+        $mail->isHTML(TRUE);
         $mail->CharSet = 'UTF-8';
         
         return $mail;
