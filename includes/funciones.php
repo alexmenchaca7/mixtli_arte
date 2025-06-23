@@ -68,3 +68,19 @@ function obtenerDireccion($direcciones, $tipo, $campo) {
     }
     return '';
 }
+
+function get_asset($filename) {
+    // Determina la ruta al manifiesto basado en la extensión del archivo
+    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    $manifest_path = __DIR__ . "/../public/build/{$ext}/rev-manifest.json";
+
+    if (file_exists($manifest_path)) {
+        $manifest = json_decode(file_get_contents($manifest_path), true);
+        if (isset($manifest[$filename])) {
+            return "/build/{$ext}/" . $manifest[$filename];
+        }
+    }
+    
+    // Si no se encuentra, devuelve la ruta original como fallback
+    return "/build/{$ext}/" . $filename;
+}

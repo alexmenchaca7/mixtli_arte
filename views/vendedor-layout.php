@@ -13,7 +13,7 @@
     <link rel="manifest" href="/favicon/site.webmanifest" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="/build/css/app.css">
+    <link rel="stylesheet" href="<?php echo get_asset('app.css'); ?>">
 </head>
 <body class="dashboard">
     <div class="overlay"></div> <?php 
@@ -69,7 +69,7 @@
     </div
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="/build/js/app.js" defer></script>
+    <script src="<?php echo get_asset('app.js'); ?>" defer></script>
 
     <?php if(is_auth()): ?>
         <script>

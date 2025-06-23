@@ -10,7 +10,7 @@ import { glob } from 'glob';
 // Módulo para buscar archivos y directorios basados en patrones (como '*.js' o '**/*.scss').
 // Es útil para localizar múltiples archivos dentro de una estructura de carpetas.
 
-import {src, dest, watch, series} from 'gulp';
+import {src, dest, watch, series, parallel} from 'gulp';
 // Funciones principales de Gulp:
 // - `src`: Selecciona los archivos de origen que serán procesados.
 // - `dest`: Define la carpeta de destino donde se guardarán los archivos procesados.
@@ -40,28 +40,42 @@ import sharp from 'sharp';
 
 import svgmin from 'gulp-svgmin'; // Importa el plugin para optimizar SVG
 
+import rev from 'gulp-rev'; // Plugin de Gulp para agregar un hash único a los nombres de archivos, útil para el versionado de archivos estáticos.
+
+import { deleteAsync } from 'del'; // Módulo para eliminar archivos y directorios de manera asíncrona.
+
+
 const sass = gulpSass(dartSass); // Combinando gulp-sass con el compilador oficial dartSass para procesar SCSS correctamente
 
 
-
-
-// Tarea para procesar y minificar JavaScript
-export function js(done){
-    src('src/js/**/*.js') // Selecciona todos los archivos .js dentro de src/js y sus subcarpetas
-        .pipe(concat('app.js')) // Combina todos los archivos en uno solo
-        .pipe(terser()) // Minifica el archivo combinado
-        .pipe(dest('./public/build/js')); // Guarda el resultado en build/js/
-    done();
+// ===== TAREA NUEVA PARA LIMPIAR =====
+export function clean(done) {
+    // Retornar la promesa de deleteAsync le dice a Gulp que espere a que termine
+    return deleteAsync('public/build'); 
 }
 
 
 // Tarea para procesar y minificar CSS
 export function css(done) {
     src('src/scss/app.scss', {sourcemaps: true})
-        .pipe(sass().on('error', sass.logError)) // Compila SASS y si hay un error lo muestra en la terminal
+        .pipe(sass().on('error', sass.logError))
         .pipe(cleanCSS())
-        .pipe(dest('./public/build/css', {sourcemaps: '.'})) // Guarda los archivos en la carpeta de destino
-        
+        .pipe(rev()) // Crea el archivo con hash (ej. app-a1b2c3.css)
+        .pipe(dest('./public/build/css', {sourcemaps: '.'}))
+        .pipe(rev.manifest()) 
+        .pipe(dest('./public/build/css')); // Guarda el manifiesto
+    done();
+}
+
+// Tarea para procesar y minificar JavaScript
+export function js(done){
+    src('src/js/**/*.js')
+        .pipe(concat('app.js'))
+        .pipe(terser())
+        .pipe(rev()) // Crea el archivo con hash (ej. app-a1b2c3.js)
+        .pipe(dest('./public/build/js'))
+        .pipe(rev.manifest()) 
+        .pipe(dest('./public/build/js')); 
     done();
 }
 
@@ -205,6 +219,12 @@ export function dev() { // No se pasa la función de done porque es un watch
     watch('src/img/**/*.{png,jpg}', imagenes); // Aqui se observan todos los archivos con extensión .png y .jpg y cuando hayan cambios ejcuta la función de imagenes
 }
 
+// Combinamos las tareas de compilación para que se ejecuten en paralelo (más rápido)
+const build = parallel(js, css, imagenes);
 
-// Flujo de trabajo por defecto
-export default series(js, css, imagenes, dev);
+// Definimos el flujo de trabajo por defecto
+export default series(
+    clean, // 1. Primero, limpia la carpeta 'build'
+    build, // 2. Después, compila JS, CSS e imágenes al mismo tiempo
+    dev    // 3. Finalmente, empieza a observar los cambios
+);
