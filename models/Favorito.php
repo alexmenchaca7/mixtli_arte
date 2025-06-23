@@ -21,4 +21,11 @@ class Favorito extends ActiveRecord {
         $this->productoId = $args['productoId'] ?? '';
         $this->usuarioId = $args['usuarioId'] ?? '';
     }
+
+    public static function eliminarPorProductoId($productoId) {
+        $productoId_sanitizado = self::$conexion->escape_string($productoId);
+        $query = "DELETE FROM " . static::$tabla . " WHERE productoId = '{$productoId_sanitizado}'";
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

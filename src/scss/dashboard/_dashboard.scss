@@ -183,22 +183,13 @@
 
         &--logout {
             width: 100%; // Asegura que ocupe todo el ancho
+            cursor: pointer;
             
             .dashboard__menu-texto {
                 background: none;
                 border: none;
                 color: inherit; // Hereda el color del padre (.dashboard__enlace)
-                font-family: inherit;
-                font-size: inherit;
-                font-weight: inherit;
-                text-transform: inherit;
                 padding: 0;
-                cursor: pointer;
-            }
-
-            // Opcional: un color diferente al pasar el mouse para distinguirlo
-            &:hover {
-                background-color: color.adjust(v.$rojo, $lightness: -10%);
             }
         }
     }
@@ -246,7 +237,7 @@
 
         @include m.tablet {
             flex-direction: row;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 5rem;
             flex-wrap: nowrap;
@@ -258,8 +249,6 @@
         flex-direction: column; /* Cambio para apilar en móviles */
         gap: 1rem; /* Espacio entre los campos de búsqueda y filtro */
         position: relative;
-        width: 100%;
-        max-width: 100%;
         background-color: v.$blanco;
         border-radius: 1rem; /* Borde redondeado para el contenedor de búsqueda */
         overflow: hidden;
@@ -287,7 +276,7 @@
 
         @include m.tablet {
             flex-grow: 1; /* Permite que el campo de búsqueda ocupe el espacio disponible */
-            max-width: 30rem; /* Limitar ancho del input de búsqueda en desktop */
+            width: 40rem; /* Limitar ancho del input de búsqueda en desktop */
             border: none; /* Eliminar el borde si el contenedor principal ya tiene uno */
             padding: 0;
         }
@@ -304,6 +293,12 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        /* --- INICIO DE LA CORRECCIÓN --- */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        font-size: 1.6rem; /* Previene el auto-zoom en iOS */
 
 
         &::placeholder {
@@ -364,10 +359,12 @@
 
     &__boton {
         @include m.boton(v.$primario, block);
+        margin: 0 1.5rem 1.5rem 1.5rem;
 
         @include m.tablet {
             @include m.boton(v.$primario, inline-block);
             width: auto; /* Asegurar ancho automático en tablet */
+            margin: 0;
         }
     }
 

@@ -26,6 +26,9 @@
     }
     ?>
     <div class="chat__header">
+        <button type="button" class="chat__back-btn" id="chat-back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
         <picture>
             <img src="/img/usuarios/<?php echo isset($contactoChat->imagen) && $contactoChat->imagen ? $contactoChat->imagen . '.png' : 'default.png'; ?>"
                     class="chat__imagen" 
@@ -163,23 +166,24 @@
                 </div>
             </div>
             
-            <button type="button" class="chat__adjuntar" title="Adjuntar archivo (imagen o PDF)">
-                <i class="fa-regular fa-file"></i>
-                <input type="file" 
-                        class="chat__input-archivo" 
-                        accept="image/*,.pdf"
-                        name="archivo"
-                        id="input-archivo">
-            </button>
-
-            <button type="button" class="chat__contacto" id="btn-contacto" title="Compartir información de contacto del vendedor">
-                <i class="fa-regular fa-address-card"></i>
-            </button>
-
-            <div class="chat__plantillas-container">
-                <button type="button" class="chat__boton-plantillas" id="btn-mostrar-plantillas" title="Usar una plantilla de mensaje">
-                    <i class="fa-regular fa-file-lines"></i>
+            <div class="chat__actions-container">
+                <button type="button" class="chat__actions-toggle" id="chat-actions-toggle" title="Más opciones">
+                    <i class="fa-solid fa-plus"></i>
                 </button>
+                <div class="chat__actions-menu" id="chat-actions-menu">
+                    <label for="input-archivo" class="chat__action-btn" title="Adjuntar archivo">
+                        <i class="fa-regular fa-file"></i>
+                    </label>
+                    <input type="file" id="input-archivo" name="archivo" accept="image/*,.pdf" style="display: none;">
+                    
+                    <button type="button" class="chat__action-btn" id="btn-contacto" title="Compartir contacto">
+                        <i class="fa-regular fa-address-card"></i>
+                    </button>
+
+                    <button type="button" class="chat__action-btn" id="btn-mostrar-plantillas" title="Usar plantilla">
+                        <i class="fa-regular fa-file-lines"></i>
+                    </button>
+                </div>
                 <div class="chat__lista-plantillas" id="lista-plantillas" style="display: none;">
                     </div>
             </div>

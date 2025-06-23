@@ -33,4 +33,20 @@ class Valoracion extends ActiveRecord {
         $this->productoId = $args['productoId'] ?? '';
         $this->sale_completed_at = $args['sale_completed_at'] ?? NULL;
     }
+
+    public static function eliminarPorProductoId($productoId) {
+        // Primero, encontrar todas las valoraciones para este producto
+        $query_select = "SELECT id FROM " . static::$tabla . " WHERE productoId = " . self::$conexion->escape_string($productoId);
+        $valoraciones = self::consultarSQL($query_select);
+
+        // Para cada valoración, eliminar sus Puntos Fuertes asociados
+        foreach($valoraciones as $valoracion) {
+            PuntoFuerte::eliminarPorValoracionId($valoracion->id);
+        }
+
+        // Finalmente, eliminar todas las valoraciones del producto
+        $query_delete = "DELETE FROM " . static::$tabla . " WHERE productoId = " . self::$conexion->escape_string($productoId);
+        $resultado = self::$conexion->query($query_delete);
+        return $resultado;
+    }
 }

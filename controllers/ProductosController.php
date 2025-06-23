@@ -4,8 +4,11 @@ namespace Controllers;
 
 use Exception;
 use MVC\Router;
+use Model\Mensaje;
+use Model\Favorito;
 use Model\Producto;
 use Model\Categoria;
+use Model\Valoracion;
 use Classes\Paginacion;
 use Model\ImagenProducto;
 use Intervention\Image\ImageManager;
@@ -19,7 +22,7 @@ class ProductosController {
         }
 
         // Obtener el ID del vendedor autenticado
-        $usuarioId = $_SESSION['id']; // Get the authenticated user's ID
+        $usuarioId = $_SESSION['id']; 
 
         // Obtener término de búsqueda si existe
         $busqueda = $_GET['busqueda'] ?? '';
@@ -331,18 +334,30 @@ class ProductosController {
                 exit;
             }
             
-            // Eliminar imágenes
+            // --- INICIO DE ELIMINACIÓN EN CASCADA ---
+
+            // 1. Eliminar imágenes del producto (físicas y de la BD)
             $imagenes = ImagenProducto::whereField('productoId', $producto->id);
             foreach($imagenes as $imagen) {
-                // Eliminar archivos físicos
                 if(file_exists("../public/img/productos/{$imagen->url}.png")) {
                     unlink("../public/img/productos/{$imagen->url}.png");
+                }
+                if(file_exists("../public/img/productos/{$imagen->url}.webp")) {
                     unlink("../public/img/productos/{$imagen->url}.webp");
                 }
                 $imagen->eliminar();
             }
+
+            // 2. Eliminar Puntos Fuertes (a través del modelo Valoracion) y luego las Valoraciones
+            Valoracion::eliminarPorProductoId($producto->id);
+
+            // 3. Eliminar Favoritos
+            Favorito::eliminarPorProductoId($producto->id);
+
+            // 4. Eliminar Mensajes
+            Mensaje::eliminarPorProductoId($producto->id);
             
-            // Eliminar producto
+            // 5. Finalmente, eliminar el producto
             $resultado = $producto->eliminar();
     
             if($resultado) {

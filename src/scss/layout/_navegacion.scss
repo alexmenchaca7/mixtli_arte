@@ -53,6 +53,17 @@
             outline: 0;
             flex: 1;
             background: #f5f5f5;
+
+            /* Normaliza la apariencia en todos los navegadores, especialmente en iOS */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            
+            /* Asegura que el tamaño de la fuente sea al menos de 16px para evitar el zoom automático de iOS al enfocar */
+            font-size: 1.6rem; 
+            
+            /* Asegura que el padding y el borde no alteren el ancho total del elemento */
+            box-sizing: border-box; 
         }
 
         button {

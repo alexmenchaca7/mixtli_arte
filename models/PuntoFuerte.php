@@ -20,4 +20,11 @@ class PuntoFuerte extends ActiveRecord {
         $this->punto = $args['punto'] ?? ''; // 'Negociación justa','Puntualidad','Honestidad','Comunicación efectiva','Pago oportuno','Buena comunicación'
         $this->valoracionId = $args['valoracionId'] ?? '';
     }
+
+    public static function eliminarPorValoracionId($valoracionId) {
+        $valoracionId_sanitizado = self::$conexion->escape_string($valoracionId);
+        $query = "DELETE FROM " . static::$tabla . " WHERE valoracionId = '{$valoracionId_sanitizado}'";
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

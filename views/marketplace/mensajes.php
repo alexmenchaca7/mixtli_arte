@@ -86,17 +86,123 @@
 let pollingInterval;
 let currentUltimoId = 0;
 
-const fetchListaConversaciones = async () => { /* */
+function escapeHTML(str) {
+    if (typeof str !== 'string') return '';
+    return str.replace(/[&<>"']/g, function (match) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[match];
+    });
+}
+
+// Para manejar JSON con escapes en el cliente
+function stripslashes(str) {
+    return (str + '').replace(/\\(.?)/g, function (s, n1) {
+        switch (n1) {
+            case '\\':
+                return '\\';
+            case '0':
+                return '\u0000';
+            case '':
+                return '';
+            default:
+                return n1;
+        }
+    });
+}
+
+// Método para actualizar conversaciones
+function actualizarListaConversaciones(conversaciones) {
+    const lista = document.querySelector('.contactos__lista');
+    if (!lista) return; // Salir si no se encuentra la lista
+
+    // Almacenar el chat activo para no perderlo si sigue en la lista
+    const chatActivo = document.querySelector('.contacto.activo');
+    const activoId = chatActivo ? chatActivo.dataset.productoId + '-' + chatActivo.dataset.contactoId : null;
+    
+    lista.innerHTML = ''; // Limpiar lista actual
+
+    conversaciones.forEach(conv => {
+        const contacto = conv.contacto;
+        const producto = conv.producto;
+        const mensaje = conv.ultimoMensaje;
+        const esNoLeido = conv.unread_count > 0;
+
+        let preview = '';
+        if (mensaje) {
+            const prefix = mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : '';
+            let contenidoMensaje = mensaje.contenido; // Este es el string que puede tener slashes
+
+            // Aplicar "stripslashes" en JS si es necesario
+            if (typeof contenidoMensaje === 'string') {
+                // Solo si sabes que el backend podría estar enviando slashes escapados en el JSON
+                // para comillas simples. JSON_UNESCAPED_SLASHES en PHP es para '/', no para '\''.
+                // json_encode por defecto no escapa comillas simples, pero si lo hiciera como \', esto lo limpiaría.
+                contenidoMensaje = contenidoMensaje.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+            }
+
+            if (mensaje.tipo === 'contacto') {
+                let textoPreviewContacto = 'Información de contacto'; // Fallback
+                try {
+                    const datosContactoPreview = (typeof contenidoMensaje === 'string') ? JSON.parse(contenidoMensaje) : contenidoMensaje;
+                    if (datosContactoPreview && datosContactoPreview.direccion && datosContactoPreview.direccion.calle && datosContactoPreview.direccion.calle.trim() !== '') {
+                        textoPreviewContacto = datosContactoPreview.direccion.calle;
+                        if (datosContactoPreview.direccion.colonia) textoPreviewContacto += ', ' + datosContactoPreview.direccion.colonia;
+                    } else if (datosContactoPreview && datosContactoPreview.telefono) {
+                        textoPreviewContacto = 'Tel: ' + datosContactoPreview.telefono;
+                    } else if (datosContactoPreview && datosContactoPreview.email) {
+                        textoPreviewContacto = 'Email: ' + datosContactoPreview.email;
+                    }
+                } catch (e) { /* Mantener fallback */ }
+                previewHTML = `${prefix}📌 ${ (textoPreviewContacto.length > 25) ? escapeHTML(textoPreviewContacto.substring(0, 25)) + '...' : escapeHTML(textoPreviewContacto) }`;
+            
+            } else if (mensaje.tipo === 'imagen') {
+                previewHTML = `${prefix}<i class="fa-regular fa-image"></i> Imagen`;
+            } else if (mensaje.tipo === 'documento') {
+                previewHTML = `${prefix}<i class="fa-regular fa-file-pdf"></i> Documento`;
+            } else { // 'texto', 'plantilla_auto'
+                previewHTML = prefix + ((contenidoMensaje.length > 30) ? escapeHTML(contenidoMensaje.substring(0, 30)) + '...' : escapeHTML(contenidoMensaje));
+            }
+        }
+        
+        const contactoHTML = `
+            <div class="contacto ${ esNoLeido ? 'contacto--no-leido' : '' } ${ (activoId === producto.id + '-' + contacto.id) ? 'activo' : '' }" 
+                data-producto-id="${producto.id}"
+                data-contacto-id="${contacto.id}">
+                <picture>
+                    <img src="/img/usuarios/${contacto.imagen ? contacto.imagen + '.png' : 'default.png'}" 
+                        alt="${escapeHTML(contacto.nombre)}"
+                        class="contacto__imagen">
+                </picture>
+                <div class="contacto__info">
+                    <div class="contacto__titulo">
+                        <h3>${escapeHTML(contacto.nombre)} • ${escapeHTML(producto.nombre)}</h3>
+                        ${esNoLeido ? `<span class="unread-dot"></span>` : ''} </div>
+                    ${mensaje ? `<small class="mensaje-preview">${previewHTML}</small>` : ''}
+                </div>
+                <span class="contacto__fecha">
+                    ${new Date(conv.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+            </div>
+        `;
+        
+        lista.insertAdjacentHTML('beforeend', contactoHTML);
+    });
+}
+
+const fetchListaConversaciones = async () => {
     try {
-        // Solo hacer fetch si la ventana está visible para ahorrar recursos
         if (document.hidden) {
             return;
         }
         const response = await fetch('/mensajes/lista-conversaciones');
         if (!response.ok) {
-            // Si no está autenticado o hay otro error, detener el polling
             if (response.status === 401 || response.status === 403) {
-                clearInterval(sidebarPollingInterval);
+                if(typeof sidebarPollingInterval !== 'undefined') clearInterval(sidebarPollingInterval);
                 console.warn('Polling de sidebar detenido por error de autenticación o autorización.');
             }
             throw new Error(`Error en la respuesta del servidor: ${response.status}`);
@@ -110,6 +216,7 @@ const fetchListaConversaciones = async () => { /* */
         console.error('Error obteniendo lista de conversaciones para sidebar:', error);
     }
 };
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatActivo = document.getElementById('chat-activo');
@@ -554,101 +661,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Método para actualizar conversaciones
-    function actualizarListaConversaciones(conversaciones) {
-        const lista = document.querySelector('.contactos__lista');
-        if (!lista) return; // Salir si no se encuentra la lista
-
-        // Almacenar el chat activo para no perderlo si sigue en la lista
-        const chatActivo = document.querySelector('.contacto.activo');
-        const activoId = chatActivo ? chatActivo.dataset.productoId + '-' + chatActivo.dataset.contactoId : null;
-        
-        lista.innerHTML = ''; // Limpiar lista actual
-
-        conversaciones.forEach(conv => {
-            const contacto = conv.contacto;
-            const producto = conv.producto;
-            const mensaje = conv.ultimoMensaje;
-            const esNoLeido = conv.unread_count > 0;
-
-            let preview = '';
-            if (mensaje) {
-                const prefix = mensaje.remitenteId == <?= $_SESSION['id'] ?> ? 'Tú: ' : '';
-                let contenidoMensaje = mensaje.contenido; // Este es el string que puede tener slashes
-
-                // Aplicar "stripslashes" en JS si es necesario
-                if (typeof contenidoMensaje === 'string') {
-                    // Solo si sabes que el backend podría estar enviando slashes escapados en el JSON
-                    // para comillas simples. JSON_UNESCAPED_SLASHES en PHP es para '/', no para '\''.
-                    // json_encode por defecto no escapa comillas simples, pero si lo hiciera como \', esto lo limpiaría.
-                    contenidoMensaje = contenidoMensaje.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
-                }
-
-                if (mensaje.tipo === 'contacto') {
-                    let textoPreviewContacto = 'Información de contacto'; // Fallback
-                    try {
-                        const datosContactoPreview = (typeof contenidoMensaje === 'string') ? JSON.parse(contenidoMensaje) : contenidoMensaje;
-                        if (datosContactoPreview && datosContactoPreview.direccion && datosContactoPreview.direccion.calle && datosContactoPreview.direccion.calle.trim() !== '') {
-                            textoPreviewContacto = datosContactoPreview.direccion.calle;
-                            if (datosContactoPreview.direccion.colonia) textoPreviewContacto += ', ' + datosContactoPreview.direccion.colonia;
-                        } else if (datosContactoPreview && datosContactoPreview.telefono) {
-                            textoPreviewContacto = 'Tel: ' + datosContactoPreview.telefono;
-                        } else if (datosContactoPreview && datosContactoPreview.email) {
-                            textoPreviewContacto = 'Email: ' + datosContactoPreview.email;
-                        }
-                    } catch (e) { /* Mantener fallback */ }
-                    previewHTML = `${prefix}📌 ${ (textoPreviewContacto.length > 25) ? escapeHTML(textoPreviewContacto.substring(0, 25)) + '...' : escapeHTML(textoPreviewContacto) }`;
-                
-                } else if (mensaje.tipo === 'imagen') {
-                    previewHTML = `${prefix}<i class="fa-regular fa-image"></i> Imagen`;
-                } else if (mensaje.tipo === 'documento') {
-                    previewHTML = `${prefix}<i class="fa-regular fa-file-pdf"></i> Documento`;
-                } else { // 'texto', 'plantilla_auto'
-                    previewHTML = prefix + ((contenidoMensaje.length > 30) ? escapeHTML(contenidoMensaje.substring(0, 30)) + '...' : escapeHTML(contenidoMensaje));
-                }
-            }
-            
-            const contactoHTML = `
-                <div class="contacto ${ esNoLeido ? 'contacto--no-leido' : '' } ${ (activoId === producto.id + '-' + contacto.id) ? 'activo' : '' }" 
-                    data-producto-id="${producto.id}"
-                    data-contacto-id="${contacto.id}">
-                    <picture>
-                        <img src="/img/usuarios/${contacto.imagen ? contacto.imagen + '.png' : 'default.png'}" 
-                            alt="${escapeHTML(contacto.nombre)}"
-                            class="contacto__imagen">
-                    </picture>
-                    <div class="contacto__info">
-                        <div class="contacto__titulo">
-                            <h3>${escapeHTML(contacto.nombre)} • ${escapeHTML(producto.nombre)}</h3>
-                            ${esNoLeido ? `<span class="unread-dot"></span>` : ''} </div>
-                        ${mensaje ? `<small class="mensaje-preview">${previewHTML}</small>` : ''}
-                    </div>
-                    <span class="contacto__fecha">
-                        ${new Date(conv.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                </div>
-            `;
-            
-            lista.insertAdjacentHTML('beforeend', contactoHTML);
-        });
-    }
-
-    // Para manejar JSON con escapes en el cliente
-    function stripslashes(str) {
-        return (str + '').replace(/\\(.?)/g, function (s, n1) {
-            switch (n1) {
-                case '\\':
-                    return '\\';
-                case '0':
-                    return '\u0000';
-                case '':
-                    return '';
-                default:
-                    return n1;
-            }
-        });
-    }
-
     // Auto-scroll al final
     function scrollToBottom() {
         const container = document.getElementById('mensajes-container');
@@ -762,19 +774,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function escapeHTML(str) {
-        if (typeof str !== 'string') return '';
-        return str.replace(/[&<>"']/g, function (match) {
-            return {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[match];
-        });
-    }
-
     const searchInput = document.getElementById('input-busqueda');
 
     if (searchInput) {
@@ -808,5 +807,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- NUEVO CÓDIGO PARA LA INTERFAZ RESPONSIVA ---
+    const mensajeriaContainer = document.querySelector('.mensajeria');
+    const contactosLista = document.querySelector('.contactos__lista');
+
+    if (mensajeriaContainer && contactosLista) {
+        // Mostrar la vista del chat cuando se hace clic en un contacto
+        contactosLista.addEventListener('click', (e) => {
+            if (e.target.closest('.contacto')) {
+                // Solo activar en vistas de menos de 768px (el breakpoint de la tablet)
+                if (window.innerWidth < 768) {
+                    mensajeriaContainer.classList.add('chat-visible');
+                }
+            }
+        });
+
+        // Ocultar la vista del chat (regresar a la lista)
+        // Se usa delegación de eventos en el contenedor por si el botón de regreso se carga dinámicamente
+        mensajeriaContainer.addEventListener('click', (e) => {
+            if (e.target.closest('#chat-back-btn')) {
+                mensajeriaContainer.classList.remove('chat-visible');
+            }
+        });
+    }
 });
 </script>

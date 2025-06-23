@@ -383,4 +383,11 @@ class Mensaje extends ActiveRecord {
                 )";
         return self::$conexion->query($query);
     }
+
+    public static function eliminarPorProductoId($productoId) {
+        $productoId_sanitizado = self::$conexion->escape_string($productoId);
+        $query = "DELETE FROM " . static::$tabla . " WHERE productoId = '{$productoId_sanitizado}'";
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

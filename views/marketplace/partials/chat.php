@@ -26,6 +26,9 @@
     }
     ?>
     <div class="chat__header">
+        <button type="button" class="chat__back-btn" id="chat-back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
         <picture>
             <img src="/img/usuarios/<?php echo isset($contactoChat->imagen) && $contactoChat->imagen ? $contactoChat->imagen . '.png' : 'default.png'; ?>"
                     class="chat__imagen" 
