@@ -59,6 +59,10 @@
         border-radius: 1rem;
         transition: all 0.3s ease-in-out;
 
+        -webkit-appearance: none; /* Para Safari, Chrome y otros navegadores basados en WebKit/Blink */
+        -moz-appearance: none;    /* Para Firefox */
+        appearance: none;         /* La propiedad estándar */
+
         &--file {
             border: none;
             padding: 1rem 0;
