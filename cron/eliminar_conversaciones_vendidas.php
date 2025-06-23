@@ -13,7 +13,7 @@ echo "Iniciando script de eliminación de conversaciones de productos vendidos..
 
 // Define the period after sale_completed_at when conversations should be deleted.
 // This should be greater than the notification period (e.g., 30 days after sale_completed_at)
-$daysForDeletion = 0; // Cambia esto para pruebas, luego vuelve a 30 o el valor deseado
+$daysForDeletion = 30; // Cambia esto para pruebas, luego vuelve a 30 o el valor deseado
 $dateToMatch = date('Y-m-d', strtotime("-{$daysForDeletion} days")); // Renamed for clarity: this is the date we are matching in the DB
 
 // Find valoraciones where sale_completed_at is exactly $daysForDeletion days ago

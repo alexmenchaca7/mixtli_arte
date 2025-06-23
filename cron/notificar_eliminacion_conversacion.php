@@ -13,7 +13,7 @@ use Classes\Email;
 echo "Iniciando script de notificación de eliminación de conversaciones...\n";
 
 // Find valoraciones where sale_completed_at is X days ago (e.g., 23 days ago, to give 7 days notice for a 30-day window)
-$daysForNotification = 0; // Cambia esto para pruebas, luego vuelve a 23 o el valor deseado
+$daysForNotification = 23; // Cambia esto para pruebas, luego vuelve a 23 o el valor deseado
 $notificationDate = date('Y-m-d', strtotime("-{$daysForNotification} days"));
 
 $query = "SELECT * FROM valoraciones WHERE sale_completed_at IS NOT NULL AND DATE(sale_completed_at) = '{$notificationDate}' AND (estrellas IS NULL OR estrellas IS NOT NULL)"; // Check all valoraciones where sale was completed
