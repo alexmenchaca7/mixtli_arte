@@ -70,17 +70,24 @@ function obtenerDireccion($direcciones, $tipo, $campo) {
 }
 
 function get_asset($filename) {
-    // Determina la ruta al manifiesto basado en la extensión del archivo
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    $manifest_path = __DIR__ . "/../public/build/{$ext}/rev-manifest.json";
+    // 1. Apuntar a la ubicación correcta del manifiesto
+    $manifest_path = __DIR__ . '/../public/build/rev-manifest.json';
 
-    if (file_exists($manifest_path)) {
-        $manifest = json_decode(file_get_contents($manifest_path), true);
-        if (isset($manifest[$filename])) {
-            return "/build/{$ext}/" . $manifest[$filename];
-        }
+    if (!file_exists($manifest_path)) {
+        return "/build/" . $filename;
+    }
+
+    $manifest = json_decode(file_get_contents($manifest_path), true);
+
+    // 2. Construir la clave correcta que Gulp guardó (ej: "css/app.css")
+    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    $key = $ext . '/' . $filename;
+
+    if (isset($manifest[$key])) {
+        // 3. Devolver la ruta completa al archivo con el hash
+        return '/build/' . $manifest[$key];
     }
     
-    // Si no se encuentra, devuelve la ruta original como fallback
-    return "/build/{$ext}/" . $filename;
+    // Si, por alguna razón, la clave no existe, devuelve la original como fallback
+    return "/build/" . $filename;
 }
