@@ -21,6 +21,7 @@ class PaginasController {
         $inicio = true;
 
         $router->render('paginas/nosotros', [
+            'titulo' => 'Nosotros',
             'inicio' => $inicio
         ]);
     }

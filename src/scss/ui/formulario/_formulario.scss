@@ -59,9 +59,20 @@
         border-radius: 1rem;
         transition: all 0.3s ease-in-out;
 
-        -webkit-appearance: none; /* Para Safari, Chrome y otros navegadores basados en WebKit/Blink */
-        -moz-appearance: none;    /* Para Firefox */
-        appearance: none;         /* La propiedad estándar */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+
+        color: v.$negro; /* Forzamos el color del texto para evitar que iOS lo cambie */
+        box-sizing: border-box; /* Clave para que width: 100% funcione correctamente con padding y border */
+
+
+        /** Esto fuerza al input de fecha a comportarse como los demás **/
+        &[type="date"]::-webkit-inner-spin-button,
+        &[type="date"]::-webkit-calendar-picker-indicator {
+            display: none;
+            -webkit-appearance: none;
+        }
 
         &--file {
             border: none;
