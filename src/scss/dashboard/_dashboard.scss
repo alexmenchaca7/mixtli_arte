@@ -159,6 +159,27 @@
             color: v.$blanco;
             border-radius: 1rem;
         }
+
+        &--logout {
+            width: 100%; // Asegura que ocupe todo el ancho
+            
+            .dashboard__menu-texto {
+                background: none;
+                border: none;
+                color: inherit; // Hereda el color del padre (.dashboard__enlace)
+                font-family: inherit;
+                font-size: inherit;
+                font-weight: inherit;
+                text-transform: inherit;
+                padding: 0;
+                cursor: pointer;
+            }
+
+            // Opcional: un color diferente al pasar el mouse para distinguirlo
+            &:hover {
+                background-color: color.adjust(v.$rojo, $lightness: -10%);
+            }
+        }
     }
 
     &__icono {

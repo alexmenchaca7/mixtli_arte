@@ -50,5 +50,12 @@
                 Contacto
             </span>  
         </a>
+
+        <form method="POST" action="/logout" class="dashboard__enlace dashboard__enlace--logout">
+            <i class="fa-solid fa-right-from-bracket dashboard__icono"></i>
+            <button type="submit" class="dashboard__menu-texto">
+                Cerrar Sesión
+            </button>
+        </form>
     </nav>
 </aside>
