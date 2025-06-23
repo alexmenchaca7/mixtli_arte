@@ -135,6 +135,27 @@
             &.sidebar--mostrar {
                 transform: translateX(0); // Se muestra al añadir la clase
             }
+
+            .dashboard__menu {
+                height: 100%; // 1. Hace que el <nav> ocupe toda la altura
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between; // 2. Empuja los hijos a los extremos
+                padding: 3rem 0; // Añade un poco de padding vertical
+            }
+
+            .dashboard__enlace {
+                padding: 1.2rem; // Reduce el espaciado interno de cada enlace
+            }
+
+            .dashboard__icono {
+                font-size: 1.8rem; // Reduce el tamaño del ícono
+            }
+
+            .dashboard__menu-texto {
+                font-size: 1rem;   // Reduce el tamaño del texto
+                margin-top: .4rem; // Ajusta el margen superior del texto
+            }
         }
     }
 
