@@ -2,6 +2,36 @@
 @use 'base/mixins' as m;
 @use 'sass:color';
 
+// --- Overlay ---
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    display: none; // Oculto por defecto
+    
+    &.activo {
+        display: block; // Mostrar cuando el menú esté activo
+    }
+}
+
+// --- Botón de Menú Móvil ---
+.dashboard__mobile-menu {
+    display: none; // Oculto en desktop
+    background-color: transparent;
+    border: none;
+    color: v.$blanco;
+    font-size: 2.5rem;
+    cursor: pointer;
+
+    @media (max-width: #{v.$tablet - 1px}) {
+        display: block; // Visible en móvil
+    }
+}
+
 .dashboard {
     height: 100%;
     display: flex;
@@ -28,19 +58,19 @@
 
     &__header-grid {
         display: flex;
-        flex-direction: column;
-
-        @include m.tablet {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-        }
+        flex-direction: row; // Siempre será fila
+        justify-content: space-between; // Esto alinea logo a la izq. y nav/botón a la der.
+        align-items: center;
     }
 
     &__nav {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
+        
+        @media (max-width: #{v.$tablet - 1px}) {
+            display: none; // Ocultar la navegación de usuario en móvil
+        }
     }
 
     &__logo {
@@ -49,17 +79,22 @@
         gap: 1rem;
         
         img {
-            height: 6rem;
+            height: 5rem; // Tamaño del logo reducido
+
+            @include m.tablet {
+                height: 8rem; // Ajuste para tablet
+            }
         }
 
         h2 {
             color: v.$blanco;
             text-transform: uppercase;
             margin: 0;
-            text-align: center;
-    
+            font-size: 2rem; // Tamaño de fuente ajustado
+            text-align: left;
+
             @include m.tablet {
-                text-align: left;
+                font-size: 3rem; // Ajuste para tablet
             }
         }
     }
@@ -86,6 +121,21 @@
     &__sidebar {
         background-color: color.adjust(v.$dashboard, $lightness: 10%);
         width: 12rem;
+        transition: transform 0.3s ease-in-out;
+
+        @media (max-width: #{v.$tablet - 1px}) {
+            position: fixed; // Se superpone al contenido
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 25rem; // Ancho del menú desplegado
+            transform: translateX(-100%); // Oculto por defecto
+            z-index: 1000; // Por encima de todo
+
+            &.sidebar--mostrar {
+                transform: translateX(0); // Se muestra al añadir la clase
+            }
+        }
     }
 
     &__menu{
@@ -126,6 +176,7 @@
     &__contenido {
         padding: 1rem 1rem 3rem 1rem;
         width: 100%;
+        overflow-y: auto; // Permite scroll si el contenido es largo
 
         @include m.tablet {
             padding: 1rem 5rem 3rem 5rem;
@@ -138,11 +189,8 @@
         }
     }
 
-
-    .vendedor-mensajes {
-        &.dashboard__contenido {
-            padding: 0; // Eliminar padding
-        }
+    .vendedor-mensajes.dashboard__contenido {
+        padding: 0;
     }
 
     // Ajustes para el contenedor de botones y búsqueda
@@ -152,14 +200,14 @@
         gap: 2rem;
         width: 100%;
         max-width: 100%;
-        overflow: hidden; // Previene que los elementos hijos se salgan
+        overflow: hidden;
 
         @include m.tablet {
             flex-direction: row;
             justify-content: flex-end;
             align-items: center;
             margin-bottom: 5rem;
-            flex-wrap: nowrap; // Permite que los elementos se ajusten
+            flex-wrap: nowrap;
         }
     }
 
@@ -171,7 +219,6 @@
         width: 100%;
         max-width: 100%;
         background-color: v.$blanco;
-        border: 1px solid v.$gris-claro;
         border-radius: 1rem; /* Borde redondeado para el contenedor de búsqueda */
         overflow: hidden;
         padding: 1rem; /* Añadir padding dentro del contenedor de búsqueda */

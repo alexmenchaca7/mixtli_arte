@@ -72,8 +72,6 @@
         &[type="date"]::-webkit-calendar-picker-indicator {
             display: none;
             -webkit-appearance: none;
-            /* ---- ESTILO DE DEPURACIÓN TEMPORAL ---- */
-            outline: 3px solid red !important; 
         }
 
         &--file {
