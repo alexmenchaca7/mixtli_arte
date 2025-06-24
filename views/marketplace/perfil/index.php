@@ -65,16 +65,20 @@
                         <div class="valoracion-item">
                             <div class="valoracion-item__header">
                                 <span class="valoracion-item__estrellas"><?php echo str_repeat('⭐', $valoracion->estrellas); ?></span>
-                                <span class="valoracion-item__producto">Producto: <strong><?php echo htmlspecialchars($valoracion->producto->nombre); ?></strong></span>
+                                <span class="valoracion-item__contexto">
+                                    Sobre: <strong><?php echo htmlspecialchars($valoracion->producto->nombre ?? 'Producto no disponible'); ?></strong>
+                                    el <?php echo date('d/m/Y', strtotime($valoracion->creado)); ?>
+                                </span>
                             </div>
-                            <?php if($valoracion->comentario): ?>
+                            <?php if(!empty($valoracion->comentario)): ?>
                                 <p class="valoracion-item__comentario">"<?php echo htmlspecialchars($valoracion->comentario); ?>"</p>
                             <?php endif; ?>
                             <div class="valoracion-item__footer">
                                 <span>De: <strong><?php echo htmlspecialchars($valoracion->calificador->nombre); ?></strong></span>
-                                <span>Fecha: <strong><?php echo date('d/m/Y', strtotime($valoracion->creado)); ?></strong></span>
+                                <button class="reportar-btn" data-valoracion-id="<?= $valoracion->id ?>">
+                                    <i class="fa-solid fa-flag"></i> Reportar
+                                </button>
                             </div>
-                        </div>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <p>Aún no has recibido ninguna calificación aprobada.</p>

@@ -33,9 +33,11 @@
                         <p class="valoracion-item__comentario">"<?php echo htmlspecialchars($valoracion->comentario); ?>"</p>
                     <?php endif; ?>
                     <div class="valoracion-item__footer">
-                        <span>De: <strong><?php echo htmlspecialchars($valoracion->calificador->nombre ?? 'Usuario no disponible'); ?></strong></span>
-                        </div>
-                </div>
+                        <span>De: <strong><?php echo htmlspecialchars($valoracion->calificador->nombre); ?></strong></span>
+                        <button class="reportar-btn" data-valoracion-id="<?= $valoracion->id ?>">
+                            <i class="fa-solid fa-flag"></i> Reportar
+                        </button>
+                    </div>
             <?php endforeach; ?>
         <?php else: ?>
             <p class="text-center">Aún no has recibido ninguna calificación.</p>
