@@ -185,12 +185,35 @@ class MarketplaceController {
         // Obtener información del vendedor
         $vendedor = Usuario::find($producto->usuarioId);
         $vendedor->direccion = Direccion::where('usuarioId', $vendedor->id);
+
+        // Obtener y calcular las valoraciones del vendedor
+        $valoracionesVendedor = Valoracion::whereArray([
+            'calificadoId' => $vendedor->id,
+            'moderado' => 1 // Solo contar valoraciones aprobadas
+        ]);
+        
+        $totalEstrellas = 0;
+        $totalCalificaciones = 0;
+        
+        foreach ($valoracionesVendedor as $valoracion) {
+            if ($valoracion->estrellas !== null) {
+                $totalEstrellas += $valoracion->estrellas;
+                $totalCalificaciones++;
+            }
+        }
+        
+        $promedioEstrellas = 0;
+        if ($totalCalificaciones > 0) {
+            $promedioEstrellas = round($totalEstrellas / $totalCalificaciones, 1);
+        }
         
         $router->render('marketplace/producto', [
             'titulo' => "$producto->nombre",
             'producto' => $producto,
             'categorias' => $categorias,
-            'vendedor' => $vendedor
+            'vendedor' => $vendedor,
+            'promedioEstrellas' => $promedioEstrellas,
+            'totalCalificaciones' => $totalCalificaciones
         ]);
     }
 

@@ -5,3 +5,4 @@ package-lock.json
 .vscode
 vendor
 public/img/
+public/chat_adjuntos/

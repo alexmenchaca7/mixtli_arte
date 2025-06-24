@@ -1,78 +1,124 @@
-/* _productos.scss */
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+@use 'sass:color';
 
 .contenedor-productos {
     display: grid;
-    column-gap: 1rem;
-    row-gap: 1rem;
-    grid-template-columns: repeat(2, 1fr);
-}
+    gap: 2rem;
+    grid-template-columns: repeat(2, 1fr); // 2 columnas en móvil
 
-@media (min-width: 768px) {
-    .contenedor-productos {
-        display: grid;
-        column-gap: 3rem;
-        row-gap: 3rem;
-        grid-template-columns: repeat(3, 1fr);
+    @include m.tablet {
+        grid-template-columns: repeat(3, 1fr); // 3 en tablet
+        gap: 2.5rem;
     }
-}
 
-@media (min-width: 1200px) {
-    .contenedor-productos {
-        display: grid;
-        column-gap: 3.5rem;
-        row-gap: 3.5rem;
-        grid-template-columns: repeat(4, 1fr);
+    @include m.desktop {
+        grid-template-columns: repeat(4, 1fr); // 4 en desktop
+        gap: 3rem;
     }
 }
 
 .producto {
-    overflow: hidden;
-}
-
-.producto img {
-    max-height: 33rem;
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-}
-
-.producto .producto-info {
-    background-color: #f4f5f7;
-    padding: 1.6rem;
+    background-color: v.$blanco;
+    border-radius: 0.8rem;
+    box-shadow: 0 2px 8px rgba(v.$negro, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-}
+    overflow: hidden; // Asegura que el contenido respete los bordes redondeados
 
-.producto .producto-info h3 {
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(v.$negro, 0.1);
+    }
 
-.producto .producto-info p {
-    margin: 0;
-}
+    // Contenedor de la imagen para forzar la proporción
+    &__imagen-contenedor {
+        aspect-ratio: 1 / 1; // Proporción cuadrada para la imagen
+        overflow: hidden;
+        display: block;
 
-.producto .precio {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 2rem;
-}
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; // La imagen llena el contenedor sin deformarse
+            transition: transform 0.3s ease;
+        }
+    }
+    
+    // Efecto de zoom suave en la imagen al pasar el mouse
+    &:hover &__imagen-contenedor img {
+        transform: scale(1.05);
+    }
 
-.producto .precio p {
-    font-weight: 600;
-}
+    // Contenedor de la información
+    &-info {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; // ¡Clave! Hace que este div ocupe el espacio sobrante
 
-.producto .precio button {
-    cursor: pointer;
-    border: none;
-    background: transparent;
-}
+        h3 {
+            font-size: 1.6rem;
+            font-weight: v.$bold;
+            color: v.$gris-oscuro;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.4;
+            // Trunca nombres de producto largos para mantener la alineación
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-.producto .precio button img {
-    height: 2rem;
+        .producto-categoria {
+            font-size: 1.3rem;
+            color: v.$gris;
+            margin: 0 0 1.5rem 0;
+        }
+    }
+
+    // Contenedor del precio y botón de favorito
+    .precio {
+        margin-top: auto; // Empuja este elemento al final del contenedor flex
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #f0f0f0;
+
+        p {
+            font-size: 1.9rem;
+            font-weight: v.$bold;
+            color: v.$negro;
+            margin: 0;
+        }
+
+        .favorito-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: .5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+
+            i {
+                font-size: 2.2rem;
+                color: v.$gris-claro;
+                transition: color 0.2s ease, transform 0.2s ease;
+            }
+
+            &:hover i {
+                color: color.adjust(v.$primario, $lightness: 10%);
+                transform: scale(1.1);
+            }
+
+            // Estilo para el ícono cuando un producto es favorito
+            i.fa-solid {
+                color: v.$primario;
+            }
+        }
+    }
 }
