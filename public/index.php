@@ -82,6 +82,7 @@ $router->post('/follow/toggle', [FollowController::class, 'toggle']);
 $router->get('/marketplace', [MarketplaceController::class, 'index']);
 $router->get('/marketplace/autocompletar', [MarketplaceController::class, 'autocompletar']);
 $router->get('/marketplace/producto', [MarketplaceController::class, 'producto']);
+$router->post('/producto/reportar', [MarketplaceController::class, 'reportarProducto']);
 
 $router->get('/comprador/perfil', [MarketplaceController::class, 'perfil']);
 $router->get('/comprador/perfil-publico', [MarketplaceController::class, 'compradorPublico']);

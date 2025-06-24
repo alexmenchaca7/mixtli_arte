@@ -12,6 +12,7 @@ use Model\Direccion;
 use Model\Valoracion;
 use Classes\Paginacion;
 use Model\ImagenProducto;
+use Model\ReporteProducto;
 use Model\PreferenciaUsuario;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -187,35 +188,78 @@ class MarketplaceController {
         $vendedor = Usuario::find($producto->usuarioId);
         $vendedor->direccion = Direccion::where('usuarioId', $vendedor->id);
 
-        // Obtener y calcular las valoraciones del vendedor
+        // Obtener valoraciones del vendedor
         $valoracionesVendedor = Valoracion::whereArray([
             'calificadoId' => $vendedor->id,
-            'moderado' => 1 // Solo contar valoraciones aprobadas
+            'moderado' => 1,
+            'estrellas IS NOT' => 'NULL'
         ]);
         
         $totalEstrellas = 0;
-        $totalCalificaciones = 0;
-        
         foreach ($valoracionesVendedor as $valoracion) {
-            if ($valoracion->estrellas !== null) {
-                $totalEstrellas += $valoracion->estrellas;
-                $totalCalificaciones++;
-            }
+            $valoracion->calificador = Usuario::find($valoracion->calificadorId); // Cargar datos del comprador que calificó
+            $totalEstrellas += $valoracion->estrellas;
         }
         
-        $promedioEstrellas = 0;
-        if ($totalCalificaciones > 0) {
-            $promedioEstrellas = round($totalEstrellas / $totalCalificaciones, 1);
+        $totalCalificaciones = count($valoracionesVendedor);
+        $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+        
+        // Lógica para productos relacionados o alternativos
+        $productosRelacionados = [];
+        $condiciones = [
+            "categoriaId = '{$producto->categoriaId}'",
+            "id != '{$producto->id}'",
+            "estado != 'agotado'" // No mostrar otros productos agotados
+        ];
+        $productosRelacionados = Producto::metodoSQL([
+            'condiciones' => $condiciones,
+            'orden' => 'RAND()',
+            'limite' => 4
+        ]);
+
+        // Cargar imagen principal para productos relacionados
+        foreach($productosRelacionados as $relacionado) {
+            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($relacionado->id); 
+            $relacionado->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
         }
         
         $router->render('marketplace/producto', [
-            'titulo' => "$producto->nombre",
+            'titulo' => $producto->nombre,
             'producto' => $producto,
-            'categorias' => $categorias,
             'vendedor' => $vendedor,
             'promedioEstrellas' => $promedioEstrellas,
-            'totalCalificaciones' => $totalCalificaciones
+            'totalCalificaciones' => $totalCalificaciones,
+            'valoraciones' => $valoracionesVendedor, 
+            'productosRelacionados' => $productosRelacionados, 
+            'categorias' => Categoria::all()
         ]);
+    }
+
+    public static function reportarProducto() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            header('Content-Type: application/json');
+            if (!is_auth()) {
+                echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión para reportar.']);
+                return;
+            }
+
+            $datos = json_decode(file_get_contents('php://input'), true);
+            $reporte = new ReporteProducto($datos);
+            $reporte->usuarioId = $_SESSION['id'];
+            
+            $alertas = $reporte->validar();
+            if(!empty($alertas)) {
+                echo json_encode(['success' => false, 'error' => $alertas['error']]);
+                return;
+            }
+
+            $resultado = $reporte->guardar();
+            if($resultado) {
+                echo json_encode(['success' => true, 'message' => 'Producto reportado exitosamente. Gracias por tu ayuda.']);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'No se pudo procesar el reporte.']);
+            }
+        }
     }
 
     public static function autocompletar() {

@@ -27,8 +27,10 @@ function debuguear($variable) : string {
 
 // Escapar/Sanitizar el HTML
 function s($html) : string {
-    $s = htmlspecialchars($html);
-    return $s;
+    if (is_null($html)) {
+        return '';
+    }
+    return htmlspecialchars($html);
 }
 
 // Validar ID y redireccionar a Inicio si no es una ID valida

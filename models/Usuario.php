@@ -7,7 +7,7 @@ use DateTime;
 class Usuario extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia', 'last_active'];
+    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia', 'last_active', 'preferencias_entrega'];
     protected static $tabla = 'usuarios';
 
     // Propiedad con las columnas a buscar
@@ -29,7 +29,8 @@ class Usuario extends ActiveRecord {
     public $creado;
     public $imagen;
     public $biografia;
-    public $last_active ;
+    public $last_active;
+    public $preferencias_entrega; 
 
     public $password_actual;
     public $password_nuevo; 
@@ -53,6 +54,7 @@ class Usuario extends ActiveRecord {
         $this->imagen = $args['imagen'] ?? '';
         $this->biografia = $args['biografia'] ?? '';
         $this->last_active  = $args['last_active '] ?? date('Y-m-d H:i:s');
+        $this->preferencias_entrega = $args['preferencias_entrega'] ?? '';
     }
 
 

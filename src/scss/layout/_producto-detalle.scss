@@ -186,3 +186,92 @@
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+// Disponibilidad
+.producto-disponibilidad {
+    font-weight: bold;
+    &.disponible, &.unico { color: #2E7D31; }
+    &.agotado { color: #bd0707; }
+}
+
+// Detalles técnicos y entrega
+.producto-entrega, .valoraciones-seccion {
+    margin-top: 3rem;
+    border-top: 1px solid v.$gris-claro;
+    padding-top: 2rem;
+    h2 { font-size: 2rem; margin-bottom: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: .8rem; }
+}
+
+// Acciones adicionales (Reportar, Compartir)
+.panel-acciones-adicionales {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid v.$gris-claro;
+    text-align: center;
+    font-size: 1.4rem;
+
+    #reportar-btn {
+        background: none; border: none; color: #777; cursor: pointer;
+        &:hover { color: v.$rojo; text-decoration: underline; }
+    }
+    .compartir-links {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        a { color: #333; font-size: 2rem; &:hover { color: v.$primario; } }
+    }
+}
+
+// Productos relacionados
+.productos-relacionados-seccion {
+    grid-column: 1 / -1; // Ocupar todo el ancho en la grid
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid v.$gris-claro;
+    h2 { text-align: center; margin-bottom: 2rem; }
+}
+
+// Estilos para Modal de Zoom de Imagen
+.modal-imagen {
+    display: none; position: fixed; z-index: 1001; padding-top: 50px; left: 0; top: 0;
+    width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.9);
+    &__cerrar { position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; transition: 0.3s;
+        &:hover, &:focus { color: #bbb; text-decoration: none; cursor: pointer; }
+    }
+    &__contenido { margin: auto; display: block; width: 80%; max-width: 700px; }
+}
+
+// Estilos para Modal de Reporte
+.modal-reporte {
+    display: none; // El modal estará oculto por defecto
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    
+    // Estos estilos se aplicarán cuando el JS cambie el display a "flex"
+    align-items: center;
+    justify-content: center;
+
+    &__contenido {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+    }
+    &__cerrar {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 2.5rem;
+        cursor: pointer;
+    }
+}

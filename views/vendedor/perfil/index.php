@@ -279,6 +279,20 @@
             </div>
         </fieldset>
 
+        <fieldset class="formulario__fieldset">
+            <legend class="formulario__legend">Preferencias de Entrega</legend>
+            <div class="formulario__campo">
+                <label for="preferencias_entrega" class="formulario__label">Opciones de Entrega/Encuentro</label>
+                <textarea 
+                    class="formulario__input"
+                    placeholder="Describe tus opciones de entrega. Ej: 'Entregas personales solo en la Zona Centro de Zapopan los fines de semana. Envíos a todo el país por paquetería.'"
+                    id="preferencias_entrega"
+                    name="preferencias_entrega"
+                    rows="4"
+                ><?php echo s($usuario->preferencias_entrega); ?></textarea>
+            </div>
+        </fieldset>
+
         <input type="submit" class="formulario__submit" value="Actualizar Perfil">
     </form>
 </div>
