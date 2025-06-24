@@ -93,43 +93,42 @@ class ValoracionesController {
     }
 
     public static function reportar() {
-    header('Content-Type: application/json');
-    if (!is_auth()) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión para reportar.']);
-        exit;
+        header('Content-Type: application/json');
+        if (!is_auth()) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión para reportar.']);
+            exit;
+        }
+
+        $datos = json_decode(file_get_contents('php://input'), true);
+        $reporte = new ReporteValoracion($datos);
+        $reporte->reportadorId = $_SESSION['id'];
+        
+        $alertas = $reporte->validar();
+        if(!empty($alertas['error'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => implode(', ', $alertas['error'])]);
+            return;
+        }
+
+        // Verificar que un usuario no reporte la misma valoración múltiples veces
+        $reporteExistente = ReporteValoracion::whereArray([
+            'valoracionId' => $reporte->valoracionId,
+            'reportadorId' => $reporte->reportadorId
+        ]);
+
+        if($reporteExistente) {
+            http_response_code(409); // Conflict
+            echo json_encode(['success' => false, 'error' => 'Ya has reportado esta valoración.']);
+            return;
+        }
+
+        $resultado = $reporte->guardar();
+        if($resultado) {
+            echo json_encode(['success' => true, 'message' => 'Reporte enviado exitosamente. Nuestro equipo lo revisará a la brevedad.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'No se pudo procesar el reporte en este momento.']);
+        }
     }
-
-    $datos = json_decode(file_get_contents('php://input'), true);
-    $reporte = new ReporteValoracion($datos);
-    $reporte->reportadorId = $_SESSION['id'];
-    
-    $alertas = $reporte->validar();
-    if(!empty($alertas['error'])) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => implode(', ', $alertas['error'])]);
-        return;
-    }
-
-    // Verificar que un usuario no reporte la misma valoración múltiples veces
-    $reporteExistente = ReporteValoracion::whereArray([
-        'valoracionId' => $reporte->valoracionId,
-        'reportadorId' => $reporte->reportadorId
-    ]);
-
-    if($reporteExistente) {
-        http_response_code(409); // Conflict
-        echo json_encode(['success' => false, 'error' => 'Ya has reportado esta valoración.']);
-        return;
-    }
-
-    $resultado = $reporte->guardar();
-    if($resultado) {
-        echo json_encode(['success' => true, 'message' => 'Reporte enviado exitosamente. Nuestro equipo lo revisará a la brevedad.']);
-    } else {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'No se pudo procesar el reporte en este momento.']);
-    }
-}
-
 }
