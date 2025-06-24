@@ -294,6 +294,76 @@
             const inputBusqueda = document.getElementById('busqueda');
             const listaSugerencias = document.getElementById('sugerencias');
 
+            if (inputBusqueda && listaSugerencias) {
+                inputBusqueda.addEventListener('input', async (e) => {
+                    const termino = e.target.value; // Ya no usamos .trim() aquí
+
+                    if (termino.length < 2) {
+                        listaSugerencias.innerHTML = '';
+                        return;
+                    }
+
+                    try {
+                        // La sanitización ahora se hace en el backend, pero mantenemos una aquí para la URL.
+                        // Es crucial que el `replace` aquí SÍ permita espacios.
+                        const terminoSanitizado = termino.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '');
+                        const response = await fetch(`/marketplace/autocompletar?q=${encodeURIComponent(terminoSanitizado)}`);
+                        const data = await response.json();
+
+                        listaSugerencias.innerHTML = '';
+
+                        if (data.productos.length > 0) {
+                            listaSugerencias.innerHTML += '<li class="sugerencia-header">Productos</li>';
+                            data.productos.forEach(producto => {
+                                const li = document.createElement('li');
+                                li.textContent = producto.nombre;
+                                li.classList.add('sugerencia-item');
+                                li.dataset.url = `/marketplace/producto?id=${producto.id}`;
+                                listaSugerencias.appendChild(li);
+                            });
+                        }
+
+                        if (data.categorias.length > 0) {
+                            listaSugerencias.innerHTML += '<li class="sugerencia-header">Categorías</li>';
+                            data.categorias.forEach(categoria => {
+                                const li = document.createElement('li');
+                                li.textContent = categoria.nombre;
+                                li.classList.add('sugerencia-item');
+                                li.dataset.url = `/marketplace?categoria=${categoria.id}`;
+                                listaSugerencias.appendChild(li);
+                            });
+                        }
+
+                        if (data.usuarios.length > 0) {
+                            listaSugerencias.innerHTML += '<li class="sugerencia-header">Artistas</li>';
+                            data.usuarios.forEach(usuario => {
+                                const li = document.createElement('li');
+                                li.textContent = usuario.nombre + ' ' + usuario.apellido;
+                                li.classList.add('sugerencia-item');
+                                li.dataset.url = `/perfil?id=${usuario.id}`;
+                                listaSugerencias.appendChild(li);
+                            });
+                        }
+
+                        document.querySelectorAll('.sugerencia-item').forEach(item => {
+                            item.addEventListener('click', () => {
+                                window.location.href = item.dataset.url;
+                            });
+                        });
+
+                    } catch (error) {
+                        console.error('Error al obtener sugerencias:', error);
+                    }
+                });
+
+                // Cierra las sugerencias si se hace clic fuera
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.busqueda')) {
+                        listaSugerencias.innerHTML = '';
+                    }
+                });
+            }
+
             // Global Polling and Badge Display (Client-side):
             const mensajeLink = document.querySelector('nav.barra .enlaces a[href="/mensajes"]');
             let unreadBadge = null;
@@ -360,76 +430,6 @@
                 unreadPollInterval = setInterval(fetchUnreadCount, 15000); // Poll every 15 seconds
             }
             // -- END Global Polling and Badge Display --
-
-
-            inputBusqueda.addEventListener('input', async (e) => {
-                let termino = e.target.value.trim();
-
-                // Eliminar caracteres no permitidos (solo letras, números y espacios)
-                termino = termino.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '');
-                e.target.value = termino;
-
-                if (termino.length < 2) {
-                    listaSugerencias.innerHTML = '';
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`/marketplace/autocompletar?q=${encodeURIComponent(termino)}`);
-                    const data = await response.json();
-
-                    listaSugerencias.innerHTML = '';
-
-                    if (data.productos.length > 0) {
-                        listaSugerencias.innerHTML += '<li class="sugerencia-header">Productos</li>';
-                        data.productos.forEach(producto => {
-                            const li = document.createElement('li');
-                            li.textContent = producto.nombre;
-                            li.classList.add('sugerencia-item');
-                            li.dataset.url = `/marketplace/producto?id=${producto.id}`;
-                            listaSugerencias.appendChild(li);
-                        });
-                    }
-
-                    if (data.categorias.length > 0) {
-                        listaSugerencias.innerHTML += '<li class="sugerencia-header">Categorías</li>';
-                        data.categorias.forEach(categoria => {
-                            const li = document.createElement('li');
-                            li.textContent = categoria.nombre;
-                            li.classList.add('sugerencia-item');
-                            li.dataset.url = `/marketplace?categoria=${categoria.id}`;
-                            listaSugerencias.appendChild(li);
-                        });
-                    }
-
-                    if (data.usuarios.length > 0) {
-                        listaSugerencias.innerHTML += '<li class="sugerencia-header">Artistas</li>';
-                        data.usuarios.forEach(usuario => {
-                            const li = document.createElement('li');
-                            li.textContent = usuario.nombre + ' ' + usuario.apellido;
-                            li.classList.add('sugerencia-item');
-                            li.dataset.url = `/perfil?id=${usuario.id}`;
-                            listaSugerencias.appendChild(li);
-                        });
-                    }
-
-                    // Asignar eventos de clic a los elementos de sugerencia
-                    document.querySelectorAll('.sugerencia-item').forEach(item => {
-                        item.addEventListener('click', () => {
-                            window.location.href = item.dataset.url;
-                        });
-                    });
-
-                } catch (error) {
-                    console.error('Error al obtener sugerencias:', error);
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.busqueda')) {
-                    listaSugerencias.innerHTML = '';
-                }
-            });
         });
     </script>
     <script>

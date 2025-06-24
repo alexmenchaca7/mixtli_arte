@@ -33,6 +33,32 @@ function s($html) : string {
     return htmlspecialchars($html);
 }
 
+/**
+ * Formatea un texto de descripción:
+ * 1. Elimina los saltos de línea literales (\r\n) del principio.
+ * 2. Sanea el texto para seguridad con htmlspecialchars.
+ * 3. Reemplaza los saltos de línea literales restantes por <br>.
+ */
+function formatear_descripcion($texto) : string {
+    if (is_null($texto)) {
+        return '';
+    }
+
+    // Paso 1: Eliminar secuencias \r\n o \n del principio del texto.
+    $pattern = '/^(\\\r\\\n|\r\n|\\\n|\n)+/';
+    $texto_trim = preg_replace($pattern, '', $texto);
+
+    // Paso 2: Sanear el resultado para seguridad
+    $texto_safe = s($texto_trim); // Usamos tu función s() que ya es null-safe
+
+    // Paso 3: Reemplazar las secuencias de nueva línea restantes por <br>
+    // Se buscan tanto '\r\n' como el 'rn' que pudiera quedar de un stripslashes
+    $texto_final = str_replace(['\r\n', 'rn'], '<br>', $texto_safe);
+
+    return $texto_final;
+}
+
+
 // Validar ID y redireccionar a Inicio si no es una ID valida
 function validar_redireccionar(string $url) {
     // Validar la URL por ID valido
