@@ -203,35 +203,39 @@ class DashboardVendedorController {
     }
 
     public static function valoraciones(Router $router) {
-        if(!is_auth('vendedor')) {
+        if (!is_auth('vendedor')) {
             header('Location: /login');
             exit();
         }
-
-        $idUsuario = $_SESSION['id'];
-
-        // Obtener todas las valoraciones donde el vendedor fue el calificado
-        // y que ya han sido completadas por el calificador.
-        $valoracionesRecibidas = Valoracion::whereArray([
-            'calificadoId' => $idUsuario,
-            'estrellas IS NOT' => 'NULL' 
-        ]);
-
+    
+        $usuarioId = $_SESSION['id'];
+        $valoracionesRecibidas = Valoracion::whereArray(['calificadoId' => $usuarioId]);
+    
+        $totalCalificaciones = 0;
         $totalEstrellas = 0;
+        $desgloseEstrellas = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+    
         foreach($valoracionesRecibidas as $valoracion) {
+            if ($valoracion->estrellas !== null) {
+                $totalCalificaciones++;
+                $totalEstrellas += $valoracion->estrellas;
+                if (isset($desgloseEstrellas[$valoracion->estrellas])) {
+                    $desgloseEstrellas[$valoracion->estrellas]++;
+                }
+            }
+            // Cargar datos del producto y del usuario que calificó para dar contexto
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);
             $valoracion->producto = Producto::find($valoracion->productoId);
-            if ($valoracion->estrellas) {
-                $totalEstrellas += $valoracion->estrellas;
-            }
         }
-
-        $promedio = !empty($valoracionesRecibidas) ? $totalEstrellas / count($valoracionesRecibidas) : 0;
-        
+    
+        $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+    
         $router->render('vendedor/perfil/valoraciones', [
-            'titulo' => 'Mis Valoraciones Recibidas',
-            'valoraciones' => $valoracionesRecibidas,
-            'promedio' => number_format($promedio, 1)
+            'titulo' => 'Mis Calificaciones Recibidas',
+            'valoracionesRecibidas' => $valoracionesRecibidas,
+            'totalCalificaciones' => $totalCalificaciones,        
+            'promedioEstrellas' => $promedioEstrellas,          
+            'desgloseEstrellas' => $desgloseEstrellas,          
         ], 'vendedor-layout');
     }
 }

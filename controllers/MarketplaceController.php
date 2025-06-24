@@ -411,20 +411,32 @@ class MarketplaceController {
             $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
         }
 
-        // Código existente para valoraciones, seguidores, etc.
         $valoraciones = Valoracion::whereArray(['calificadoId' => $vendedor->id, 'moderado' => 1]);
-        $totalCalificaciones = count($valoraciones);
+
+        // --- INICIO: NUEVA LÓGICA DE ESTADÍSTICAS ---
+        $totalCalificaciones = 0;
         $totalEstrellas = 0;
+        $desgloseEstrellas = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+
         foreach($valoraciones as $valoracion) {
+            if ($valoracion->estrellas !== null) {
+                $totalCalificaciones++;
+                $totalEstrellas += $valoracion->estrellas;
+                if (isset($desgloseEstrellas[$valoracion->estrellas])) {
+                    $desgloseEstrellas[$valoracion->estrellas]++;
+                }
+            }
+            // Cargar datos del producto y calificador para el contexto
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);
-            if($valoracion->estrellas) $totalEstrellas += $valoracion->estrellas;
+            $valoracion->producto = Producto::find($valoracion->productoId);
         }
+
         $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
         
         $esSeguidor = false;
         $favoritosIds = [];
         if (isset($_SESSION['id'])) {
-            $follow = \Model\Follow::whereArray(['seguidorId' => $_SESSION['id'], 'seguidoId' => $vendedor->id]);
+            $follow = Follow::whereArray(['seguidorId' => $_SESSION['id'], 'seguidoId' => $vendedor->id]);
             if ($follow) $esSeguidor = true;
 
             $favoritos = Favorito::whereField('usuarioId', $_SESSION['id']);
@@ -440,6 +452,7 @@ class MarketplaceController {
             'valoraciones' => $valoraciones,
             'promedioEstrellas' => $promedioEstrellas,
             'totalCalificaciones' => $totalCalificaciones,
+            'desgloseEstrellas' => $desgloseEstrellas,
             'esSeguidor' => $esSeguidor,
             'favoritosIds' => $favoritosIds,
             'categorias' => $categorias,
@@ -676,31 +689,52 @@ class MarketplaceController {
 
 
     public static function valoraciones(Router $router) {
-        if(!is_auth('comprador')) {
+        if (!is_auth()) {
             header('Location: /login');
-            exit();
+            return;
         }
 
-        $idUsuario = $_SESSION['id'];
+        $usuarioId = $_SESSION['id'];
+        
+        // 1. Calificaciones que el usuario HA HECHO (lógica existente)
+        $valoracionesEmitidas = Valoracion::whereArray(['calificadorId' => $usuarioId]);
+        foreach ($valoracionesEmitidas as $valoracion) {
+            $valoracion->producto = Producto::find($valoracion->productoId);
+        }
+        
+        // --- INICIO: NUEVA LÓGICA PARA CALIFICACIONES RECIBIDAS ---
+        
+        // 2. Calificaciones que el usuario HA RECIBIDO
+        $valoracionesRecibidas = Valoracion::whereArray(['calificadoId' => $usuarioId, 'moderado' => 1]);
+        
+        // 3. Calcular estadísticas para las calificaciones recibidas
+        $totalCalificacionesRecibidas = 0;
+        $totalEstrellasRecibidas = 0;
+        $desgloseEstrellasRecibidas = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
 
-        $valoracionesRecibidas = Valoracion::whereArray([
-            'calificadoId' => $idUsuario,
-            'estrellas IS NOT' => 'NULL'
-        ]);
-
-        $totalEstrellas = 0;
         foreach($valoracionesRecibidas as $valoracion) {
+            if ($valoracion->estrellas !== null) {
+                $totalCalificacionesRecibidas++;
+                $totalEstrellasRecibidas += $valoracion->estrellas;
+                if (isset($desgloseEstrellasRecibidas[$valoracion->estrellas])) {
+                    $desgloseEstrellasRecibidas[$valoracion->estrellas]++;
+                }
+            }
+            // Cargar datos del producto y del usuario que calificó
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);
             $valoracion->producto = Producto::find($valoracion->productoId);
-            if ($valoracion->estrellas) $totalEstrellas += $valoracion->estrellas;
         }
 
-        $promedio = !empty($valoracionesRecibidas) ? $totalEstrellas / count($valoracionesRecibidas) : 0;
-        
+        $promedioEstrellasRecibidas = $totalCalificacionesRecibidas > 0 ? round($totalEstrellasRecibidas / $totalCalificacionesRecibidas, 1) : 0;
+        // --- FIN: NUEVA LÓGICA ---
+
         $router->render('marketplace/perfil/valoraciones', [
-            'titulo' => 'Valoraciones que he Recibido',
-            'valoraciones' => $valoracionesRecibidas,
-            'promedio' => number_format($promedio, 1)
+            'titulo' => 'Mis Calificaciones',
+            'valoraciones' => $valoracionesEmitidas, // Mantenemos el nombre original para la primera pestaña
+            'valoracionesRecibidas' => $valoracionesRecibidas, // Nuevo
+            'totalCalificacionesRecibidas' => $totalCalificacionesRecibidas, // Nuevo
+            'promedioEstrellasRecibidas' => $promedioEstrellasRecibidas, // Nuevo
+            'desgloseEstrellasRecibidas' => $desgloseEstrellasRecibidas // Nuevo
         ]);
     }
 }

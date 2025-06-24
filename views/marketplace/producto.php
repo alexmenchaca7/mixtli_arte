@@ -114,6 +114,22 @@ if ($usuarioId) {
                     <div id="mensaje-exito" class="mensaje-exito"></div>
                     <div id="mensaje-error" class="mensaje-error"></div>
                 </div>
+
+                <div class="panel-vendedor">
+                    <h4>Vendido por</h4>
+                    <a href="/perfil?id=<?= htmlspecialchars($vendedor->id); ?>" class="vendedor-info">
+                        <img src="/img/usuarios/<?= $vendedor->imagen ? htmlspecialchars($vendedor->imagen) . '.png' : 'default.png'; ?>" alt="Imagen de <?= htmlspecialchars($vendedor->nombre); ?>">
+                        <div class="vendedor-info__texto">
+                            <span class="vendedor-info__nombre"><?= htmlspecialchars($vendedor->nombre . ' ' . $vendedor->apellido); ?></span>
+                            <?php if ($totalCalificaciones > 0): ?>
+                                <div class="vendedor-info__rating">
+                                    <span><?= $promedioEstrellas; ?> ⭐</span>
+                                    <small>(<?= $totalCalificaciones; ?> calificaciones)</small>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                </div>
                 
                 <div class="panel-acciones-adicionales">
                     <button id="reportar-btn"><i class="fa-solid fa-flag"></i> Reportar producto</button>

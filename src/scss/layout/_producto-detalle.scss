@@ -106,7 +106,6 @@
         }
         .panel-vendedor {
             border-top: 1px solid v.$gris-claro;
-            border-bottom: 1px solid v.$gris-claro;
             padding: 1.5rem 0;
 
             h4 {
@@ -122,11 +121,35 @@
                 color: v.$negro;
                 font-weight: v.$bold;
                 font-size: 1.6rem;
+                text-decoration: none; // Asegura que el enlace no esté subrayado
+
                 img {
                     width: 5rem;
                     height: 5rem;
                     border-radius: 50%;
                     object-fit: cover;
+                }
+
+                &__texto {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.3rem;
+                }
+
+                &__nombre {
+                    font-weight: v.$bold;
+                    font-size: 1.5rem;
+                    color: v.$negro;
+                }
+
+                &__rating {
+                    font-size: 1.2rem;
+                    font-weight: v.$regular;
+                    color: v.$gris;
+                    span {
+                        font-weight: v.$bold;
+                        color: v.$negro;
+                    }
                 }
             }
         }

@@ -89,4 +89,54 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // MODAL REPORTE DE VALORACIÓN
+    const modal = document.getElementById('modal-reporte-valoracion');
+    if (!modal) return;
+
+    const form = document.getElementById('form-reporte-valoracion');
+    const closeBtnValoracion = modal.querySelector('.modal-reporte__cerrar');
+    const valoracionIdInput = document.getElementById('reporte-valoracion-id');
+
+    document.body.addEventListener('click', function(e) {
+        if (e.target.closest('.reportar-btn')) {
+            const valoracionId = e.target.closest('.reportar-btn').dataset.valoracionId;
+            valoracionIdInput.value = valoracionId;
+            modal.style.display = 'flex';
+        }
+    });
+
+    closeBtnValoracion.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/valoraciones/reportar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            
+            alert(result.message || result.error);
+
+            if(response.ok) {
+                modal.style.display = 'none';
+                form.reset();
+            }
+        } catch (error) {
+            alert('Error al conectar con el servidor. Inténtalo de nuevo.');
+        }
+    });
 });

@@ -66,7 +66,33 @@
                 </div>
             </form>
         </div>
-    </div
+    </div>
+
+    <div id="modal-reporte-valoracion" class="modal-reporte" style="display: none;">
+        <div class="modal-reporte__contenido">
+            <span class="modal-reporte__cerrar">&times;</span>
+            <h3>Reportar Comentario</h3>
+            <p>Ayúdanos a mantener la comunidad segura. Tu reporte es anónimo.</p>
+            <form id="form-reporte-valoracion">
+                <input type="hidden" name="valoracionId" id="reporte-valoracion-id">
+                <div class="formulario__campo">
+                    <label for="reporte-motivo" class="formulario__label">Motivo del Reporte</label>
+                    <select name="motivo" id="reporte-motivo" class="formulario__input" required>
+                        <option value="" disabled selected>-- Elige un motivo --</option>
+                        <option value="inapropiado">Contenido ofensivo o inapropiado</option>
+                        <option value="falso">Comentario falso o engañoso</option>
+                        <option value="spam">Es spam o publicidad</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div class="formulario__campo">
+                    <label for="reporte-comentarios" class="formulario__label">Comentarios Adicionales</label>
+                    <textarea name="comentarios" id="reporte-comentarios" class="formulario__input" rows="4"></textarea>
+                </div>
+                <button type="submit" class="boton-rosa-block">Enviar Reporte</button>
+            </form>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="<?php echo get_asset('app.js'); ?>" defer></script>

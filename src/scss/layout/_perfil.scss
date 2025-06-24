@@ -124,3 +124,65 @@
     display: flex;
     gap: 1rem;
 }
+
+.valoraciones-estadisticas {
+    background-color: #f8f9fa;
+    border-radius: .8rem;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    border: 1px solid #e9ecef;
+
+    h4 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+    }
+}
+
+.desglose-barras {
+    .barra-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: .8rem;
+    }
+    .barra-label {
+        flex-basis: 100px;
+        font-size: 1.4rem;
+    }
+    .barra-fondo {
+        flex-grow: 1;
+        background-color: #e9ecef;
+        border-radius: 1rem;
+        height: 1rem;
+        overflow: hidden;
+    }
+    .barra-progreso {
+        background-color: #ffc107; // Color de estrella
+        height: 100%;
+        border-radius: 1rem;
+    }
+    .barra-porcentaje {
+        font-size: 1.4rem;
+        font-weight: bold;
+        min-width: 40px;
+        text-align: right;
+    }
+}
+
+.valoracion-item {
+    &__contexto {
+        font-size: 1.3rem;
+        color: v.$gris;
+        text-align: right;
+    }
+    .reportar-btn {
+        background: none;
+        border: none;
+        color: v.$gris;
+        cursor: pointer;
+        font-size: 1.2rem;
+        &:hover {
+            color: v.$rojo;
+        }
+    }
+}

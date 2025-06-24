@@ -107,6 +107,7 @@ $router->post('/mensajes/marcar-vendido', [MensajesController::class, 'marcarVen
 $router->post('/api/heartbeat', [AuthController::class, 'heartbeat']);
 
 $router->post('/valoraciones/guardar', [ValoracionesController::class, 'guardar']);
+$router->post('/valoraciones/reportar', [ValoracionesController::class, 'reportar']);
 
 
 
