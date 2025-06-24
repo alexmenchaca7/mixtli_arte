@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/app.php';
 use MVC\Router;
 use Controllers\AuthController;
 use Controllers\FaqsController;
+use Controllers\FollowController;
 use Controllers\PaginasController;
 use Controllers\MensajesController;
 use Controllers\UsuariosController;
@@ -71,12 +72,20 @@ $router->post('/faqs', [FaqsController::class, 'index']);
 
 
 
+// Rutas en común para todos los usuarios
+$router->post('/follow/toggle', [FollowController::class, 'toggle']);
+
+
+
+
 // Marketplace (VISTA COMPRADOR)
 $router->get('/marketplace', [MarketplaceController::class, 'index']);
 $router->get('/marketplace/autocompletar', [MarketplaceController::class, 'autocompletar']);
 $router->get('/marketplace/producto', [MarketplaceController::class, 'producto']);
 
 $router->get('/comprador/perfil', [MarketplaceController::class, 'perfil']);
+$router->get('/comprador/perfil-publico', [MarketplaceController::class, 'compradorPublico']);
+$router->get('/perfil', [MarketplaceController::class, 'vendedorPublico']);
 $router->get('/comprador/perfil/editar', [MarketplaceController::class, 'editarPerfil']);
 $router->post('/comprador/perfil/editar', [MarketplaceController::class, 'editarPerfil']);
 $router->get('/comprador/perfil/cambiar-password', [MarketplaceController::class, 'cambiarPassword']);
@@ -97,6 +106,8 @@ $router->post('/mensajes/marcar-vendido', [MensajesController::class, 'marcarVen
 $router->post('/api/heartbeat', [AuthController::class, 'heartbeat']);
 
 $router->post('/valoraciones/guardar', [ValoracionesController::class, 'guardar']);
+
+
 
 
 // Dashboard del Artesano (VISTA VENDEDOR)

@@ -4,7 +4,10 @@ namespace Controllers;
 
 use Exception;
 use MVC\Router;
+use Model\Follow;
+use Classes\Email;
 use Model\Mensaje;
+use Model\Usuario;
 use Model\Favorito;
 use Model\Producto;
 use Model\Categoria;
@@ -170,6 +173,31 @@ class ProductosController {
                         } catch(Exception $e) {
                             error_log("Error procesando imagen: " . $e->getMessage());
                             $alertas['error'][] = 'Error al procesar una imagen';
+                        }
+                    }
+
+                    // Find all followers of this vendor
+                    $seguidores = Follow::whereField('seguidoId', $producto->usuarioId);
+                    if (!empty($seguidores)) {
+                        $vendedor = Usuario::find($producto->usuarioId);
+                        $urlProducto = "/marketplace/producto?id={$producto->id}";
+
+                        foreach ($seguidores as $follow) {
+                            $seguidor = Usuario::find($follow->seguidorId);
+                            if ($seguidor) {
+                                // Create on-site notification
+                                $notificacion = new \Model\Notificacion([
+                                    'usuarioId' => $seguidor->id,
+                                    'tipo' => 'nuevo_producto',
+                                    'mensaje' => "Tu artesano seguido, {$vendedor->nombre}, ha publicado un nuevo producto: {$producto->nombre}.",
+                                    'url' => $urlProducto
+                                ]);
+                                $notificacion->guardar();
+
+                                // Send email notification
+                                $email = new Email($seguidor->email, $seguidor->nombre, '');
+                                $email->enviarNotificacionNuevoProducto($vendedor->nombre, $producto->nombre, $urlProducto);
+                            }
                         }
                     }
                     

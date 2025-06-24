@@ -211,6 +211,25 @@ class Email {
         return true;
     }
 
+    public function enviarNotificacionNuevoProducto($nombreVendedor, $nombreProducto, $urlProducto) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = '¡Nuevo Producto de un Artesano que Sigues!';
+
+        $contenido = '<html>';
+        $contenido .= "<body>";
+        $contenido .= "<h1>Hola " . htmlspecialchars($this->nombre) . ",</h1>";
+        $contenido .= "<p>El artesano <strong>" . htmlspecialchars($nombreVendedor) . "</strong>, a quien sigues, ha publicado un nuevo producto que podría interesarte:</p>";
+        $contenido .= "<h2>" . htmlspecialchars($nombreProducto) . "</h2>";
+        $contenido .= "<p>Puedes verlo aquí: <a href='" . $_ENV['HOST'] . $urlProducto . "'>Ver Producto</a></p>";
+        $contenido .= "<p>¡Gracias por ser parte de la comunidad MixtliArte!</p>";
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        $mail->send();
+    }
+
+
     public function enviarConfirmacionSoporteUsuario($numeroCaso, $asuntoConsulta) {
         $mail = $this->configurarEmailBasico();
         $mail->Subject = 'Confirmación de Recepción de Consulta - MixtliArte (Caso #' . $numeroCaso . ')';

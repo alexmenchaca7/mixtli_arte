@@ -122,12 +122,15 @@ if ($usuarioId) {
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Solo ejecutar el código del mapa si existe una dirección
+        <?php if ($vendedor->direccion && !empty(trim($vendedor->direccion->calle))): ?>
+        
         // --- Lógica para el Mapa ---
-        const direccion = "<?php echo $vendedor->direccion->calle . ', ' . $vendedor->direccion->colonia . ', ' . $vendedor->direccion->ciudad . ', ' . $vendedor->direccion->estado; ?>";
+        const direccion = "<?php echo htmlspecialchars($vendedor->direccion->calle . ', ' . $vendedor->direccion->colonia . ', ' . $vendedor->direccion->ciudad . ', ' . $vendedor->direccion->estado); ?>";
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`)
             .then(response => response.json())
             .then(data => {
-                let lat = 20.6736; // Coordenadas de fallback (Guadalajara)
+                let lat = 20.6736; // Coordenadas de fallback
                 let lon = -103.344;
                 if (data && data.length > 0) {
                     lat = data[0].lat;
@@ -140,6 +143,8 @@ if ($usuarioId) {
                 const mapa = L.map('mapa').setView([20.6736, -103.344], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
             });
+        
+        <?php endif; ?>
 
         // --- Lógica para el Formulario de Contacto ---
         const formMensaje = document.getElementById('form-mensaje');

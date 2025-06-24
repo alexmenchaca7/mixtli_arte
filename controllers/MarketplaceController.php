@@ -2,6 +2,7 @@
 
 namespace Controllers;
 use MVC\Router;
+use Model\Follow;
 use Classes\Email;
 use Model\Usuario;
 use Model\Favorito;
@@ -308,6 +309,148 @@ class MarketplaceController {
             'valoraciones' => $valoracionesRecibidas,
             'show_hero' => false
         ]);
+    }
+
+    public static function vendedorPublico(Router $router) {
+        if (!is_auth()) {
+            header('Location: /login');
+            exit();
+        }
+
+        $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+        if (!$id) {
+            header('Location: /marketplace');
+            exit();
+        }
+
+        $vendedor = Usuario::find($id);
+        if (!$vendedor || $vendedor->rol !== 'vendedor') {
+            header('Location: /404');
+            exit();
+        }
+
+        // --- LÓGICA DE PAGINACIÓN PARA PRODUCTOS ---
+        $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
+        if(!$pagina_actual || $pagina_actual < 1) {
+            header("Location: /perfil?id={$vendedor->id}&page=1");
+            exit();
+        }
+        
+        $registros_por_pagina = 8; // Puedes ajustar este número
+        $condiciones = ["usuarioId = '{$vendedor->id}'"];
+        
+        $total_productos = Producto::totalCondiciones($condiciones);
+        $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total_productos);
+        
+        if($paginacion->total_paginas() > 0 && $paginacion->total_paginas() < $pagina_actual) {
+            header("Location: /perfil?id={$vendedor->id}&page=1");
+            exit();
+        }
+        
+        $params = [
+            'condiciones' => $condiciones,
+            'orden' => 'creado DESC',
+            'limite' => $registros_por_pagina,
+            'offset' => $paginacion->offset()
+        ];
+        $productos = Producto::metodoSQL($params);
+        // --- FIN DE LÓGICA DE PAGINACIÓN ---
+
+
+        // Obtener la dirección comercial
+        $direcciones = Direccion::whereArray(['usuarioId' => $vendedor->id, 'tipo' => 'comercial']);
+        $direccionComercial = !empty($direcciones) ? $direcciones[0] : null;
+
+        // Obtener las imágenes de los productos paginados
+        foreach($productos as $producto) {
+            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
+        }
+
+        // Código existente para valoraciones, seguidores, etc.
+        $valoraciones = Valoracion::whereArray(['calificadoId' => $vendedor->id, 'moderado' => 1]);
+        $totalCalificaciones = count($valoraciones);
+        $totalEstrellas = 0;
+        foreach($valoraciones as $valoracion) {
+            $valoracion->calificador = Usuario::find($valoracion->calificadorId);
+            if($valoracion->estrellas) $totalEstrellas += $valoracion->estrellas;
+        }
+        $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+        
+        $esSeguidor = false;
+        $favoritosIds = [];
+        if (isset($_SESSION['id'])) {
+            $follow = \Model\Follow::whereArray(['seguidorId' => $_SESSION['id'], 'seguidoId' => $vendedor->id]);
+            if ($follow) $esSeguidor = true;
+
+            $favoritos = Favorito::whereField('usuarioId', $_SESSION['id']);
+            $favoritosIds = $favoritos ? array_column($favoritos, 'productoId') : [];
+        }
+        
+        $categorias = Categoria::all();
+
+        $router->render('marketplace/vendedor', [
+            'titulo' => 'Perfil del Vendedor',
+            'vendedor' => $vendedor,
+            'productos' => $productos,
+            'valoraciones' => $valoraciones,
+            'promedioEstrellas' => $promedioEstrellas,
+            'totalCalificaciones' => $totalCalificaciones,
+            'esSeguidor' => $esSeguidor,
+            'favoritosIds' => $favoritosIds,
+            'categorias' => $categorias,
+            'direccionComercial' => $direccionComercial,
+            'paginacion' => $paginacion->paginacion() // Pasar la paginación a la vista
+        ]);
+    }
+
+    public static function compradorPublico(Router $router) {
+        // 1. Seguridad: Solo los vendedores pueden ver este perfil
+        if (!is_auth('vendedor')) {
+            header('Location: /');
+            exit();
+        }
+
+        $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+        if (!$id) {
+            header('Location: /vendedor/mensajes'); // Redirigir si no hay ID
+            exit();
+        }
+
+        // 2. Obtener datos del comprador
+        $comprador = Usuario::find($id);
+        if (!$comprador || $comprador->rol !== 'comprador') {
+            header('Location: /404'); // O si el ID no corresponde a un comprador
+            exit();
+        }
+
+        // 3. Obtener las calificaciones que ha recibido el comprador (y que están aprobadas)
+        $valoraciones = Valoracion::whereArray([
+            'calificadoId' => $comprador->id,
+            'moderado' => 1,
+            'tipo' => 'vendedor' // Solo valoraciones hechas por vendedores
+        ]);
+
+        $totalCalificaciones = 0;
+        $totalEstrellas = 0;
+        foreach($valoraciones as $valoracion) {
+            // Cargar el producto asociado a cada valoración
+            $valoracion->producto = Producto::find($valoracion->productoId);
+            if($valoracion->estrellas) {
+                $totalEstrellas += $valoracion->estrellas;
+                $totalCalificaciones++;
+            }
+        }
+        $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+
+        // 4. Renderizar la vista
+        $router->render('marketplace/comprador', [
+            'titulo' => 'Perfil del Comprador',
+            'comprador' => $comprador,
+            'valoraciones' => $valoraciones,
+            'totalCalificaciones' => $totalCalificaciones,
+            'promedioEstrellas' => $promedioEstrellas
+        ], 'vendedor-layout'); // Usar el layout de vendedor para consistencia
     }
 
     public static function editarPerfil(Router $router) {
