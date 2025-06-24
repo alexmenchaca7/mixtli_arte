@@ -95,81 +95,129 @@
 <style> .mapa-detalle { height: 25rem; border-radius: .8rem; margin: 1rem 0; } </style>
 
 <script>
-// --- Lógica para el Botón de Favoritos ---
-document.querySelectorAll('.favorito-btn').forEach(button => {
-    button.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const productoId = button.dataset.productoId;
-        const icon = button.querySelector('i');
-
-        try {
-            const response = await fetch('/favoritos/toggle', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `productoId=${encodeURIComponent(productoId)}`
-            });
-
-            const data = await response.json();
-            
-            if(!response.ok) throw new Error(data.error || 'Error en la solicitud');
-            
-            // Toggle del ícono
-            icon.classList.toggle('fa-regular');
-            icon.classList.toggle('fa-solid');
-
-            // Mostrar notificación
-            const existingAlert = document.querySelector('.alert-notification');
-            if (existingAlert) existingAlert.remove();
-
-            const message = data.action === 'added' 
-                ? `<i class="fas fa-check-circle"></i> Agregado a favoritos` 
-                : `<i class="fas fa-trash-alt"></i> Eliminado de favoritos`;
-
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert-notification';
-            alertDiv.innerHTML = message;
-            alertDiv.style.backgroundColor = data.action === 'added' 
-                ? '#4CAF50' 
-                : '#f44336';
-
-            document.body.appendChild(alertDiv);
-
-            setTimeout(() => {
-                alertDiv.style.opacity = '0';
-                setTimeout(() => alertDiv.remove(), 300);
-            }, 2500);
-
-        } catch (error) {
-            console.error('Error:', error);
-            alert(error.message);
-        }
-    });
-});
-
-// --- Lógica del Mapa (si existe la dirección) ---
-<?php if ($direccionComercial && !empty($direccionComercial->calle)): ?>
 document.addEventListener('DOMContentLoaded', function() {
-    const direccion = "<?php echo htmlspecialchars($direccionComercial->calle . ', ' . $direccionComercial->colonia . ', ' . $direccionComercial->ciudad . ', ' . $direccionComercial->estado); ?>";
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`)
-        .then(response => response.json())
-        .then(data => {
-            let lat = 20.6736; // Coordenadas de fallback (Guadalajara)
-            let lon = -103.344;
-            if (data && data.length > 0) {
-                lat = data[0].lat;
-                lon = data[0].lon;
+    // --- Lógica para el Botón de Seguir ---
+    const followBtn = document.getElementById('follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', async function() {
+            const vendedorId = this.dataset.vendedorId;
+            const icon = this.querySelector('i');
+            const text = this.querySelector('#follow-text');
+
+            // Prevenir múltiples clics mientras se procesa
+            this.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('vendedorId', vendedorId);
+
+                const response = await fetch('/follow/toggle', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ocurrió un error en el servidor.');
+                }
+
+                if (data.success) {
+                    if (data.action === 'followed') {
+                        icon.classList.remove('fa-user-plus');
+                        icon.classList.add('fa-user-check');
+                        text.textContent = 'Siguiendo';
+                    } else { // 'unfollowed'
+                        icon.classList.remove('fa-user-check');
+                        icon.classList.add('fa-user-plus');
+                        text.textContent = 'Seguir';
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error al intentar seguir/dejar de seguir:', error);
+                alert('No se pudo completar la acción. Por favor, intenta de nuevo.');
+            } finally {
+                // Reactivar el botón después de la operación
+                this.disabled = false;
             }
-            const mapa = L.map('mapa-vendedor').setView([lat, lon], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
-            L.marker([lat, lon]).addTo(mapa)
-                .bindPopup('<?php echo htmlspecialchars($vendedor->nombre . ' ' . $vendedor->apellido); ?>')
-                .openPopup();
-        }).catch(() => {
-            const mapa = L.map('mapa-vendedor').setView([20.6736, -103.344], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
         });
+    }
+
+    // --- Lógica para el Botón de Favoritos ---
+    document.querySelectorAll('.favorito-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const productoId = button.dataset.productoId;
+            const icon = button.querySelector('i');
+
+            try {
+                const response = await fetch('/favoritos/toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `productoId=${encodeURIComponent(productoId)}`
+                });
+
+                const data = await response.json();
+                
+                if(!response.ok) throw new Error(data.error || 'Error en la solicitud');
+                
+                // Toggle del ícono
+                icon.classList.toggle('fa-regular');
+                icon.classList.toggle('fa-solid');
+
+                // Mostrar notificación
+                const existingAlert = document.querySelector('.alert-notification');
+                if (existingAlert) existingAlert.remove();
+
+                const message = data.action === 'added' 
+                    ? `<i class="fas fa-check-circle"></i> Agregado a favoritos` 
+                    : `<i class="fas fa-trash-alt"></i> Eliminado de favoritos`;
+
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert-notification';
+                alertDiv.innerHTML = message;
+                alertDiv.style.backgroundColor = data.action === 'added' 
+                    ? '#4CAF50' 
+                    : '#f44336';
+
+                document.body.appendChild(alertDiv);
+
+                setTimeout(() => {
+                    alertDiv.style.opacity = '0';
+                    setTimeout(() => alertDiv.remove(), 300);
+                }, 2500);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message);
+            }
+        });
+    });
+
+    // --- Lógica del Mapa (si existe la dirección) ---
+    <?php if ($direccionComercial && !empty($direccionComercial->calle)): ?>
+        const direccion = "<?php echo htmlspecialchars($direccionComercial->calle . ', ' . $direccionComercial->colonia . ', ' . $direccionComercial->ciudad . ', ' . $direccionComercial->estado); ?>";
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`)
+            .then(response => response.json())
+            .then(data => {
+                let lat = 20.6736; // Coordenadas de fallback (Guadalajara)
+                let lon = -103.344;
+                if (data && data.length > 0) {
+                    lat = data[0].lat;
+                    lon = data[0].lon;
+                }
+                const mapa = L.map('mapa-vendedor').setView([lat, lon], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+                L.marker([lat, lon]).addTo(mapa)
+                    .bindPopup('<?php echo htmlspecialchars($vendedor->nombre . ' ' . $vendedor->apellido); ?>')
+                    .openPopup();
+            }).catch(() => {
+                const mapa = L.map('mapa-vendedor').setView([20.6736, -103.344], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+            });
+    <?php endif; ?>
 });
-<?php endif; ?>
 </script>
