@@ -1,4 +1,10 @@
-<div class="producto">
+<div class="producto <?php echo ($producto->estado === 'agotado') ? 'agotado' : ''; ?>">
+    <?php if ($producto->estado === 'agotado'): ?>
+        <div class="producto__agotado-overlay">
+            <span>Agotado</span>
+        </div>
+    <?php endif; ?>
+
     <a href="/marketplace/producto?id=<?php echo $producto->id; ?>">
         <div class="producto__imagen-contenedor">
             <picture>
@@ -32,9 +38,12 @@
 
         <div class="precio">
             <p>$<?php echo number_format($producto->precio, 2); ?> MXN</p>
+            
+            <?php if($producto->estado !== 'agotado'): // Solo mostrar el botón de favorito si no está agotado ?>
             <button class="favorito-btn" data-producto-id="<?php echo $producto->id; ?>">
                 <i class="fa-heart <?php echo (isset($favoritosIds) && in_array($producto->id, $favoritosIds)) ? 'fa-solid' : 'fa-regular'; ?>"></i>
             </button>
+            <?php endif; ?>
         </div>
     </div>
 </div>
