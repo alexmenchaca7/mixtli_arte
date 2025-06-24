@@ -2,7 +2,7 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <a href="/comprador/perfil" class="boton-rosa" style="display: inline-block;">Volver al Perfil</a>
-        <div>
+        <div class="botones-perfil">
             <a href="/comprador/perfil/cambiar-password" class="boton-rosa" style="background-color: #555;">Cambiar Contraseña</a>
             <a href="/seguridad/2fa" class="boton-rosa" style="background-color: #555;">Seguridad (2FA)</a>
         </div>
@@ -14,6 +14,30 @@
         <form method="POST" action="/comprador/perfil/editar" enctype="multipart/form-data" class="formulario">
             <fieldset class="formulario__fieldset">
                 <legend class="formulario__legend">Información Personal</legend>
+                <div class="formulario__campo">
+                    <label class="formulario__label">Imagen de Perfil</label>
+                    <div class="contenedor-imagen-preview">
+                        <div class="imagen-preview" id="imagenPreview">
+                            <?php if(!empty($usuario->imagen_actual)): ?>
+                                <picture>
+                                    <source srcset="<?php echo $_ENV['HOST'] ?>/img/usuarios/<?php echo $usuario->imagen_actual ?>.webp" type="image/webp">
+                                    <img src="<?php echo $_ENV['HOST'] ?>/img/usuarios/<?php echo $usuario->imagen_actual ?>.png" alt="Imagen actual del usuario" id="imagenActual" class="imagen-cargada">
+                                </picture>
+                            <?php else: ?>
+                                <img src="<?php echo $_ENV['HOST'] ?>/img/usuarios/default.png" alt="Imagen por defecto" id="imagenActual" class="imagen-cargada">
+                            <?php endif; ?>
+                        </div>
+                        <input type="file" class="imagen-input" id="imagen" name="imagen" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                        
+                        <?php if(!empty($usuario->imagen_actual)): ?>
+                            <div class="formulario__imagen-info">
+                                <label class="eliminar-imagen">
+                                    <input type="checkbox" name="eliminar_imagen"> Eliminar imagen actual
+                                </label>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
                 <div class="formulario__campo">
                     <label for="nombre" class="formulario__label">Nombre*</label>
                     <input type="text" class="formulario__input" id="nombre" name="nombre" value="<?php echo htmlspecialchars($usuario->nombre ?? ''); ?>" required>
@@ -104,3 +128,39 @@
         background-color: #f7f7f7;
     }
 </style>
+
+<script>
+    // Se activa el input de archivo al hacer clic en el contenedor de la imagen
+    document.getElementById('imagenPreview').addEventListener('click', () => document.getElementById('imagen').click());
+
+    function previewImage(event) {
+        const previewContainer = document.getElementById('imagenPreview');
+        const file = event.target.files[0];
+        
+        if (file && previewContainer) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // Se limpia el contenedor de la imagen para poner la nueva
+                previewContainer.innerHTML = ''; 
+
+                // Se crea la estructura <picture> para la nueva imagen
+                const picture = document.createElement('picture');
+                const source = document.createElement('source');
+                source.type = 'image/webp';
+                source.srcset = e.target.result;
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.classList.add('imagen-cargada');
+                img.alt = 'Nueva imagen seleccionada';
+
+                picture.appendChild(source);
+                picture.appendChild(img);
+                previewContainer.appendChild(picture);
+            }
+            
+            reader.readAsDataURL(file);
+        }
+    }
+</script>

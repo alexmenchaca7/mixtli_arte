@@ -502,23 +502,66 @@ class MarketplaceController {
             header('Location: /login');
             exit();
         }
-
+    
         $alertas = [];
         $usuario = Usuario::find($_SESSION['id']);
+        $usuario->imagen_actual = $usuario->imagen; // Guardar referencia a la imagen actual
+    
         $categorias = Categoria::all();
         
         // Cargar preferencias existentes
         $preferencias = PreferenciaUsuario::where('usuarioId', $usuario->id);
         $categoriasSeleccionadas = $preferencias ? json_decode($preferencias->categorias, true) : [];
-
+    
         // Inicializar con la dirección de la BD o un objeto vacío
         $direccionesDB = Direccion::whereField('usuarioId', $usuario->id);
         $direccionResidencial = !empty($direccionesDB) ? $direccionesDB[0] : new Direccion(['tipo' => 'residencial']);
         $direcciones = [$direccionResidencial];
     
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Sincronizar usuario y dirección con los datos del POST
+            
+            // --- INICIO: LÓGICA DE IMAGEN ---
+            $imagen_previa = $usuario->imagen; // Guardamos el nombre de la imagen para usarlo después
+    
+            $manager = new ImageManager(new Driver());
+            $carpeta_imagenes = '../public/img/usuarios';
+            if (!is_dir($carpeta_imagenes)) {
+                mkdir($carpeta_imagenes, 0755, true);
+            }
+            
+            if (!empty($_FILES['imagen']['tmp_name'])) {
+                if ($imagen_previa) {
+                    if (file_exists("{$carpeta_imagenes}/{$imagen_previa}.png")) unlink("{$carpeta_imagenes}/{$imagen_previa}.png");
+                    if (file_exists("{$carpeta_imagenes}/{$imagen_previa}.webp")) unlink("{$carpeta_imagenes}/{$imagen_previa}.webp");
+                }
+                $nombre_imagen = md5(uniqid(rand(), true));
+                $imagen_procesada = $manager->read($_FILES['imagen']['tmp_name']);
+                $imagen_procesada->resize(400, 400, fn($c) => $c->aspectRatio()->upsize());
+                $imagen_procesada->toWebp(90)->save("{$carpeta_imagenes}/{$nombre_imagen}.webp");
+                $imagen_procesada->toPng()->save("{$carpeta_imagenes}/{$nombre_imagen}.png");
+                $_POST['imagen'] = $nombre_imagen;
+            }
+            
+            if (isset($_POST['eliminar_imagen'])) {
+                if ($imagen_previa) {
+                    if (file_exists("{$carpeta_imagenes}/{$imagen_previa}.png")) unlink("{$carpeta_imagenes}/{$imagen_previa}.png");
+                    if (file_exists("{$carpeta_imagenes}/{$imagen_previa}.webp")) unlink("{$carpeta_imagenes}/{$imagen_previa}.webp");
+                }
+                $_POST['imagen'] = '';
+            }
+            // --- FIN: LÓGICA DE IMAGEN ---
+    
+            // Sincronizar usuario y otros datos
             $usuario->sincronizar($_POST);
+    
+            // Si no se subió una nueva imagen ni se marcó para eliminar, mantener la anterior
+            if (empty($_FILES['imagen']['tmp_name']) && !isset($_POST['eliminar_imagen'])) {
+                $usuario->imagen = $imagen_previa;
+            }
+    
+            // Actualizamos 'imagen_actual' para que la vista muestre la imagen correcta si falla la validación
+            $usuario->imagen_actual = $usuario->imagen;
+            
             $direccionResidencial->sincronizar([
                 'calle' => $_POST['calle_residencial'] ?? '',
                 'colonia' => $_POST['colonia_residencial'] ?? '',
@@ -526,13 +569,11 @@ class MarketplaceController {
                 'ciudad' => $_POST['ciudad_residencial'] ?? '',
                 'estado' => $_POST['estado_residencial'] ?? ''
             ]);
-            // Sincronizar las categorías seleccionadas
             $categoriasSeleccionadas = $_POST['categorias'] ?? [];
-
-            // Validar usuario
+    
+            // Validaciones
             $alertas = $usuario->validar_cuenta_dashboard();
     
-            // --- VALIDACIÓN DE DIRECCIÓN (TODO O NADA) ---
             $camposDireccion = ['calle', 'colonia', 'codigo_postal', 'ciudad', 'estado'];
             $camposLlenos = 0;
             foreach ($camposDireccion as $campo) {
@@ -543,22 +584,26 @@ class MarketplaceController {
             if ($camposLlenos > 0 && $camposLlenos < count($camposDireccion)) {
                 $alertas['error'][] = 'Si decides llenar tu dirección, todos los campos son requeridos.';
             }
-
+    
             if (empty($alertas)) {
                 // Guardar usuario
-                $usuario->guardar();
+                $resultado = $usuario->guardar();
+    
+                if($resultado){
+                    // Actualizar la imagen en la sesión para que se refleje de inmediato
+                    $_SESSION['imagen'] = $usuario->imagen;
+                }
     
                 // Guardar o actualizar dirección si está completa
                 if ($camposLlenos === count($camposDireccion)) {
                     $direccionResidencial->usuarioId = $usuario->id;
                     $direccionResidencial->guardar();
                 } else {
-                    // Si el usuario borró la dirección, eliminarla de la BD
                     if ($direccionResidencial->id) {
                         $direccionResidencial->eliminar();
                     }
                 }
-
+    
                 // Guardar o actualizar preferencias
                 if ($preferencias) {
                     $preferencias->categorias = json_encode($categoriasSeleccionadas);
@@ -570,18 +615,18 @@ class MarketplaceController {
                     ]);
                     $nuevaPreferencia->guardar();
                 }   
-
+                
+                Usuario::setAlerta('exito', 'Perfil actualizado correctamente');
                 header('Location: /comprador/perfil');
                 exit();
             }
         }
     
-        // Renderiza usando el layout principal (layout.php)
         $router->render('marketplace/perfil/editar', [
             'titulo' => 'Editar Mi Perfil',
             'usuario' => $usuario,
             'alertas' => $alertas,
-            'direcciones' => $direcciones, // Contendrá datos del POST si falla, o de la BD si es GET
+            'direcciones' => $direcciones,
             'categorias' => $categorias,
             'categoriasSeleccionadas' => $categoriasSeleccionadas,
             'fecha_hoy' => date('Y-m-d')
