@@ -376,6 +376,7 @@
         border: 1px solid v.$gris-claro;
         border-radius: 2.5rem;
         outline: none;
+        min-width: 0;
     }
 
     &__boton {
