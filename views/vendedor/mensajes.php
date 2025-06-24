@@ -514,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Botón para seleccionar una plantilla de la lista
             const plantillaBtn = target.closest('#lista-plantillas button[data-plantilla-id]');
             if (plantillaBtn) {
+                cerrarMenuAcciones();
                 seleccionarPlantilla(plantillaBtn.dataset.plantillaId);
                 return;
             }
@@ -533,16 +534,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
         });
-        
-        // Listener para el cambio en el input de archivo (dentro del chat)
-            chatActivo.addEventListener('change', function(event) {
+
+        function manejarCambioInputArchivo(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const preview = document.getElementById('preview-archivo');
+            const previewImagen = preview.querySelector('.preview-archivo-imagen');
+            const previewDocumento = preview.querySelector('.preview-archivo-documento');
+
+            preview.style.display = 'flex'; // Usar flex para alinear el contenido
+            previewImagen.style.display = 'none';
+            previewDocumento.style.display = 'none';
+
+            if (file.type.startsWith('image/')) {
+                previewImagen.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Vista previa de imagen">`;
+                previewImagen.style.display = 'block';
+            } else if (file.type === 'application/pdf') {
+                previewDocumento.querySelector('.preview-archivo-nombre').textContent = file.name;
+                previewDocumento.style.display = 'flex';
+            }
+        }
+
+        chatActivo.addEventListener('change', function(event) {
             if (event.target && event.target.id === 'input-archivo') {
                 manejarCambioInputArchivo(event.target);
+                cerrarMenuAcciones();
             }
         });
     }
 
     function manejarClickBotonContacto() {
+        cerrarMenuAcciones();
         const formChatEl = document.getElementById('form-chat');
         if (!formChatEl) {
             console.error("Formulario de chat no encontrado para botón de contacto.");
@@ -727,29 +750,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarYPrepararPlantillas(); // Carga las plantillas desde PHP a la variable JS
     setupInitialPageLoadFeatures(); // Configura para el chat cargado inicialmente (si existe)
 
-    document.addEventListener('change', function(e) {
-        if (e.target && e.target.id === 'input-archivo') {
-            const file = e.target.files[0];
-            const preview = document.getElementById('preview-archivo');
-            const previewImagen = preview.querySelector('.preview-archivo-imagen');
-            const previewDocumento = preview.querySelector('.preview-archivo-documento');
-            
-            preview.style.display = 'block';
-            previewImagen.style.display = 'none';
-            previewDocumento.style.display = 'none';
-
-            if (file) {
-                if (file.type.startsWith('image/')) {
-                    previewImagen.innerHTML = `<img src="${URL.createObjectURL(file)}">`;
-                    previewImagen.style.display = 'block';
-                } else if (file.type === 'application/pdf') {
-                    previewDocumento.querySelector('.preview-archivo-nombre').textContent = file.name;
-                    previewDocumento.style.display = 'flex';
-                }
-            }
-        }
-    });
-
     function inicializarSidebarPolling() {
         if (sidebarPollingInterval) clearInterval(sidebarPollingInterval);
 
@@ -845,6 +845,13 @@ document.addEventListener('DOMContentLoaded', () => {
         preview.querySelector('.preview-archivo-nombre').textContent = '';
         document.getElementById('input-archivo').value = '';
     }
+
+    document.addEventListener('click', function(e) {
+        // Cierra el preview de archivo si se hace clic en el botón de cerrar
+        if (e.target.matches('.preview-archivo-cerrar')) {
+            cerrarPreview();
+        }
+    });
 
     // Enviar mensaje
     function manejarEnvio(e) {
@@ -1178,5 +1185,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    function cerrarMenuAcciones() {
+        const toggleButton = document.getElementById('chat-actions-toggle');
+        const actionsMenu = document.getElementById('chat-actions-menu');
+        if (toggleButton && actionsMenu) {
+            toggleButton.classList.remove('open');
+            actionsMenu.classList.remove('visible');
+        }
+    }
 });
 </script>

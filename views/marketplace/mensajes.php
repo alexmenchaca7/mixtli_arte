@@ -217,6 +217,30 @@ const fetchListaConversaciones = async () => {
     }
 };
 
+function manejarCambioInputArchivo(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const preview = document.getElementById('preview-archivo');
+    if (!preview) return; // Si no hay preview en el DOM, no hacer nada
+
+    const previewImagen = preview.querySelector('.preview-archivo-imagen');
+    const previewDocumento = preview.querySelector('.preview-archivo-documento');
+
+    preview.style.display = 'flex';
+    previewImagen.style.display = 'none';
+    previewDocumento.style.display = 'none';
+
+    if (file.type.startsWith('image/')) {
+        previewImagen.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Vista previa de imagen">`;
+        previewImagen.style.display = 'block';
+    } else if (file.type === 'application/pdf') {
+        previewDocumento.querySelector('.preview-archivo-nombre').textContent = file.name;
+        previewDocumento.style.display = 'flex';
+    }
+}
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatActivo = document.getElementById('chat-activo');
@@ -385,26 +409,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }); 
 
+    function manejarCambioInputArchivo(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const preview = document.getElementById('preview-archivo');
+        const previewImagen = preview.querySelector('.preview-archivo-imagen');
+        const previewDocumento = preview.querySelector('.preview-archivo-documento');
+
+        preview.style.display = 'flex'; // Usar flex para alinear el contenido
+        previewImagen.style.display = 'none';
+        previewDocumento.style.display = 'none';
+
+        if (file.type.startsWith('image/')) {
+            previewImagen.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Vista previa de imagen">`;
+            previewImagen.style.display = 'block';
+        } else if (file.type === 'application/pdf') {
+            previewDocumento.querySelector('.preview-archivo-nombre').textContent = file.name;
+            previewDocumento.style.display = 'flex';
+        }
+    }
+
+    // Usamos delegación de eventos en el documento por si el chat se carga dinámicamente
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'input-archivo') {
-            const file = e.target.files[0];
-            const preview = document.getElementById('preview-archivo');
-            const previewImagen = preview.querySelector('.preview-archivo-imagen');
-            const previewDocumento = preview.querySelector('.preview-archivo-documento');
-            
-            preview.style.display = 'block';
-            previewImagen.style.display = 'none';
-            previewDocumento.style.display = 'none';
-
-            if (file) {
-                if (file.type.startsWith('image/')) {
-                    previewImagen.innerHTML = `<img src="${URL.createObjectURL(file)}">`;
-                    previewImagen.style.display = 'block';
-                } else if (file.type === 'application/pdf') {
-                    previewDocumento.querySelector('.preview-archivo-nombre').textContent = file.name;
-                    previewDocumento.style.display = 'flex';
-                }
-            }
+            manejarCambioInputArchivo(e.target);
         }
     });
 
@@ -567,6 +596,28 @@ document.addEventListener('DOMContentLoaded', () => {
         preview.querySelector('.preview-archivo-nombre').textContent = '';
         document.getElementById('input-archivo').value = '';
     }
+
+    document.addEventListener('click', function(e) {
+        // 1. Lógica para cerrar la previsualización de un archivo
+        if (e.target.matches('.preview-archivo-cerrar')) {
+            cerrarPreview();
+            return; // Detiene la ejecución para no interferir con otros clics
+        }
+
+        // 2. Nueva Lógica: para abrir el explorador de archivos al hacer clic en el botón
+        const attachButton = e.target.closest('.chat__adjuntar');
+        if (attachButton) {
+            // Busca el input de archivo dentro del mismo formulario
+            const form = attachButton.closest('form');
+            if (form) {
+                const fileInput = form.querySelector('#input-archivo');
+                if (fileInput) {
+                    fileInput.click(); // Esto abre el explorador de archivos
+                }
+            }
+        }
+    });
+
 
     // Enviar mensaje
     function manejarEnvio(e) {
