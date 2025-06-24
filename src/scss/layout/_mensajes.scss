@@ -687,12 +687,14 @@
     }
 
     &__imagen {
-        max-width: 300px;
-        border-radius: 1.5rem;
-        margin-bottom: 0.5rem;
+        display: block;
+        width: 100%; // Fuerza a la imagen a ocupar el 100% del ancho de su contenedor
+        max-width: 400px; // Un límite máximo absoluto para que no sea gigante en desktop
+        height: auto;   // Mantiene la proporción
+        border-radius: 1.2rem;
         cursor: pointer;
         transition: transform 0.3s;
-        
+
         &:hover {
             transform: scale(1.02);
         }

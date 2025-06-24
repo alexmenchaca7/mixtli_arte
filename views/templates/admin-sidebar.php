@@ -43,9 +43,11 @@
         </a>
 
         <form method="POST" action="/logout" class="dashboard__enlace dashboard__enlace--logout">
-            <i class="fa-solid fa-right-from-bracket dashboard__icono"></i>
             <button type="submit" class="dashboard__menu-texto">
-                Cerrar Sesión
+                <i class="fa-solid fa-right-from-bracket dashboard__icono"></i>
+                <span class="dashboard__menu-texto">
+                    Cerrar Sesión
+                </span>
             </button>
         </form>
     </nav>
