@@ -4,6 +4,11 @@ define('TEMPLATES_URL', __DIR__ . '/templates');
 define('FUNCIONES_URL', __DIR__ . 'funciones.php');
 define('CARPETA_IMAGENES', $_SERVER['DOCUMENT_ROOT'] . '/imagenes/');
 
+// Constantes para Reportes
+define('REPORTE_UMBRAL_CANTIDAD', 3); // Número de reportes para generar una alerta
+define('REPORTE_UMBRAL_TIEMPO', '1 HOUR'); // Intervalo de tiempo para contar los reportes (formato SQL)
+
+
 
 function incluirTemplate(string $nombre, bool $inicio = false) {
     include TEMPLATES_URL . '/' . $nombre . '.php';

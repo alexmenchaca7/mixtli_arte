@@ -11,6 +11,7 @@ use Model\Categoria;
 use Model\Direccion;
 use Model\Valoracion;
 use Classes\Paginacion;
+use Model\Notificacion;
 use Model\ImagenProducto;
 use Model\ReporteProducto;
 use Model\PreferenciaUsuario;
@@ -237,7 +238,6 @@ class MarketplaceController {
 
     public static function reportarProducto() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            header('Content-Type: application/json');
             if (!is_auth()) {
                 echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión para reportar.']);
                 return;
@@ -247,17 +247,83 @@ class MarketplaceController {
             $reporte = new ReporteProducto($datos);
             $reporte->usuarioId = $_SESSION['id'];
             
+            // La validación se hace en el modelo
             $alertas = $reporte->validar();
-            if(!empty($alertas)) {
-                echo json_encode(['success' => false, 'error' => $alertas['error']]);
+            if(!empty($alertas['error'])) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => implode(', ', $alertas['error'])]);
                 return;
             }
 
+            // Primero, guardamos el reporte
             $resultado = $reporte->guardar();
-            if($resultado) {
+
+            // Si el reporte NO se pudo guardar, detenemos todo.
+            if(!$resultado) {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'No se pudo procesar el reporte en este momento.']);
+                return;
+            }
+
+            try {
+                // Obtener información adicional para el reporte
+                $producto = Producto::find($reporte->productoId);
+                $vendedor = $producto ? Usuario::find($producto->usuarioId) : null;
+                $nombreVendedor = $vendedor ? $vendedor->nombre . " " . $vendedor->apellido : "Desconocido";
+
+                // PASO 1: Verifiquemos si encontramos administradores.
+                $admins = Usuario::findAdmins();
+                if (empty($admins)) {
+                    // Si no hay admins, lo registramos en el log de errores de PHP
+                    error_log("DEBUG: No se encontraron administradores para notificar.");
+                }
+                $urlProducto = "/producto?id=" . $reporte->productoId;
+
+                // PASO 2: Creamos la notificación individual por reporte
+                foreach($admins as $admin) {
+                    $notificacion = new Notificacion([
+                        'tipo' => 'reporte_producto',
+                        'descripcion' => "Un usuario reportó el producto '{$producto->nombre}' por: {$reporte->motivo}.",
+                        'mensaje' => "Nuevo reporte de producto", 
+                        'url' => $urlProducto, 
+                        'usuarioId' => $admin->id
+                    ]);
+                    // Verificamos si se guardó
+                    $guardado = $notificacion->guardar();
+                    if(!$guardado) {
+                        error_log("DEBUG: FALLO al guardar notificación individual para admin ID {$admin->id}");
+                    }
+                }
+
+                // PASO 3: Verificamos si se cumple el umbral para la alerta
+                $conteoReciente = ReporteProducto::contarReportesRecientes($reporte->productoId, REPORTE_UMBRAL_TIEMPO);
+                
+                if ($conteoReciente >= REPORTE_UMBRAL_CANTIDAD) { 
+                    foreach($admins as $admin) {
+                        $notificacionAlerta = new Notificacion([
+                            'tipo' => 'alerta_reporte_multiple',
+                            'descripcion' => "El producto '{$producto->nombre}' ha recibido {$conteoReciente} reportes recientemente.",
+                            'mensaje' => "Alerta de reportes múltiples", 
+                            'url' => $urlProducto,
+                            'usuarioId' => $admin->id
+                        ]);
+                        // Verificamos si se guardó
+                        $guardadoAlerta = $notificacionAlerta->guardar();
+                        if(!$guardadoAlerta) {
+                            error_log("DEBUG: FALLO al guardar notificación de ALERTA para admin ID {$admin->id}");
+                        }
+                    }
+                }
+
+                // Si todo va bien, enviamos la respuesta de éxito
+                header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'message' => 'Producto reportado exitosamente. Gracias por tu ayuda.']);
-            } else {
-                echo json_encode(['success' => false, 'error' => 'No se pudo procesar el reporte.']);
+            } catch (\Throwable $th) {
+                // Si algo truena (ej. la base de datos se desconecta), lo capturamos
+                error_log("ERROR CRÍTICO EN NOTIFICACIONES: " . $th->getMessage());
+                // Aun así, enviamos una respuesta de éxito al usuario porque el reporte SÍ se guardó.
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => 'Producto reportado (con error al notificar).']);
             }
         }
     }

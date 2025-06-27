@@ -47,7 +47,7 @@ class Usuario extends ActiveRecord {
         $this->telefono = $args['telefono'] ?? '';
         $this->fecha_nacimiento = $args['fecha_nacimiento'] ?? NULL;
         $this->sexo = $args['sexo'] ?? '';
-        $this->rol = $args['rol'] ?? '';
+        $this->rol = $args['rol'] ?? ''; 
         $this->verificado = $args['verificado'] ?? 0;
         $this->token = $args['token'] ?? '';
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
@@ -55,6 +55,12 @@ class Usuario extends ActiveRecord {
         $this->biografia = $args['biografia'] ?? '';
         $this->last_active  = $args['last_active '] ?? date('Y-m-d H:i:s');
         $this->preferencias_entrega = $args['preferencias_entrega'] ?? '';
+    }
+
+    // Busca todos los usuarios con rol de administrador
+    public static function findAdmins() {
+        $query = "SELECT * FROM " . self::$tabla . " WHERE rol = 'admin'";
+        return self::consultarSQL($query);
     }
 
 

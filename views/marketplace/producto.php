@@ -30,11 +30,12 @@ if ($usuarioId) {
                     <label for="motivo" class="formulario__label">Motivo</label>
                     <select name="motivo" id="motivo" class="formulario__input" required>
                         <option value="" disabled selected>-- Selecciona un motivo --</option>
-                        <option value="informacion_falsa">Información Falsa o Engañosa</option>
-                        <option value="contenido_inapropiado">Contenido Inapropiado</option>
-                        <option value="articulo_prohibido">Artículo Prohibido</option>
-                        <option value="spam">Spam o Publicidad</option>
-                        <option value="otro">Otro</option>
+                        <option value="Producto no artesanal">Producto no artesanal</option>
+                        <option value="Contenido inapropiado">Contenido inapropiado</option>
+                        <option value="Informacion falsa">Información Falsa o Engañosa</option>
+                        <option value="Articulo prohibido">Artículo Prohibido</option>
+                        <option value="Spam">Spam o Publicidad</option>
+                        <option value="Otro">Otro</option>
                     </select>
                 </div>
                 <div class="formulario__campo">
@@ -329,6 +330,13 @@ if ($usuarioId) {
             formReporte.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
+                const motivo = formData.get('motivo');
+
+                if (!motivo) {
+                    alert('Por favor, selecciona un motivo para el reporte.');
+                    return;
+                }
+
                 const data = Object.fromEntries(formData.entries());
 
                 try {
@@ -343,7 +351,7 @@ if ($usuarioId) {
                         modalReporte.style.display = "none";
                         this.reset();
                     } else {
-                        alert('Error: ' + result.error);
+                        alert('Error: ' + (result.error || 'No se pudo enviar el reporte.'));
                     }
                 } catch (error) {
                     alert('No se pudo enviar el reporte. Inténtalo más tarde.');
