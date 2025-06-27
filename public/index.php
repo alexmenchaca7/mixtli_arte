@@ -16,6 +16,7 @@ use Controllers\CategoriasController;
 use Controllers\MarketplaceController;
 use Controllers\AdminSoporteController;
 use Controllers\ValoracionesController;
+use Controllers\AdminReportesController;
 use Controllers\DashboardAdminController;
 use Controllers\AdminValoracionesController;
 use Controllers\DashboardVendedorController;
@@ -177,6 +178,10 @@ $router->get('/admin/soporte', [AdminSoporteController::class, 'index']);
 $router->get('/admin/soporte/ver', [AdminSoporteController::class, 'ver']);
 $router->post('/admin/soporte/ver', [AdminSoporteController::class, 'ver']);
 $router->post('/admin/soporte/eliminar', [AdminSoporteController::class, 'eliminar']);
+
+$router->get('/admin/reportes', [AdminReportesController::class, 'index']);
+$router->post('/admin/reportes/clasificar', [AdminReportesController::class, 'clasificar']);
+$router->get('/admin/reportes/ver', [AdminReportesController::class, 'ver']);
 
 
 

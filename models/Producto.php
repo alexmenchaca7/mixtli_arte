@@ -55,4 +55,40 @@ class Producto extends ActiveRecord {
         
         return self::$alertas;
     }
+
+    public function eliminar() {
+        // --- 1. Eliminar Imágenes Asociadas (código anterior) ---
+        $imagenes = ImagenProducto::all();
+        $imagenes_del_producto = array_filter($imagenes, fn($img) => $img->productoId === $this->id);
+
+        foreach ($imagenes_del_producto as $imagen) {
+            $ruta_imagen = UPLOAD_PATH . '/' . $imagen->imagen;
+            if (file_exists($ruta_imagen)) {
+                unlink($ruta_imagen);
+            }
+            $imagen->eliminar();
+        }
+
+        // --- 2. Eliminar Favoritos Asociados (NUEVO) ---
+        $favoritos = Favorito::all();
+        $favoritos_del_producto = array_filter($favoritos, fn($fav) => $fav->productoId === $this->id);
+        
+        foreach ($favoritos_del_producto as $favorito) {
+            $favorito->eliminar();
+        }
+
+        // --- 3. Eliminar Reportes Asociados (NUEVO Y PREVENTIVO) ---
+        $reportes = ReporteProducto::all();
+        $reportes_del_producto = array_filter($reportes, fn($rep) => $rep->productoId === $this->id);
+
+        foreach ($reportes_del_producto as $reporte) {
+            $reporte->eliminar();
+        }
+        
+        // --- 4. Finalmente, eliminar el producto ---
+        // Llama al método original de ActiveRecord para borrar el registro del producto.
+        $resultado = parent::eliminar();
+        
+        return $resultado;
+    }
 }

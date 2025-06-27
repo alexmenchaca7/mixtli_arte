@@ -11,7 +11,7 @@ class ReporteProducto extends ActiveRecord {
     public $usuarioId;
     public $motivo;
     public $comentarios;
-    public $estado;
+    public $estado; // Estados: pendiente, valido, resuelto
     public $creado;
 
     public function __construct($args = []) {

@@ -28,6 +28,13 @@
             </span>
         </a>
 
+        <a href="/admin/reportes" class="dashboard__enlace <?php echo pagina_actual('/reportes') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-flag dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                Reportes
+            </span>
+        </a>
+
         <a href="/admin/faqs" class="dashboard__enlace <?php echo pagina_actual('/faqs') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-question-circle dashboard__icono"></i>
             <span class="dashboard__menu-texto">

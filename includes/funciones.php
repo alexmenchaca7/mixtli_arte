@@ -3,6 +3,7 @@
 define('TEMPLATES_URL', __DIR__ . '/templates');
 define('FUNCIONES_URL', __DIR__ . 'funciones.php');
 define('CARPETA_IMAGENES', $_SERVER['DOCUMENT_ROOT'] . '/imagenes/');
+define('UPLOAD_PATH', __DIR__ . '/../public/img/productos');
 
 // Constantes para Reportes
 define('REPORTE_UMBRAL_CANTIDAD', 3); // Número de reportes para generar una alerta
