@@ -27,12 +27,19 @@
                     <p><strong>Nombre:</strong> <?php echo htmlspecialchars($producto->nombre); ?></p>
                     <p><strong>Precio:</strong> $<?php echo htmlspecialchars($producto->precio); ?></p>
                     <p><strong>Descripción:</strong> <?php echo htmlspecialchars($producto->descripcion); ?></p>
-                    <div>
-                        <strong>Imagen:</strong><br>
-                        <?php if ($imagen_producto && !empty($imagen_producto->imagen)): ?>
-                            <img src="/img/productos/<?php echo $imagen_producto->imagen; ?>" alt="Imagen del producto" style="max-width: 200px; margin-top: 1rem;">
+                    <div class="reporte-imagenes-contenedor">
+                        <?php if (!empty($imagenes_producto)): ?>
+                            <?php foreach ($imagenes_producto as $imagen): ?>
+                                <?php if (!empty($imagen->url)): ?>
+                                    <picture>
+                                        <source srcset="/img/productos/<?php echo htmlspecialchars($imagen->url); ?>.webp" type="image/webp">
+                                        <source srcset="/img/productos/<?php echo htmlspecialchars($imagen->url); ?>.png" type="image/png">
+                                        <img src="/img/productos/<?php echo htmlspecialchars($imagen->url); ?>.png" alt="Imagen del producto" style="max-width: 150px; margin: 0.5rem;">
+                                    </picture>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
                         <?php else: ?>
-                            <p>El producto no tiene una imagen asignada.</p>
+                            <p>El producto no tiene imágenes asignadas.</p>
                         <?php endif; ?>
                     </div>
                 <?php else: ?>

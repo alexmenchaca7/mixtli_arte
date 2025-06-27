@@ -58,15 +58,21 @@ class Producto extends ActiveRecord {
 
     public function eliminar() {
         // --- 1. Eliminar Imágenes Asociadas (código anterior) ---
-        $imagenes = ImagenProducto::all();
-        $imagenes_del_producto = array_filter($imagenes, fn($img) => $img->productoId === $this->id);
+        $imagenes = ImagenProducto::whereField('productoId', $this->id);
 
-        foreach ($imagenes_del_producto as $imagen) {
-            $ruta_imagen = UPLOAD_PATH . '/' . $imagen->imagen;
-            if (file_exists($ruta_imagen)) {
-                unlink($ruta_imagen);
+        foreach($imagenes as $imagen) {
+            // Usamos la propiedad `url` que es la correcta
+            if(!empty($imagen->url)) { 
+                $ruta_png = "../public/img/productos/{$imagen->url}.png";
+                $ruta_webp = "../public/img/productos/{$imagen->url}.webp";
+                if(file_exists($ruta_png)) {
+                    unlink($ruta_png);
+                }
+                if(file_exists($ruta_webp)) {
+                    unlink($ruta_webp);
+                }
             }
-            $imagen->eliminar();
+            $imagen->eliminar(); // Elimina el registro de la BD
         }
 
         // --- 2. Eliminar Favoritos Asociados (NUEVO) ---
@@ -86,7 +92,6 @@ class Producto extends ActiveRecord {
         }
         
         // --- 4. Finalmente, eliminar el producto ---
-        // Llama al método original de ActiveRecord para borrar el registro del producto.
         $resultado = parent::eliminar();
         
         return $resultado;

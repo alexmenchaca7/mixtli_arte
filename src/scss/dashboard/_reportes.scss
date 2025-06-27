@@ -35,10 +35,6 @@
         strong {
             font-weight: v.$bold;
         }
-        img {
-            border: 1px solid v.$gris-claro;
-            border-radius: 5px;
-        }
     }
 
     .reporte-acciones {
@@ -46,7 +42,7 @@
         flex-direction: column;
         gap: 1rem;
         margin-top: 2rem;
-        
+
         @include m.tablet {
             flex-direction: row;
         }
@@ -74,5 +70,16 @@
     .reporte-error {
         color: v.$error;
         font-weight: v.$bold;
+    }
+}
+
+.reporte-imagenes-contenedor {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    img {
+        border: 1px solid v.$gris-claro;
+        border-radius: 5px;
     }
 }

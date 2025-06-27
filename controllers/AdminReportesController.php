@@ -64,38 +64,29 @@ class AdminReportesController {
         
         // Inicializamos todas las variables que pasaremos a la vista
         $vendedor = null;
-        $imagen_producto = null;
+        $imagenes_producto = [];
         $historial_otros_productos = [];
         $historial_otros_reportes = [];
 
         // Solo continuamos si el producto asociado al reporte existe
         if ($producto) {
-            // Buscamos la primera imagen asociada a este producto
-            $imagenes = ImagenProducto::all();
-            foreach($imagenes as $img) {
-                if ($img->productoId == $producto->id) {
-                    $imagen_producto = $img;
-                    break;
-                }
-            }
+            // Obtenemos TODAS las imágenes para ESTE producto específico.
+            // Esto es mucho más eficiente que traer todas y filtrar en PHP.
+            $imagenes_producto = ImagenProducto::whereField('productoId', $producto->id);
 
             $vendedor = Usuario::find($producto->usuarioId);
             
             if ($vendedor) {
-                // Obtenemos historial de otros productos del vendedor 
-                $todos_los_productos = Producto::all();
-                $historial_otros_productos = array_filter($todos_los_productos, function($p) use ($vendedor) {
-                    return $p->usuarioId === $vendedor->id;
-                });
+                // Obtenemos directamente los otros productos del vendedor desde la BD
+                $historial_otros_productos = Producto::consultarSQL("SELECT * FROM productos WHERE usuarioId = {$vendedor->id} AND id != {$producto->id}");
                 
+                // Obtenemos los IDs de esos productos
                 $ids_productos_vendedor = array_column($historial_otros_productos, 'id');
 
                 if (!empty($ids_productos_vendedor)) {
-                    // Obtenemos historial de otros reportes del vendedor
-                    $todos_los_reportes = ReporteProducto::all();
-                    $historial_otros_reportes = array_filter($todos_los_reportes, function($r) use ($ids_productos_vendedor) {
-                        return in_array($r->productoId, $ids_productos_vendedor);
-                    });
+                    // Obtenemos los reportes asociados a esos productos directamente desde la BD
+                    $ids_string = implode(',', $ids_productos_vendedor);
+                    $historial_otros_reportes = ReporteProducto::consultarSQL("SELECT * FROM reportes_productos WHERE productoId IN ({$ids_string})");
                 }
             }
         }
@@ -105,7 +96,7 @@ class AdminReportesController {
             'reporte' => $reporte,
             'producto' => $producto,
             'vendedor' => $vendedor,
-            'imagen_producto' => $imagen_producto, 
+            'imagenes_producto' => $imagenes_producto ?? [], 
             'historial_otros_productos' => $historial_otros_productos,
             'historial_otros_reportes' => $historial_otros_reportes
         ], 'admin-layout');

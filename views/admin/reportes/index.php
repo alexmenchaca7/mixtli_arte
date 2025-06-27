@@ -1,7 +1,7 @@
 <h2 class="dashboard__heading"><?php echo $titulo; ?></h2>
 
-<div class="dashboard__contenedor">
-    <?php if(!empty($reportes)): ?>
+<?php if(!empty($reportes)): ?>
+    <div class="dashboard__contenedor">
         <div class="dashboard__contenedor-tabla">
             <table class="table">
                 <thead class="table__thead">
@@ -35,8 +35,9 @@
                 </tbody>
             </table>
         </div>
-        <?php echo $paginacion; ?>
-    <?php else: ?>
-        <p class="t-align-center">No hay reportes de productos.</p>
-    <?php endif; ?>
-</div>
+    </div>
+<?php else: ?>
+    <p class="t-align-center">No hay reportes de productos.</p>
+<?php endif; ?>
+
+<?php echo $paginacion; ?>
