@@ -70,51 +70,30 @@ class RecomendacionController {
                 if ($interaccion->productoId) {
                     $producto = Producto::find($interaccion->productoId);
                     if ($producto && $producto->categoriaId) {
-                        $catIdsEncontradas[] = $producto->categoriaId;
-                        $descripcionInteraccion .= " en producto ID {$interaccion->productoId}";
+                        $catId = $producto->categoriaId;
                     }
-                } elseif ($interaccion->tipo === 'autocompletado_categoria') {
+                } elseif ($interaccion->tipo === 'busqueda' || strpos($interaccion->tipo, 'autocompletado') === 0) {
                     $metadata = json_decode($interaccion->metadata, true);
-                    $termino = $metadata['termino'] ?? '';
-                    if ($termino) {
-                        $categoria = Categoria::where('nombre', $termino);
-                        if ($categoria) $catIdsEncontradas[] = $categoria->id;
-                        $descripcionInteraccion .= " para el término '{$termino}'";
-                    }
-                } elseif ($interaccion->tipo === 'busqueda') {
-                    $metadata = json_decode($interaccion->metadata, true);
-                    $termino = $metadata['termino'] ?? null;
-                    $descripcionInteraccion .= " para el término '{$termino}'";
-
-                    if ($termino) {
-                        // Prioridad 1: Búsqueda de categoría exacta.
-                        $categoriaExacta = Categoria::where('nombre', $termino);
-                        if ($categoriaExacta) {
-                            $catIdsEncontradas[] = $categoriaExacta->id;
-                        } else {
-                            // Prioridad 2: Búsqueda de producto exacto.
-                            $productoExacto = Producto::where('nombre', $termino);
-                            if ($productoExacto && $productoExacto->categoriaId) {
-                                $catIdsEncontradas[] = $productoExacto->categoriaId;
-                            } else {
-                                // Prioridad 3: Búsqueda aproximada (LIKE).
-                                $idsPorLike = self::buscarCategoriasPorTerminoAproximado($termino);
-                                $catIdsEncontradas = array_merge($catIdsEncontradas, $idsPorLike);
-                            }
+                    $terminoBusqueda = $metadata['termino'] ?? '';
+                    
+                    if (!empty($terminoBusqueda)) {
+                        // Buscar la categoría por nombre
+                        $categoriaEncontrada = Categoria::where('nombre', $terminoBusqueda);
+                        if ($categoriaEncontrada) {
+                            $catId = $categoriaEncontrada->id;
+                            $descripcionInteraccion .= " para el término '{$terminoBusqueda}'";
                         }
                     }
                 }
                 
-                // --- Acumulación de Pesos ---
-                if (!empty($catIdsEncontradas) && $peso > 0) {
-                    $catIdsUnicas = array_unique($catIdsEncontradas);
-                    foreach ($catIdsUnicas as $catId) {
-                        if (!isset($categoriasInteres[$catId])) {
-                            $categoriasInteres[$catId] = ['total' => 0, 'breakdown' => []];
-                        }
-                        $categoriasInteres[$catId]['total'] += $peso;
-                        $categoriasInteres[$catId]['breakdown'][] = "{$descripcionInteraccion}: +{$peso}";
+                // --- Acumulación de Pesos y Desglose ---
+                if ($catId && $peso > 0) { // Solo sumar si el peso es mayor a cero
+                    if (!isset($categoriasInteres[$catId])) {
+                        // Inicializa la estructura para esta categoría si es la primera vez que la vemos
+                        $categoriasInteres[$catId] = ['total' => 0, 'breakdown' => []];
                     }
+                    $categoriasInteres[$catId]['total'] += $peso;
+                    $categoriasInteres[$catId]['breakdown'][] = $descripcionInteraccion;
                 }
             }
 
@@ -184,22 +163,6 @@ class RecomendacionController {
         return array_keys($categoriasInteres);
     }
 
-
-    // Busca categorías basándose en un término de búsqueda aproximado.
-    private static function buscarCategoriasPorTerminoAproximado(string $termino): array {
-        $catIds = [];
-        // Asume que tienes un método searchByTerm en tus modelos
-        $productos = Producto::searchByTerm($termino); 
-        foreach ($productos as $producto) {
-            if ($producto->categoriaId) $catIds[] = $producto->categoriaId;
-        }
-        $categorias = Categoria::searchByTerm($termino);
-        foreach ($categorias as $categoria) {
-            $catIds[] = $categoria->id;
-        }
-        return array_unique($catIds);
-    }
-    
 
     private static function obtenerPesoInteraccion(string $tipo): int
     {
