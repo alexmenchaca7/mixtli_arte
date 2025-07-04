@@ -317,115 +317,137 @@
     <?php endif; ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Lógica de la barra de búsqueda y autocompletado ---
+            const formBusqueda = document.querySelector('.busqueda form'); // Apunta al formulario
             const inputBusqueda = document.getElementById('busqueda');
             const listaSugerencias = document.getElementById('sugerencias');
 
-            if (inputBusqueda && listaSugerencias) {
+            if (formBusqueda && inputBusqueda && listaSugerencias) {
+                
+                // Registrar la búsqueda cuando se envía el formulario
+                formBusqueda.addEventListener('submit', (e) => {
+                    const termino = inputBusqueda.value.trim();
+                    if (termino) {
+                        registrarInteraccion({
+                            tipo: 'busqueda',
+                            metadata: { termino: termino }
+                        });
+                    }
+                    // No detenemos el envío, el formulario debe funcionar normalmente.
+                });
+
                 inputBusqueda.addEventListener('input', async (e) => {
-                    const termino = e.target.value; // Ya no usamos .trim() aquí
+                    const termino = e.target.value;
 
                     if (termino.length < 2) {
-                        listaSugerencias.innerHTML = '';
+                        listaSugerencias.style.display = 'none';
                         return;
                     }
-
+                    
                     try {
-                        // La sanitización ahora se hace en el backend, pero mantenemos una aquí para la URL.
-                        // Es crucial que el `replace` aquí SÍ permita espacios.
                         const terminoSanitizado = termino.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '');
                         const response = await fetch(`/marketplace/autocompletar?q=${encodeURIComponent(terminoSanitizado)}`);
                         const data = await response.json();
-
-                        listaSugerencias.innerHTML = '';
-
-                        if (data.productos.length > 0) {
-                            listaSugerencias.innerHTML += '<li class="sugerencia-header">Productos</li>';
-                            data.productos.forEach(producto => {
-                                const li = document.createElement('li');
-                                li.textContent = producto.nombre;
-                                li.classList.add('sugerencia-item');
-                                li.dataset.url = `/marketplace/producto?id=${producto.id}`;
-                                listaSugerencias.appendChild(li);
-                            });
-                        }
-
-                        if (data.categorias.length > 0) {
-                            listaSugerencias.innerHTML += '<li class="sugerencia-header">Categorías</li>';
-                            data.categorias.forEach(categoria => {
-                                const li = document.createElement('li');
-                                li.textContent = categoria.nombre;
-                                li.classList.add('sugerencia-item');
-                                li.dataset.url = `/marketplace?categoria=${categoria.id}`;
-                                listaSugerencias.appendChild(li);
-                            });
-                        }
-
-                        if (data.usuarios.length > 0) {
-                            listaSugerencias.innerHTML += '<li class="sugerencia-header">Artistas</li>';
-                            data.usuarios.forEach(usuario => {
-                                const li = document.createElement('li');
-                                li.textContent = usuario.nombre + ' ' + usuario.apellido;
-                                li.classList.add('sugerencia-item');
-                                li.dataset.url = `/perfil?id=${usuario.id}`;
-                                listaSugerencias.appendChild(li);
-                            });
-                        }
-
-                        document.querySelectorAll('.sugerencia-item').forEach(item => {
-                            item.addEventListener('click', () => {
-                                const url = item.dataset.url;
-                                const tipoSugerencia = item.parentElement.previousElementSibling.textContent.trim();
-                                let tipoInteraccion = 'autocompletado_termino'; // Tipo por defecto
-                                let idEntidad = null;
-                                let metadata = {
-                                    termino: item.textContent.trim()
-                                };
-
-                                if (tipoSugerencia === 'Productos') {
-                                    tipoInteraccion = 'autocompletado_producto';
-                                    const urlParams = new URLSearchParams(url.split('?')[1]);
-                                    idEntidad = urlParams.get('id');
-                                } else if (tipoSugerencia === 'Categorías') {
-                                    tipoInteraccion = 'autocompletado_categoria';
-                                    const urlParams = new URLSearchParams(url.split('?')[1]);
-                                    idEntidad = urlParams.get('categoria');
-                                }
-
-                                const interaccionData = {
-                                    tipo: tipoInteraccion,
-                                    productoId: tipoInteraccion === 'autocompletado_producto' ? idEntidad : null,
-                                    metadata: metadata
-                                };
-
-                                // Enviar la interacción al backend
-                                fetch('/interaccion/registrar', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify(interaccionData)
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if(data.success) {
-                                        console.log('Interacción de autocompletado registrada.');
-                                    }
-                                })
-                                .catch(error => console.error('Error al registrar interacción:', error))
-                                .finally(() => {
-                                    // Redirigir después de intentar registrar
-                                    window.location.href = url;
-                                });
-                            });
-                        });
-
+                        
+                        renderizarSugerencias(data);
                     } catch (error) {
                         console.error('Error al obtener sugerencias:', error);
+                        listaSugerencias.style.display = 'none';
                     }
                 });
 
                 // Cierra las sugerencias si se hace clic fuera
                 document.addEventListener('click', (e) => {
                     if (!e.target.closest('.busqueda')) {
-                        listaSugerencias.innerHTML = '';
+                        listaSugerencias.style.display = 'none';
+                    }
+                });
+            }
+
+            function renderizarSugerencias(data) {
+                listaSugerencias.innerHTML = '';
+                let haySugerencias = false;
+
+                const crearItemSugerencia = (item, tipo) => {
+                    const li = document.createElement('li');
+                    li.classList.add('sugerencia-item');
+                    li.dataset.tipo = tipo; 
+
+                    switch (tipo) {
+                        case 'producto':
+                            li.textContent = item.nombre;
+                            li.dataset.id = item.id;
+                            li.dataset.url = `/marketplace/producto?id=${item.id}`;
+                            break;
+                        case 'categoria':
+                            li.textContent = item.nombre;
+                            li.dataset.id = item.id;
+                            li.dataset.nombre = item.nombre; 
+                            li.dataset.url = `/marketplace?categoria=${item.id}`;
+                            break;
+                        case 'usuario':
+                            li.textContent = `${item.nombre} ${item.apellido}`;
+                            li.dataset.id = item.id;
+                            li.dataset.url = `/perfil?id=${item.id}`;
+                            break;
+                    }
+                    return li;
+                };
+
+                const agregarSeccion = (titulo, items, tipo) => {
+                    if (items.length > 0) {
+                        haySugerencias = true;
+                        listaSugerencias.innerHTML += `<li class="sugerencia-header">${titulo}</li>`;
+                        items.forEach(item => {
+                            listaSugerencias.appendChild(crearItemSugerencia(item, tipo));
+                        });
+                    }
+                };
+                
+                agregarSeccion('Productos', data.productos, 'producto');
+                agregarSeccion('Categorías', data.categorias, 'categoria');
+                agregarSeccion('Artistas', data.usuarios, 'usuario');
+
+                if (haySugerencias) {
+                    listaSugerencias.style.display = 'block';
+                    document.querySelectorAll('.sugerencia-item').forEach(item => {
+                        item.addEventListener('click', handleSugerenciaClick);
+                    });
+                } else {
+                    listaSugerencias.style.display = 'none';
+                }
+            }
+            
+            function handleSugerenciaClick(e) {
+                const item = e.currentTarget;
+                const { tipo, id, url, nombre } = item.dataset;
+                
+                let interaccionData = {
+                    tipo: `autocompletado_${tipo}`,
+                    productoId: tipo === 'producto' ? id : null,
+                    metadata: {
+                        termino: tipo === 'categoria' ? nombre : item.textContent.trim()
+                    }
+                };
+                
+                registrarInteraccion(interaccionData, url);
+            }
+
+            function registrarInteraccion(data, redirectUrl = null) {
+                fetch('/interaccion/registrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(res => {
+                    if(res.success) console.log(`Interacción '${data.tipo}' registrada.`);
+                })
+                .catch(error => console.error('Error al registrar interacción:', error))
+                .finally(() => {
+                    // **MEJORA: Solo redirige si se proporciona una URL**
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
                     }
                 });
             }

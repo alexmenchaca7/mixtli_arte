@@ -96,4 +96,11 @@ class Producto extends ActiveRecord {
         
         return $resultado;
     }
+
+
+    public static function searchByTerm(string $termino) {
+        $terminoSeguro = self::$conexion->escape_string('%' . $termino . '%'); 
+        $query = "SELECT * FROM " . static::$tabla . " WHERE nombre LIKE " . $terminoSeguro;
+        return self::consultarSQL($query); 
+    }
 }
