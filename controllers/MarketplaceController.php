@@ -127,7 +127,7 @@ class MarketplaceController {
 
         // Configuración de paginación
         $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
-        $registros_por_pagina = 12;
+        $registros_por_pagina = 15;
         
         // Obtener total de registros con las condiciones
         $total = Producto::totalCondiciones($condiciones);

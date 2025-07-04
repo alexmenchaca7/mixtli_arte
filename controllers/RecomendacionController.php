@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Model\Producto;
+use Model\Categoria;
 use Model\PreferenciaUsuario;
 use Model\HistorialInteraccion;
 
@@ -31,17 +32,31 @@ class RecomendacionController {
             $interacciones = HistorialInteraccion::whereField('usuarioId', $usuarioId);
 
             foreach ($interacciones as $interaccion) {
+                $catId = null;
+                $peso = self::obtenerPesoInteraccion($interaccion->tipo);
+
                 if ($interaccion->productoId) {
                     $producto = Producto::find($interaccion->productoId);
                     if ($producto && $producto->categoriaId) {
                         $catId = $producto->categoriaId;
-                        if (!isset($categoriasInteres[$catId])) {
-                            $categoriasInteres[$catId] = 0;
-                        }
-                        // Sumar peso según el tipo de interacción
-                        $peso = self::obtenerPesoInteraccion($interaccion->tipo);
-                        $categoriasInteres[$catId] += $peso;
                     }
+                } elseif ($interaccion->tipo === 'busqueda' && $interaccion->metadata) {
+                    $metadata = json_decode($interaccion->metadata, true);
+                    $terminoBusqueda = $metadata['termino'] ?? '';
+                    
+                    // Buscar categorías que coincidan con el término de búsqueda
+                    $categoriasEncontradas = Categoria::whereArray(['nombre LIKE' => "%{$terminoBusqueda}%"]);
+                    if (!empty($categoriasEncontradas)) {
+                        // Por simplicidad, tomamos la primera categoría encontrada
+                        $catId = $categoriasEncontradas[0]->id;
+                    }
+                }
+                
+                if ($catId) {
+                    if (!isset($categoriasInteres[$catId])) {
+                        $categoriasInteres[$catId] = 0;
+                    }
+                    $categoriasInteres[$catId] += $peso;
                 }
             }
 
@@ -71,9 +86,11 @@ class RecomendacionController {
         switch ($tipo) {
             case 'compra': return 5;
             case 'favorito': return 3;
+            case 'autocompletado_producto': return 2; // Clic en autocompletado de producto
+            case 'autocompletado_categoria': return 2; // Clic en autocompletado de categoría
             case 'clic': return 1;
             case 'tiempo_en_pagina': return 1; // Se puede ajustar si tienes el dato
-            // Las búsquedas se manejan por separado, pero se podrían integrar aquí si se asocian a categorías
+            case 'busqueda': return 1;
             default: return 0;
         }
     }

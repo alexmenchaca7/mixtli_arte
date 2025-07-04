@@ -373,7 +373,47 @@
 
                         document.querySelectorAll('.sugerencia-item').forEach(item => {
                             item.addEventListener('click', () => {
-                                window.location.href = item.dataset.url;
+                                const url = item.dataset.url;
+                                const tipoSugerencia = item.parentElement.previousElementSibling.textContent.trim();
+                                let tipoInteraccion = 'autocompletado_termino'; // Tipo por defecto
+                                let idEntidad = null;
+                                let metadata = {
+                                    termino: item.textContent.trim()
+                                };
+
+                                if (tipoSugerencia === 'Productos') {
+                                    tipoInteraccion = 'autocompletado_producto';
+                                    const urlParams = new URLSearchParams(url.split('?')[1]);
+                                    idEntidad = urlParams.get('id');
+                                } else if (tipoSugerencia === 'Categorías') {
+                                    tipoInteraccion = 'autocompletado_categoria';
+                                    const urlParams = new URLSearchParams(url.split('?')[1]);
+                                    idEntidad = urlParams.get('categoria');
+                                }
+
+                                const interaccionData = {
+                                    tipo: tipoInteraccion,
+                                    productoId: tipoInteraccion === 'autocompletado_producto' ? idEntidad : null,
+                                    metadata: metadata
+                                };
+
+                                // Enviar la interacción al backend
+                                fetch('/interaccion/registrar', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(interaccionData)
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if(data.success) {
+                                        console.log('Interacción de autocompletado registrada.');
+                                    }
+                                })
+                                .catch(error => console.error('Error al registrar interacción:', error))
+                                .finally(() => {
+                                    // Redirigir después de intentar registrar
+                                    window.location.href = url;
+                                });
                             });
                         });
 
