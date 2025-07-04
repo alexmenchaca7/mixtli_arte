@@ -46,6 +46,9 @@
             <p>No hay productos disponibles en este momento.</p>
         <?php endif; ?>
     </div>
+
+    <?php echo $paginacion; ?>
+    
 </main>
 
 <script>
