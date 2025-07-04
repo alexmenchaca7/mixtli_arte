@@ -22,14 +22,25 @@ class HistorialInteraccion extends ActiveRecord {
         $this->metadata = $args['metadata'] ?? null;
     }
 
-    // Puedes agregar este método de validación si no lo tienes
     public function validar() {
         if (!$this->tipo) {
             self::$alertas['error'][] = 'El tipo de interacción es obligatorio.';
         }
-        if (!$this->productoId) {
-            self::$alertas['error'][] = 'El producto es obligatorio para esta interacción.';
+
+        // Definimos los tipos de interacción que sí requieren un productoId
+        $tiposQueRequierenProducto = [
+            'clic',
+            'favorito',
+            'compra',
+            'autocompletado_producto',
+            'tiempo_en_pagina'
+        ];
+
+        // Solo validamos el productoId si el tipo de interacción está en la lista anterior
+        if (in_array($this->tipo, $tiposQueRequierenProducto) && !$this->productoId) {
+            self::$alertas['error'][] = 'El producto es obligatorio para este tipo de interacción.';
         }
+        
         return self::$alertas;
     }
 }
