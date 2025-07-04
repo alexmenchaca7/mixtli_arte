@@ -382,14 +382,17 @@ class MensajesController {
         $emailComprador = new Email($comprador->email, $comprador->nombre, 'Califica tu compra');
         $emailComprador->enviarNotificacionCalificacion($vendedor->nombre, $producto->nombre, $urlComprador);
 
-        // Registrar la interacción de compra
+        // Se crea un array con los datos que queremos guardar
+        $metadataArray = ['vendedorId' => $vendedorId];
+
+        // Se registra la interacción de compra, asegurando que metadata sea un texto JSON
         $interaccionCompra = new HistorialInteraccion([
             'tipo' => 'compra',
             'usuarioId' => $compradorId,
             'productoId' => $productoId,
-            'metadata' => json_encode(['vendedorId' => $vendedorId])
+            'metadata' => json_encode($metadataArray) // Usamos json_encode() para la conversión
         ]);
-        $interaccionCompra->guardar();
+        $interaccionCompra->guardar(); 
     
         echo json_encode(['success' => true, 'message' => 'Producto marcado como vendido. Sistema de calificación desbloqueado.']);
         exit();

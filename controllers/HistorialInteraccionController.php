@@ -10,42 +10,47 @@ class HistorialInteraccionController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Metodo no permitido']);
-            exit;
-        }
-
-        if (!is_auth()) {
-            http_response_code(401);
-            echo json_encode(['error' => 'No autenticado']);
-            exit;
+            return; // Usamos return en lugar de exit
         }
 
         // Manejar tanto JSON como FormData
         $input = [];
-        if (strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+        // Verificamos que CONTENT_TYPE esté definido antes de usarlo
+        if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
             $input = json_decode(file_get_contents('php://input'), true);
         } else {
-            // Si es FormData o urlencoded, PHP lo pone en $_POST
             $input = $_POST;
         }
 
-        $metadata = null;
-        if (isset($input['metadata'])) {
-            // Si metadata viene como string (desde FormData), decodificarlo.
-            $metadata = is_string($input['metadata']) ? json_decode($input['metadata'], true) : $input['metadata'];
+        if (empty($input)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No se recibieron datos']);
+            return;
         }
+
+        // Hacemos la autenticación opcional. Si hay sesión, guardamos el ID. Si no, será null.
+        $usuarioId = is_auth() ? $_SESSION['id'] : null;
 
         $interaccion = new HistorialInteraccion([
             'tipo' => $input['tipo'] ?? '',
-            'usuarioId' => $_SESSION['id'],
+            'usuarioId' => $usuarioId, // Asignamos el ID de usuario (puede ser null)
             'productoId' => $input['productoId'] ?? null,
             'metadata' => isset($input['metadata']) ? json_encode($input['metadata']) : null
         ]);
 
-        $alertas = $interaccion->validar(); // Suponiendo que tienes un método validar en el modelo
+        $alertas = $interaccion->validar();
 
         if (empty($alertas)) {
-            $interaccion->guardar();
-            echo json_encode(['success' => true]);
+            // Verificamos el resultado de guardar()
+            $resultado = $interaccion->guardar();
+
+            if ($resultado) {
+                echo json_encode(['success' => true, 'data' => $interaccion]);
+            } else {
+                http_response_code(500); // Error de servidor
+                echo json_encode(['success' => false, 'error' => 'No se pudo guardar la interacción en la base de datos.']);
+            }
+
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'errores' => $alertas]);

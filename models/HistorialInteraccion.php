@@ -17,8 +17,19 @@ class HistorialInteraccion extends ActiveRecord {
         $this->id = $args['id'] ?? null;
         $this->tipo = $args['tipo'] ?? ''; 
         $this->fecha = $args['fecha'] ?? date('Y-m-d H:i:s');
-        $this->usuarioId = $args['usuarioId'] ?? '';
-        $this->productoId = $args['productoId'] ?? '';
-        $this->metadata = $args['metadata'] ?? '[]';
+        $this->usuarioId = $args['usuarioId'] ?? null;
+        $this->productoId = $args['productoId'] ?? null;
+        $this->metadata = $args['metadata'] ?? null;
+    }
+
+    // Puedes agregar este método de validación si no lo tienes
+    public function validar() {
+        if (!$this->tipo) {
+            self::$alertas['error'][] = 'El tipo de interacción es obligatorio.';
+        }
+        if (!$this->productoId) {
+            self::$alertas['error'][] = 'El producto es obligatorio para esta interacción.';
+        }
+        return self::$alertas;
     }
 }
