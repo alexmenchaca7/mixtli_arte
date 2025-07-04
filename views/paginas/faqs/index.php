@@ -123,6 +123,10 @@
         list-style: none; /* Oculta el marcador de lista por defecto */
     }
 
+    .faq-question::-webkit-details-marker {
+        display: none; /* Oculta la flecha en Chrome, Safari, Edge */
+    }
+
     /* Estilo para el ícono de expandir/colapsar */
     .faq-question::marker {
         display: none;

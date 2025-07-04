@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="<?php echo get_asset('app.css'); ?>">
 </head>
 <body class="dashboard">
+    
     <div class="overlay"></div> <?php 
         include_once __DIR__ .'/templates/admin-header.php';
     ?>
