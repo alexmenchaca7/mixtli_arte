@@ -9,6 +9,7 @@ use Model\Usuario;
 use Model\Producto;
 use Model\Valoracion;
 use Model\Notificacion;
+use Model\HistorialInteraccion;
 
 class MensajesController {
     protected static $plantillasMensajes = [
@@ -380,6 +381,15 @@ class MensajesController {
 
         $emailComprador = new Email($comprador->email, $comprador->nombre, 'Califica tu compra');
         $emailComprador->enviarNotificacionCalificacion($vendedor->nombre, $producto->nombre, $urlComprador);
+
+        // Registrar la interacción de compra
+        $interaccionCompra = new HistorialInteraccion([
+            'tipo' => 'compra',
+            'usuarioId' => $compradorId,
+            'productoId' => $productoId,
+            'metadata' => json_encode(['vendedorId' => $vendedorId])
+        ]);
+        $interaccionCompra->guardar();
     
         echo json_encode(['success' => true, 'message' => 'Producto marcado como vendido. Sistema de calificación desbloqueado.']);
         exit();
