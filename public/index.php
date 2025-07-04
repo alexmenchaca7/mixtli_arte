@@ -20,6 +20,7 @@ use Controllers\AdminReportesController;
 use Controllers\DashboardAdminController;
 use Controllers\AdminValoracionesController;
 use Controllers\DashboardVendedorController;
+use Controllers\HistorialInteraccionController;
 
 $router = new Router();
 
@@ -109,6 +110,8 @@ $router->post('/api/heartbeat', [AuthController::class, 'heartbeat']);
 
 $router->post('/valoraciones/guardar', [ValoracionesController::class, 'guardar']);
 $router->post('/valoraciones/reportar', [ValoracionesController::class, 'reportar']);
+
+$router->post('/interaccion/registrar', [HistorialInteraccionController::class, 'registrar']);
 
 
 

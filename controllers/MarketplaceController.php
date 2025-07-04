@@ -15,6 +15,7 @@ use Model\Notificacion;
 use Model\ImagenProducto;
 use Model\ReporteProducto;
 use Model\PreferenciaUsuario;
+use Model\HistorialInteraccion;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -36,6 +37,17 @@ class MarketplaceController {
         }
 
         $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
+
+        // Guardando las busquedas realizadas en el historial de interacciones
+        if (!empty($busqueda) && is_auth()) {
+            $interaccion = new HistorialInteraccion([
+                'tipo' => 'busqueda',
+                'usuarioId' => $_SESSION['id'],
+                'metadata' => json_encode(['termino' => $busqueda])
+            ]);
+            $interaccion->guardar();
+        }
+
         $categoriaId = filter_var($_GET['categoria'] ?? null, FILTER_VALIDATE_INT);
         $condiciones = [];
         $titulo = 'Para Ti';
@@ -85,22 +97,20 @@ class MarketplaceController {
             $categoria = Categoria::find($categoriaId);
             $titulo = $categoria ? $categoria->nombre : $titulo;
         } else {
-            // --- LÓGICA DE PERSONALIZACIÓN ---
-            $preferencias = PreferenciaUsuario::where('usuarioId', $usuarioId);
-            $categoriasIdsPref = $preferencias ? json_decode($preferencias->categorias, true) : [];
+            // --- LÓGICA DE PERSONALIZACIÓN Y RECOMENDACIÓN ---
+            $categoriasRecomendadasIds = RecomendacionController::obtenerCategoriasRecomendadas($usuarioId);
 
-            if (!empty($categoriasIdsPref)) {
+            if (!empty($categoriasRecomendadasIds)) {
                 $titulo = 'Para Ti';
-                $idsSeguros = array_map('intval', $categoriasIdsPref);
-                $idsString = implode(',', $idsSeguros);
-                if (!empty($idsString)) {
-                    $condiciones[] = "categoriaId IN ($idsString)";
-                }
+                $idsString = implode(',', $categoriasRecomendadasIds);
+                $condiciones[] = "categoriaId IN ($idsString)";
+                // Para mantener el orden de relevancia, podemos usar FIELD en la cláusula ORDER BY
+                $ordenPersonalizado = "FIELD(categoriaId, $idsString)";
             } else {
-                // FALLBACK: Si no hay preferencias, mostrar de categorías populares
+                // FALLBACK: Si no hay NADA (ni preferencias, ni interacciones), mostrar de categorías populares
                 $titulo = 'Productos Populares';
                 // Consulta para obtener IDs de las 5 categorías con más productos
-                $queryPopulares = "SELECT categoriaId, COUNT(id) as total FROM productos GROUP BY categoriaId ORDER BY total DESC LIMIT 5";
+                $queryPopulares = "SELECT categoriaId, COUNT(id) as total FROM productos WHERE estado != 'agotado' GROUP BY categoriaId ORDER BY total DESC LIMIT 5";
                 $resultadoPopulares = Producto::consultarSQL($queryPopulares);
                 
                 $idsPopulares = [];
@@ -117,7 +127,7 @@ class MarketplaceController {
 
         // Configuración de paginación
         $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
-        $registros_por_pagina = 10;
+        $registros_por_pagina = 12;
         
         // Obtener total de registros con las condiciones
         $total = Producto::totalCondiciones($condiciones);
@@ -130,10 +140,13 @@ class MarketplaceController {
             exit();
         }
 
+        // Modificamos el orden para priorizar la recomendación
+        $orden = isset($ordenPersonalizado) ? $ordenPersonalizado . ', RAND()' : 'creado DESC';
+
         // Obtener productos con paginación
         $params = [
             'condiciones' => $condiciones,
-            'orden' => 'creado DESC',
+            'orden' => $orden,
             'limite' => $registros_por_pagina,
             'offset' => $paginacion->offset()
         ];

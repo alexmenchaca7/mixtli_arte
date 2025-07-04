@@ -360,3 +360,39 @@ if ($usuarioId) {
         }
     });
 </script>
+
+<script>
+    // --- Clics y Tiempo en Página de Productos ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const productoId = <?= $producto->id ?>;
+        let startTime = Date.now();
+
+        // Usaremos FormData para asegurar el envío correcto del ID.
+        const clicData = new FormData();
+        clicData.append('tipo', 'clic');
+        clicData.append('productoId', productoId);
+
+        // Registrar un 'clic'
+        fetch('/interaccion/registrar', {
+            method: 'POST',
+            body: clicData
+        }).catch(error => console.error('Error al registrar clic:', error));
+
+        // Registrar 'tiempo_en_pagina' cuando el usuario abandona la página
+        window.addEventListener('beforeunload', () => {
+            const endTime = Date.now();
+            const tiempoEnSegundos = Math.round((endTime - startTime) / 1000);
+
+            // Solo registrar si el usuario pasó al menos 5 segundos para evitar registros accidentales
+            if (tiempoEnSegundos > 5) { 
+                const beaconData = new FormData();
+                beaconData.append('tipo', 'tiempo_en_pagina');
+                beaconData.append('productoId', productoId);
+                beaconData.append('metadata', JSON.stringify({ segundos: tiempoEnSegundos }));
+
+                // sendBeacon es ideal para esto, ya que garantiza el envío sin bloquear la descarga de la página
+                navigator.sendBeacon('/interaccion/registrar', beaconData);
+            }
+        });
+    });
+</script>

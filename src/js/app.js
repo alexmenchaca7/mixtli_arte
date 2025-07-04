@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Variables para el Modal de Categorías (Tu código existente)
+    // Variables para el Modal de Categorías
     const categoriasBtn = document.getElementById("categorias-btn");
     const categoriasModal = document.getElementById("categorias-modal");
     const closeBtn = document.querySelector(".close");
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /** CONTADORES ANIMADOS (Tu código existente) **/
+    /** CONTADORES ANIMADOS **/
     const contadores = document.querySelectorAll(".contador");
     const duracion = 500;
 
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- CÓDIGO DEFINITIVO PARA EL DASHBOARD RESPONSIVE ---
+    // --- DASHBOARD RESPONSIVE ---
     const mobileMenuBtn = document.querySelector('.dashboard__mobile-menu');
     const sidebar = document.querySelector('.dashboard__sidebar');
 

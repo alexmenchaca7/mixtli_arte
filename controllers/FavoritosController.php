@@ -5,6 +5,7 @@ use MVC\Router;
 use Model\Favorito;
 use Model\Producto;
 use Model\ImagenProducto;
+use Model\HistorialInteraccion;
 
 class FavoritosController {
     public static function index(Router $router) {
@@ -76,6 +77,16 @@ class FavoritosController {
             ]);
             $resultado = $favorito->guardar();
             $accion = 'added';
+
+            // Registrando la interaccion en el historial cuando se añade, no cuando se quita
+            if($resultado) {
+                $interaccion = new HistorialInteraccion([
+                    'tipo' => 'favorito',
+                    'usuarioId' => $usuarioId,
+                    'productoId' => $productoId
+                ]);
+                $interaccion->guardar();
+            }
         }
 
         // Asegurar que siempre se devuelva JSON válido
