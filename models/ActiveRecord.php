@@ -95,7 +95,7 @@ class ActiveRecord {
             // Verificamos si el valor es null o vacío y lo reemplazamos por null
             if ($value === NULL || $value === '') {
                 $sanitizado[$key] = NULL;  // Reemplazamos con NULL
-            } elseif ($key === 'palabras_clave' || $key === 'categorias') {
+            } elseif ($key === 'palabras_clave' || $key === 'categorias' || $key === 'metadata') {
                 // For JSON columns like 'palabras_clave', do NOT escape the string.
                 // The JSON string should be inserted as is. MySQL will validate it.
                 $sanitizado[$key] = $value; //
@@ -260,19 +260,27 @@ class ActiveRecord {
         $columnas = join(', ', array_keys($atributos)); // Crear un string a partir de las llaves del arreglo
         $filas = [];
 
+        // Definir qué columnas son JSON
+        $json_columns = ['palabras_clave', 'categorias', 'metadata'];
+
         // Reemplazar los valores NULL por la palabra 'NULL' en la consulta
-        foreach (array_values($atributos) as $value) {
+        foreach ($atributos as $key => $value) {
             if ($value === null) {
-                $filas[] = 'NULL'; // Si el valor es NULL, se agrega 'NULL' a la consulta
+                $filas[] = 'NULL';
+            } elseif (in_array($key, $json_columns)) {
+                // Para columnas JSON, no escapar y no añadir comillas extra.
+                // Se asume que el valor ya es un string JSON válido.
+                $filas[] = "'" . self::$conexion->escape_string($value) . "'";
             } else {
-                $filas[] = "'" . self::$conexion->escape_string($value) . "'"; // Si no es NULL, escapamos y agregamos comillas
+                // Para otros valores, escapar y añadir comillas.
+                $filas[] = "'" . self::$conexion->escape_string($value) . "'";
             }
         }
 
-        $filas = join(", ", $filas); // Convertir el array a un string de valores
+        $filas_string = join(", ", $filas);
 
-        // Reemplazar las comillas adicionales antes de insertar en la consulta
-        $query = "INSERT INTO " . static::$tabla . " ($columnas) VALUES ($filas)";
+        // Construir la consulta SQL
+        $query = "INSERT INTO " . static::$tabla . " ($columnas) VALUES ($filas_string)";
 
         // Ejecutar la consulta
         $resultado = self::$conexion->query($query); 
