@@ -128,11 +128,12 @@ class RecomendacionController {
         $logContent .= "Fecha: " . date('Y-m-d H:i:s') . "\n";
         $logContent .= "Usuario ID: " . $usuarioId . "\n\n";
         $logContent .= "Fórmula de Pesos por Interacción:\n";
+        $logContent .= " - Compra: 15\n";
         $logContent .= " - Preferencia Explícita: 10\n";
-        $logContent .= " - Compra: 5\n";
-        $logContent .= " - Favorito: 3\n";
-        $logContent .= " - Clic en Autocompletado: 2\n";
-        $logContent .= " - Clic, Búsqueda: 1\n";
+        $logContent .= " - Favorito: 8\n";
+        $logContent .= " - Clic en Autocompletado: 5\n";
+        $logContent .= " - Búsqueda: 3\n";
+        $logContent .= " - Clic: 1\n";
         $logContent .= " - Tiempo en Página: 1 punto por cada 20s (máx 5)\n\n";
 
         $logContent .= "Cálculo Detallado de Intereses por Categoría:\n";

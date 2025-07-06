@@ -2063,3 +2063,958 @@ Orden Final de Categorías Recomendadas (por ID):
 2, 10, 7, 9
 -------------------------------------------------
 
+-------------------------------------------------
+Fecha: 2025-07-04 11:13:28
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 25
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 53: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 54: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 11:13:55
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 31
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 53: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'autocompletado_producto' en producto ID 54: +5
+    - Interacción 'clic' en producto ID 54: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 11:14:50
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 31
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 53: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'autocompletado_producto' en producto ID 54: +5
+    - Interacción 'clic' en producto ID 54: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 11:15:10
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 31
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 53: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'autocompletado_producto' en producto ID 54: +5
+    - Interacción 'clic' en producto ID 54: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Cuidado personal'
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 11:15:26
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 31
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 53: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'autocompletado_producto' en producto ID 54: +5
+    - Interacción 'clic' en producto ID 54: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Cuidado personal'
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 11:15:30
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 31
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 53: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'autocompletado_producto' en producto ID 54: +5
+    - Interacción 'clic' en producto ID 54: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Cuidado personal'
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 11:15:33
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 31
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 53: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 56: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 55: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'autocompletado_producto' en producto ID 54: +5
+    - Interacción 'clic' en producto ID 54: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+    - Interacción 'busqueda' en producto ID : +3 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Cuidado personal'
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:09:59
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:11:40
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:13:18
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Preferencia Explícita: 10
+ - Compra: 5
+ - Favorito: 3
+ - Clic en Autocompletado: 2
+ - Clic, Búsqueda: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:14:26
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:16:01
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:16:39
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:17:08
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 23
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 54: +1
+    - Agregó a favoritos producto ID 54: +8
+    - Tiempo en Página (39s) en producto ID 54: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 53: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 33: +1
+    - Interacción 'clic' en producto ID 31: +1
+    - Interacción 'clic' en producto ID 87: +1
+    - Interacción 'clic' en producto ID 37: +1
+    - Interacción 'clic' en producto ID 87: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 4
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 65: +1
+    - Interacción 'clic' en producto ID 106: +1
+    - Interacción 'clic' en producto ID 104: +1
+    - Interacción 'clic' en producto ID 108: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:19:00
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 23
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 54: +1
+    - Agregó a favoritos producto ID 54: +8
+    - Tiempo en Página (39s) en producto ID 54: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 53: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 33: +1
+    - Interacción 'clic' en producto ID 31: +1
+    - Interacción 'clic' en producto ID 87: +1
+    - Interacción 'clic' en producto ID 37: +1
+    - Interacción 'clic' en producto ID 87: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 4
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 65: +1
+    - Interacción 'clic' en producto ID 106: +1
+    - Interacción 'clic' en producto ID 104: +1
+    - Interacción 'clic' en producto ID 108: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:19:18
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 23
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 54: +1
+    - Agregó a favoritos producto ID 54: +8
+    - Tiempo en Página (39s) en producto ID 54: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 53: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 33: +1
+    - Interacción 'clic' en producto ID 31: +1
+    - Interacción 'clic' en producto ID 87: +1
+    - Interacción 'clic' en producto ID 37: +1
+    - Interacción 'clic' en producto ID 87: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 4
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 65: +1
+    - Interacción 'clic' en producto ID 106: +1
+    - Interacción 'clic' en producto ID 104: +1
+    - Interacción 'clic' en producto ID 108: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:19:31
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 23
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 54: +1
+    - Agregó a favoritos producto ID 54: +8
+    - Tiempo en Página (39s) en producto ID 54: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 53: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 33: +1
+    - Interacción 'clic' en producto ID 31: +1
+    - Interacción 'clic' en producto ID 87: +1
+    - Interacción 'clic' en producto ID 37: +1
+    - Interacción 'clic' en producto ID 87: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 4
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 65: +1
+    - Interacción 'clic' en producto ID 106: +1
+    - Interacción 'clic' en producto ID 104: +1
+    - Interacción 'clic' en producto ID 108: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:20:13
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 23
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 54: +1
+    - Agregó a favoritos producto ID 54: +8
+    - Tiempo en Página (39s) en producto ID 54: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 53: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 33: +1
+    - Interacción 'clic' en producto ID 31: +1
+    - Interacción 'clic' en producto ID 87: +1
+    - Interacción 'clic' en producto ID 37: +1
+    - Interacción 'clic' en producto ID 87: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 4
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 65: +1
+    - Interacción 'clic' en producto ID 106: +1
+    - Interacción 'clic' en producto ID 104: +1
+    - Interacción 'clic' en producto ID 108: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:20:37
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 23
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 54: +1
+    - Agregó a favoritos producto ID 54: +8
+    - Tiempo en Página (39s) en producto ID 54: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 53: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 33: +1
+    - Interacción 'clic' en producto ID 31: +1
+    - Interacción 'clic' en producto ID 87: +1
+    - Interacción 'clic' en producto ID 37: +1
+    - Interacción 'clic' en producto ID 87: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 4
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 65: +1
+    - Interacción 'clic' en producto ID 106: +1
+    - Interacción 'clic' en producto ID 104: +1
+    - Interacción 'clic' en producto ID 108: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+7, 9, 10, 2, 12, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-04 14:20:58
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Clic, Búsqueda: 3
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 83.25
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 26: +1
+    - Interacción 'clic' en producto ID 70: +1
+    - Interacción 'clic' en producto ID 68: +1
+    - Interacción 'clic' en producto ID 10: +1
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Juguetes tradicionales'
+    - Interacción 'clic' en producto ID 72: +1
+    - Agregó a favoritos producto ID 72: +8
+    - Interacción 'clic' en producto ID 10: +1
+    - Agregó a favoritos producto ID 10: +8
+    - Multiplicador por favoritos (x1.5): 37 -> 55.5
+    - Multiplicador por favoritos (x1.5): 55.5 -> 83.25
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 34.5
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 54: +1
+    - Agregó a favoritos producto ID 54: +8
+    - Tiempo en Página (39s) en producto ID 54: +1
+    - Interacción 'clic' en producto ID 57: +1
+    - Interacción 'clic' en producto ID 54: +1
+    - Interacción 'clic' en producto ID 53: +1
+    - Multiplicador por favoritos (x1.5): 23 -> 34.5
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Regalos'
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 33: +1
+    - Interacción 'clic' en producto ID 31: +1
+    - Interacción 'clic' en producto ID 87: +1
+    - Interacción 'clic' en producto ID 37: +1
+    - Interacción 'clic' en producto ID 87: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 4
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 65: +1
+    - Interacción 'clic' en producto ID 106: +1
+    - Interacción 'clic' en producto ID 104: +1
+    - Interacción 'clic' en producto ID 108: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+9, 7, 10, 2, 12, 8
+-------------------------------------------------
+
