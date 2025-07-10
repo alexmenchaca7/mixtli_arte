@@ -7,7 +7,7 @@ use DateTime;
 class Usuario extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia', 'last_active', 'preferencias_entrega'];
+    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia', 'last_active', 'preferencias_entrega', 'violaciones_count', 'bloqueado_hasta', 'bloqueado_permanentemente'];
     protected static $tabla = 'usuarios';
 
     // Propiedad con las columnas a buscar
@@ -31,6 +31,9 @@ class Usuario extends ActiveRecord {
     public $biografia;
     public $last_active;
     public $preferencias_entrega; 
+    public $violaciones_count;
+    public $bloqueado_hasta;
+    public $bloqueado_permanentemente;
 
     public $password_actual;
     public $password_nuevo; 
@@ -55,6 +58,9 @@ class Usuario extends ActiveRecord {
         $this->biografia = $args['biografia'] ?? '';
         $this->last_active  = $args['last_active '] ?? date('Y-m-d H:i:s');
         $this->preferencias_entrega = $args['preferencias_entrega'] ?? '';
+        $this->violaciones_count = $args['violaciones_count'] ?? 0;
+        $this->bloqueado_hasta = $args['bloqueado_hasta'] ?? null;
+        $this->bloqueado_permanentemente = $args['bloqueado_permanentemente'] ?? 0;
     }
 
     // Busca todos los usuarios con rol de administrador
@@ -249,4 +255,51 @@ class Usuario extends ActiveRecord {
             'tipo' => 'comercial'
         ]);
     }    
+
+    // REGISTRAR VIOLACIÓN Y APLICAR SANCIÓN
+    public function registrarViolacion($motivo, $reporteId = null) {
+        // Registrar la violación
+        $violacion = new VendedorViolacion([
+            'vendedor_id' => $this->id,
+            'reporte_id' => $reporteId,
+            'motivo' => $motivo,
+            'fecha' => date('Y-m-d H:i:s')
+        ]);
+        $violacion->guardar();
+
+        // Actualizar contador de violaciones
+        $this->violaciones_count++;
+        
+        // Aplicar sanciones según las reglas
+        if ($this->violaciones_count >= 5) { // 5 violaciones acumuladas: Bloqueo permanente
+            $this->bloqueado_permanentemente = 1;
+            $this->bloqueado_hasta = null; // Limpiar bloqueo temporal si existe
+        } elseif ($this->violaciones_count >= 3) { // 3 violaciones: Bloqueo temporal por una semana
+            $fecha_bloqueo = new DateTime();
+            $fecha_bloqueo->modify('+1 week');
+            $this->bloqueado_hasta = $fecha_bloqueo->format('Y-m-d H:i:s');
+        }
+
+        // Guardar los cambios en el usuario
+        $this->guardar();
+    }
+
+    // VERIFICAR SI LA CUENTA ESTÁ BLOQUEADA
+    public function estaBloqueado() {
+        if ($this->bloqueado_permanentemente) {
+            return ['bloqueado' => true, 'tipo' => 'permanente'];
+        }
+        if ($this->bloqueado_hasta) {
+            $ahora = new DateTime();
+            $fecha_bloqueo = new DateTime($this->bloqueado_hasta);
+            if ($ahora < $fecha_bloqueo) {
+                return ['bloqueado' => true, 'tipo' => 'temporal', 'hasta' => $this->bloqueado_hasta];
+            } else {
+                // El tiempo de bloqueo ya pasó, limpiar el campo
+                $this->bloqueado_hasta = null;
+                $this->guardar();
+            }
+        }
+        return ['bloqueado' => false];
+    }
 }

@@ -24,6 +24,9 @@
 .t-align-center {
     text-align: center;
 }
+.t-align-justify {
+    text-align: justify;
+}
 
 
 /** Margenes **/
@@ -39,4 +42,13 @@
 
 .mb-0 {
     margin-bottom: 0;
+}
+.mb-5 {
+    margin-bottom: 5rem;
+}
+
+
+/** Colores **/
+.color-primario {
+    color: v.$primario;
 }

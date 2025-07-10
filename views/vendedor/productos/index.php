@@ -31,7 +31,6 @@
                     <tr>
                         <th scope="col" class="table__th">Imagen</th>
                         <th scope="col" class="table__th">Nombre</th>
-                        <th scope="col" class="table__th">Descripción</th>
                         <th scope="col" class="table__th">Precio</th>
                         <th scope="col" class="table__th">Estado</th>
                         <th scope="col" class="table__th"></th>
@@ -64,9 +63,6 @@
                                 <?php endif; ?>
                             </td>
                             <td class="table__td"><?php echo $producto->nombre; ?></td>
-                            <td class="table__td">
-                                <?php echo !empty($producto->descripcion) ? $producto->descripcion : 'Sin descripción'; ?>
-                            </td>
                             <td class="table__td"><?php echo '$' . number_format($producto->precio, 2); ?></td>
                             <td class="table__td">
                                 <?php if($producto->estado === 'agotado'): ?>

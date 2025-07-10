@@ -34,7 +34,7 @@
 
     &__td {
         padding: 1.5rem 1rem;
-        vertical-align: middle; // IMPORTANTE: Centra verticalmente todo en la celda
+        vertical-align: middle; // Centra verticalmente todo en la celda
 
         &--acciones {
             @extend .table__td;

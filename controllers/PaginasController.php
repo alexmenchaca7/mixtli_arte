@@ -86,4 +86,22 @@ class PaginasController {
             'consulta' => $consulta
         ], $layout);
     }
+
+    public static function bloqueoTemporal(Router $router) {
+        $inicio = true;
+
+        $router->render('bloqueo/temporal', [
+            'titulo' => 'Cuenta Bloqueada',
+            'inicio' => $inicio
+        ]);
+    }
+
+    public static function bloqueoPermanente(Router $router) {
+        $inicio = true;
+
+        $router->render('bloqueo/permanente', [
+            'titulo' => 'Cuenta Desactivada',
+            'inicio' => $inicio
+        ]);
+    }
 }

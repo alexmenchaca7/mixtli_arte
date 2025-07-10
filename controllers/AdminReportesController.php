@@ -8,6 +8,7 @@ use Model\Producto;
 use Classes\Paginacion;
 use Model\ImagenProducto;
 use Model\ReporteProducto;
+use Model\VendedorViolacion;
 
 class AdminReportesController {
 
@@ -118,7 +119,11 @@ class AdminReportesController {
                     $reporte->estado = 'valido';
                     $producto = Producto::find($reporte->productoId);
                     if ($producto) {
-                        // Reutilizamos la lógica de eliminación completa del producto
+                        $vendedor = Usuario::find($producto->usuarioId);
+                        if ($vendedor) {
+                            $motivoViolacion = "Reporte válido por: " . $reporte->motivo . " en producto '" . $producto->nombre . "'";
+                            $vendedor->registrarViolacion($motivoViolacion, $reporte->id);
+                        }
                         $producto->eliminar(); 
                     }
                 } else { // no_valido
@@ -127,7 +132,7 @@ class AdminReportesController {
                 $reporte->guardar();
             }
         }
-        header('Location: /admin/reportes');
+        header('Location: ' . $_SERVER['HTTP_REFERER'] ?? '/admin/reportes'); // Volver a la página anterior
         exit();
     }
 }

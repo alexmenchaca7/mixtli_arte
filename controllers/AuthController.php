@@ -28,7 +28,21 @@ class AuthController {
                 } else {
                     // El Usuario existe
                     if( password_verify($_POST['pass'], $usuario->pass) ) {
-                        // Verificar si la cuenta está confirmada
+                        // LÓGICA DE VERIFICACIÓN DE BLOQUEO
+                        $estadoBloqueo = $usuario->estaBloqueado();
+                        if ($estadoBloqueo['bloqueado']) {
+                            if ($estadoBloqueo['tipo'] === 'permanente') {
+                                header('Location: /bloqueado/permanente');
+                                exit();
+                            } elseif ($estadoBloqueo['tipo'] === 'temporal') {
+                                // Guardar la fecha de fin de bloqueo en la sesión para mostrarla
+                                $_SESSION['bloqueado_hasta'] = $estadoBloqueo['hasta'];
+                                header('Location: /bloqueado/temporal');
+                                exit();
+                            }
+                        }
+
+                        // Si no está bloqueado, procede con el login normal...
                         if($usuario->verificado === "1") {
                             // Verificar si tiene 2FA activado
                             $usuario2fa = Autenticacion::findByUsuarioId($usuario->id);

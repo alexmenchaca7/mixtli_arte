@@ -66,10 +66,15 @@ $router->post('/seleccionar-preferencias', [AuthController::class, 'seleccionarP
 // Pagina de Inicio (VISTA PRINCIPAL)
 $router->get('/', [PaginasController::class, 'index']);
 $router->get('/nosotros', [PaginasController::class, 'nosotros']);
+
 $router->get('/contacto', [PaginasController::class, 'contacto']);
 $router->post('/contacto', [PaginasController::class, 'contacto']);
+
 $router->get('/faqs', [FaqsController::class, 'index']); 
 $router->post('/faqs', [FaqsController::class, 'index']);
+
+$router->get('/bloqueado/temporal', [PaginasController::class, 'bloqueoTemporal']);
+$router->get('/bloqueado/permanente', [PaginasController::class, 'bloqueoPermanente']);
 
 
 
