@@ -7,9 +7,9 @@
     </a>
 </div>
 
-<div class="dashboard__contenedor">
-    <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
+<?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
 
+<div class="dashboard__contenedor">
     <?php if(!empty($vendedores)): ?>
         <div class="dashboard__contenedor-tabla">
             <table class="table">

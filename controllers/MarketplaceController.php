@@ -257,6 +257,15 @@ class MarketplaceController {
             }
 
             $datos = json_decode(file_get_contents('php://input'), true);
+
+            // Verificar si ya existe un reporte previo
+            $reporteExistente = ReporteProducto::existeReportePrevio($datos['productoId'], $_SESSION['id']);
+            if($reporteExistente) {
+                http_response_code(409); // 409 Conflict
+                echo json_encode(['success' => false, 'error' => 'Ya has reportado este producto anteriormente.']);
+                return;
+            }
+            
             $reporte = new ReporteProducto($datos);
             $reporte->usuarioId = $_SESSION['id'];
             

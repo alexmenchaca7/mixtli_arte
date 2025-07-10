@@ -24,14 +24,22 @@ class ActiveRecord {
         self::$conexion = $database; // Self hace referencia a los atributos estaticos de esta misma clase
     }
 
-    // Setear un tipo de Alerta
+    // Setear un tipo de Alerta y guardarla en la sesión
     public static function setAlerta($tipo, $mensaje) {
         static::$alertas[$tipo][] = $mensaje;
+        // La siguiente línea es la clave: guarda la alerta en la sesión para que sobreviva la redirección.
+        $_SESSION['alertas'] = static::$alertas;
     }
 
-    // Obtener las alertas
+    // Obtener las alertas desde la sesión
     public static function getAlertas() {
-        return static::$alertas;
+        // Obtiene las alertas de la sesión, o un array vacío si no existe.
+        $alertas = $_SESSION['alertas'] ?? [];
+        
+        // Limpia las alertas de la sesión para que no se muestren en la siguiente carga de página.
+        unset($_SESSION['alertas']);
+        
+        return $alertas;
     }
 
     // Validación que se hereda en modelos

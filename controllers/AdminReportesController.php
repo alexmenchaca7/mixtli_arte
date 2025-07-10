@@ -115,18 +115,20 @@ class AdminReportesController {
         if ($id && ($clasificacion === 'valido' || $clasificacion === 'no_valido')) {
             $reporte = ReporteProducto::find($id);
             if ($reporte) {
+                // --- ESTE BLOQUE SOLO SE EJECUTA SI ES 'valido' ---
                 if ($clasificacion === 'valido') {
                     $reporte->estado = 'valido';
                     $producto = Producto::find($reporte->productoId);
                     if ($producto) {
                         $vendedor = Usuario::find($producto->usuarioId);
                         if ($vendedor) {
+                            // Aquí es donde se afecta el historial del vendedor
                             $motivoViolacion = "Reporte válido por: " . $reporte->motivo . " en producto '" . $producto->nombre . "'";
                             $vendedor->registrarViolacion($motivoViolacion, $reporte->id);
                         }
                         $producto->eliminar(); 
                     }
-                } else { // no_valido
+                } else {  // --- ESTE BLOQUE SE EJECUTA SI ES 'no_valido' ---
                     $reporte->estado = 'resuelto';
                 }
                 $reporte->guardar();

@@ -40,7 +40,14 @@ if ($usuarioId) {
                 </div>
                 <div class="formulario__campo">
                     <label for="comentarios" class="formulario__label">Comentarios (opcional)</label>
-                    <textarea name="comentarios" id="comentarios" class="formulario__input" rows="3"></textarea>
+                    <textarea 
+                        name="comentarios" 
+                        id="comentarios" 
+                        class="formulario__input" 
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Máximo 500 caracteres"
+                    ></textarea>
                 </div>
                 <button type="submit" class="boton-rosa-block">Enviar Reporte</button>
             </form>
