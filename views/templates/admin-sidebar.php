@@ -35,6 +35,13 @@
             </span>
         </a>
 
+        <a href="/admin/sanciones" class="dashboard__enlace <?php echo pagina_actual('/sanciones') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-user-slash dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                Sanciones
+            </span>
+        </a>
+
         <a href="/admin/faqs" class="dashboard__enlace <?php echo pagina_actual('/faqs') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-question-circle dashboard__icono"></i>
             <span class="dashboard__menu-texto">

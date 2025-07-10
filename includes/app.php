@@ -1,5 +1,7 @@
 <?php 
 
+date_default_timezone_set('America/Mexico_City');
+
 // INICIA LA SESIÓN EN TODA LA APLICACIÓN
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

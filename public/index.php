@@ -191,6 +191,10 @@ $router->get('/admin/reportes', [AdminReportesController::class, 'index']);
 $router->post('/admin/reportes/clasificar', [AdminReportesController::class, 'clasificar']);
 $router->get('/admin/reportes/ver', [AdminReportesController::class, 'ver']);
 
+$router->get('/admin/sanciones', [Controllers\AdminSancionesController::class, 'index']);
+$router->post('/admin/sanciones/ajustar', [Controllers\AdminSancionesController::class, 'ajustar']);
+$router->get('/admin/sanciones/historial', [Controllers\AdminSancionesController::class, 'historial']);
+
 
 
 // Comprobar y validar que las rutas existan para asignarles las funciones del Controlador
