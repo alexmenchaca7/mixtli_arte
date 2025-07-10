@@ -57,11 +57,9 @@ class Producto extends ActiveRecord {
     }
 
     public function eliminar() {
-        // --- 1. Eliminar Imágenes Asociadas (código anterior) ---
+        // --- 1. Eliminar Imágenes Asociadas ---
         $imagenes = ImagenProducto::whereField('productoId', $this->id);
-
         foreach($imagenes as $imagen) {
-            // Usamos la propiedad `url` que es la correcta
             if(!empty($imagen->url)) { 
                 $ruta_png = "../public/img/productos/{$imagen->url}.png";
                 $ruta_webp = "../public/img/productos/{$imagen->url}.webp";
@@ -75,23 +73,22 @@ class Producto extends ActiveRecord {
             $imagen->eliminar(); // Elimina el registro de la BD
         }
 
-        // --- 2. Eliminar Favoritos Asociados (NUEVO) ---
-        $favoritos = Favorito::all();
-        $favoritos_del_producto = array_filter($favoritos, fn($fav) => $fav->productoId === $this->id);
-        
-        foreach ($favoritos_del_producto as $favorito) {
-            $favorito->eliminar();
-        }
+        // --- 2. Eliminar Valoraciones y Puntos Fuertes ---
+        Valoracion::eliminarPorProductoId($this->id);
 
-        // --- 3. Eliminar Reportes Asociados (NUEVO Y PREVENTIVO) ---
-        $reportes = ReporteProducto::all();
-        $reportes_del_producto = array_filter($reportes, fn($rep) => $rep->productoId === $this->id);
+        // --- 3. Eliminar Favoritos ---
+        Favorito::eliminarPorProductoId($this->id);
 
-        foreach ($reportes_del_producto as $reporte) {
+        // --- 4. Eliminar Mensajes ---
+        Mensaje::eliminarPorProductoId($this->id);
+
+        // --- 5. Eliminar Reportes de Producto ---
+        $reportes = ReporteProducto::whereField('productoId', $this->id);
+        foreach($reportes as $reporte) {
             $reporte->eliminar();
         }
         
-        // --- 4. Finalmente, eliminar el producto ---
+        // --- 6. Finalmente, eliminar el producto ---
         $resultado = parent::eliminar();
         
         return $resultado;
