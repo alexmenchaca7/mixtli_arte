@@ -69,11 +69,11 @@ class DatosController {
             $redirectUrl = '/'; // URL por defecto
             if (isset($_SESSION['rol'])) {
                 switch ($_SESSION['rol']) {
-                    case '2': // Rol de Vendedor
+                    case 'vendedor': // Rol de Vendedor
                         $redirectUrl = '/vendedor/perfil';
                         break;
-                    case '3': // Rol de Comprador
-                        $redirectUrl = '/marketplace/perfil/editar';
+                    case 'comprador': // Rol de Comprador
+                        $redirectUrl = '/comprador/perfil/editar';
                         break;
                     default: // Otros roles o si no hay rol
                         $redirectUrl = '/';
