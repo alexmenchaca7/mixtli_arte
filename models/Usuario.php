@@ -7,7 +7,7 @@ use DateTime;
 class Usuario extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia', 'last_active', 'preferencias_entrega', 'violaciones_count', 'bloqueado_hasta', 'bloqueado_permanentemente'];
+    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia', 'last_active', 'preferencias_entrega', 'violaciones_count', 'bloqueado_hasta', 'bloqueado_permanentemente', 'token_eliminacion', 'token_eliminacion_expira'];
     protected static $tabla = 'usuarios';
 
     // Propiedad con las columnas a buscar
@@ -34,6 +34,8 @@ class Usuario extends ActiveRecord {
     public $violaciones_count;
     public $bloqueado_hasta;
     public $bloqueado_permanentemente;
+    public $token_eliminacion;
+    public $token_eliminacion_expira;
 
     public $password_actual;
     public $password_nuevo; 
@@ -61,6 +63,8 @@ class Usuario extends ActiveRecord {
         $this->violaciones_count = $args['violaciones_count'] ?? 0;
         $this->bloqueado_hasta = $args['bloqueado_hasta'] ?? null;
         $this->bloqueado_permanentemente = $args['bloqueado_permanentemente'] ?? 0;
+        $this->token_eliminacion = $args['token_eliminacion'] ?? null;
+        $this->token_eliminacion_expira = $args['token_eliminacion_expira'] ?? null;
     }
 
     // Busca todos los usuarios con rol de administrador

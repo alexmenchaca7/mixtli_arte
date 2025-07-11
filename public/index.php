@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/app.php';
 use MVC\Router;
 use Controllers\AuthController;
 use Controllers\FaqsController;
+use Controllers\DatosController;
 use Controllers\FollowController;
 use Controllers\PaginasController;
 use Controllers\MensajesController;
@@ -81,6 +82,10 @@ $router->get('/bloqueado/permanente', [PaginasController::class, 'bloqueoPermane
 
 // Rutas en común para todos los usuarios
 $router->post('/follow/toggle', [FollowController::class, 'toggle']);
+
+$router->get('/perfil/exportar-datos', [DatosController::class, 'exportarDatos']);
+$router->post('/perfil/solicitar-eliminacion', [DatosController::class, 'solicitarEliminacion']);
+$router->get('/perfil/confirmar-eliminacion', [DatosController::class, 'confirmarEliminacion']);
 
 
 

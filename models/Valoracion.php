@@ -49,4 +49,10 @@ class Valoracion extends ActiveRecord {
         $resultado = self::$conexion->query($query_delete);
         return $resultado;
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

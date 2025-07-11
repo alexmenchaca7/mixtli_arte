@@ -59,4 +59,10 @@ class ReporteProducto extends ActiveRecord {
         $resultado = self::$conexion->query($query);
         return $resultado->num_rows > 0;
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

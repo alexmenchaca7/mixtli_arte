@@ -100,4 +100,10 @@ class Producto extends ActiveRecord {
         $query = "SELECT * FROM " . static::$tabla . " WHERE nombre LIKE " . $terminoSeguro;
         return self::consultarSQL($query); 
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

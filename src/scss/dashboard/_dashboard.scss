@@ -123,6 +123,7 @@
         background-color: color.adjust(v.$dashboard, $lightness: 10%);
         width: 12rem;
         transition: transform 0.3s ease-in-out;
+        overflow-y: auto;
 
         @media (max-width: #{v.$tablet - 1px}) {
             position: fixed; // Se superpone al contenido

@@ -5,6 +5,7 @@
         <div class="botones-perfil">
             <a href="/comprador/perfil/cambiar-password" class="boton-rosa" style="background-color: #555;">Cambiar Contraseña</a>
             <a href="/seguridad/2fa" class="boton-rosa" style="background-color: #555;">Seguridad (2FA)</a>
+            <a href="/perfil/exportar-datos" class="boton-rosa" style="background-color: #007bff;" download>Descargar mis Datos</a>
         </div>
     </div>
 
@@ -96,6 +97,14 @@
             <input type="submit" class="formulario__submit" value="Guardar Cambios">
         </form>
     </div>
+
+    <fieldset class="formulario__fieldset" style="border-top: 2px solid #e53835; margin-top: 4rem; padding-top: 2rem;">
+        <legend class="formulario__legend" style="color: #e53835;">Zona de Peligro</legend>
+        <p>La eliminación de tu cuenta es una acción permanente y no se puede deshacer. Se borrarán todos tus datos personales, historial de compras, mensajes y productos guardados.</p>
+        <form action="/perfil/solicitar-eliminacion" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas iniciar el proceso para eliminar tu cuenta? Se te enviará un correo de confirmación.');">
+            <input type="submit" class="formulario__submit" style="background-color: #e53835;" value="Solicitar Eliminación de Cuenta">
+        </form>
+    </fieldset>
 </main>
 
 <style>

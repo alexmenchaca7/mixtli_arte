@@ -308,4 +308,20 @@ class Email {
         }
         return true;
     }
+
+    public function enviarConfirmacionEliminacion() {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Confirmación para Eliminar tu Cuenta en MixtliArte';
+
+        $contenido = '<html><body>';
+        $contenido .= "<h1>Hola " . htmlspecialchars($this->nombre) . ",</h1>";
+        $contenido .= "<p>Hemos recibido una solicitud para eliminar tu cuenta. Si tú hiciste esta solicitud, por favor, haz clic en el siguiente enlace para confirmar la eliminación. Esta acción es irreversible y todos tus datos serán borrados.</p>";
+        $contenido .= "<p><strong>Este enlace es válido por 1 hora.</strong></p>";
+        $contenido .= "<p><a href='" . $_ENV['HOST'] . "/perfil/confirmar-eliminacion?token=" . $this->token . "'>Confirmar Eliminación de Cuenta</a></p>";
+        $contenido .= "<p>Si no solicitaste esto, puedes ignorar este mensaje de forma segura.</p>";
+        $contenido .= '</body></html>';
+        $mail->Body = $contenido;
+
+        $mail->send();
+    }
 }

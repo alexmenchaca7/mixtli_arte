@@ -28,4 +28,10 @@ class Notificacion extends ActiveRecord {
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
         $this->usuarioId = $args['usuarioId'] ?? '';
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

@@ -34,4 +34,10 @@ class ImagenProducto extends ActiveRecord {
         $resultado = self::consultarSQL($query); // Usa el método heredado de ActiveRecord
         return array_shift($resultado); // Devuelve el objeto ImagenProducto o null si no hay
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

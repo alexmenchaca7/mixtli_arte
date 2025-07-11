@@ -20,4 +20,10 @@ class PreferenciaUsuario extends ActiveRecord {
         $this->categorias = $args['categorias'] ?? '[]'; // json de categorias que le interesan al usuario
         $this->usuarioId = $args['usuarioId'] ?? null;
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }
