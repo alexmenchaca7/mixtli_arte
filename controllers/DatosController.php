@@ -73,7 +73,7 @@ class DatosController {
                         $redirectUrl = '/vendedor/perfil';
                         break;
                     case '3': // Rol de Comprador
-                        $redirectUrl = '/comprador/perfil/editar';
+                        $redirectUrl = '/marketplace/perfil/editar';
                         break;
                     default: // Otros roles o si no hay rol
                         $redirectUrl = '/';

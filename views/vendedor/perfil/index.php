@@ -15,7 +15,7 @@
 <div class="dashboard__formulario">
     <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
     
-    <form method="POST" action="/vendedor/perfil" enctype="multipart/form-data" class="formulario">
+    <form method="POST" action="/vendedor/perfil" enctype="multipart/form-data" class="formulario mb-5">
         <fieldset class="formulario__fieldset">
             <legend class="formulario__legend">Información Personal</legend>
 
@@ -295,6 +295,20 @@
 
         <input type="submit" class="formulario__submit" value="Actualizar Perfil">
     </form>
+
+    <fieldset class="formulario__fieldset">
+        <legend class="formulario__legend">Gestión de Datos</legend>
+        <p>Puedes descargar todos los datos asociados a tu cuenta en formato JSON.</p>
+        <a href="/perfil/exportar-datos" class="formulario__submit" style="background-color: #007bff; max-width: 30rem;" download>Descargar mis Datos</a>
+    </fieldset>
+
+    <fieldset class="formulario__fieldset">
+        <legend class="formulario__legend">Zona de Peligro</legend>
+        <p>La eliminación de tu cuenta es una acción permanente y no se puede deshacer. Se borrarán todos tus datos personales, productos, historial de ventas y mensajes. Se enviará un correo de confirmación para completar el proceso.</p>
+        <form action="/perfil/solicitar-eliminacion" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas iniciar el proceso para eliminar tu cuenta? Esta acción es irreversible.');">
+            <input type="submit" class="formulario__submit formulario__submit--peligro" value="Solicitar Eliminación de Cuenta">
+        </form>
+    </fieldset>
 </div>
 
 <script>

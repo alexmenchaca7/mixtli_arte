@@ -94,6 +94,14 @@
         @include m.tablet {
             @include m.boton(v.$primario, inline-block);
         }
+
+        &--peligro {
+            background-color: v.$rojo; // Usando tu variable de color rojo
+
+            &:hover {
+                background-color: color.adjust(v.$rojo, $lightness: -5%);
+            }
+        }
     }
 
     &__preview {
