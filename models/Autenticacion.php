@@ -112,4 +112,10 @@ class Autenticacion extends ActiveRecord {
         $g = new \Sonata\GoogleAuthenticator\GoogleAuthenticator();
         return $g->checkCode($this->auth_secret, $codigo);
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

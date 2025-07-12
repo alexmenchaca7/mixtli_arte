@@ -305,7 +305,7 @@
     <fieldset class="formulario__fieldset">
         <legend class="formulario__legend">Zona de Peligro</legend>
         <p>La eliminación de tu cuenta es una acción permanente y no se puede deshacer. Se borrarán todos tus datos personales, productos, historial de ventas y mensajes. Se enviará un correo de confirmación para completar el proceso.</p>
-        <form action="/perfil/solicitar-eliminacion" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas iniciar el proceso para eliminar tu cuenta? Esta acción es irreversible.');">
+        <form action="/perfil/solicitar-eliminacion" method="POST" onsubmit="alert('Se ha enviado un correo al correo proporcionado para confirmar la eliminación de tu cuenta.');">
             <input type="submit" class="formulario__submit formulario__submit--peligro" value="Solicitar Eliminación de Cuenta">
         </form>
     </fieldset>

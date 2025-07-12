@@ -19,4 +19,10 @@ class VendedorViolacion extends ActiveRecord {
         $this->motivo = $args['motivo'] ?? '';
         $this->fecha = $args['fecha'] ?? date('Y-m-d H:i:s');
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE vendedor_id = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

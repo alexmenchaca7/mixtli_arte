@@ -47,4 +47,11 @@ class AdminAjusteSancion extends ActiveRecord {
         }
         return self::$alertas;
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $usuarioIdEsc = self::$conexion->escape_string($usuarioId);
+        $query = "DELETE FROM " . static::$tabla . " WHERE admin_id = '{$usuarioIdEsc}' OR vendedor_id = '{$usuarioIdEsc}'";
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }

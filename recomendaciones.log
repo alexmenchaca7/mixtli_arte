@@ -3752,3 +3752,128 @@ Orden Final de Categorías Recomendadas (por ID):
 10, 4, 12, 5, 9
 -------------------------------------------------
 
+-------------------------------------------------
+Fecha: 2025-07-10 22:53:46
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 8
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 76: +1
+    - Interacción 'clic' en producto ID 77: +1
+    - Interacción 'clic' en producto ID 76: +1
+    - Interacción 'clic' en producto ID 77: +1
+    - Interacción 'clic' en producto ID 74: +1
+    - Interacción 'clic' en producto ID 76: +1
+    - Interacción 'clic' en producto ID 77: +1
+    - Interacción 'clic' en producto ID 28: +1
+
+[Categoría: Cocina y comedor (ID: 4)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 102: +1
+    - Tiempo en Página (27894s) en producto ID 102: +5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 3
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 86: +1
+    - Interacción 'clic' en producto ID 114: +1
+    - Interacción 'clic' en producto ID 114: +1
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 95: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 71: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+10, 4, 12, 5, 9
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-10 22:53:49
+Usuario ID: 39
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Alimentos y bebidas artesanales (ID: 10)] - Peso Total: 8
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 76: +1
+    - Interacción 'clic' en producto ID 77: +1
+    - Interacción 'clic' en producto ID 76: +1
+    - Interacción 'clic' en producto ID 77: +1
+    - Interacción 'clic' en producto ID 74: +1
+    - Interacción 'clic' en producto ID 76: +1
+    - Interacción 'clic' en producto ID 77: +1
+    - Interacción 'clic' en producto ID 28: +1
+
+[Categoría: Cocina y comedor (ID: 4)] - Peso Total: 6
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 102: +1
+    - Tiempo en Página (27894s) en producto ID 102: +5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 3
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 86: +1
+    - Interacción 'clic' en producto ID 114: +1
+    - Interacción 'clic' en producto ID 114: +1
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 95: +1
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 71: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+10, 4, 12, 5, 9
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-11 17:12:23
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+6, 9
+-------------------------------------------------
+

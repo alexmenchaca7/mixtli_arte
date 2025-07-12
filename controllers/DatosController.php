@@ -5,16 +5,22 @@ namespace Controllers;
 use MVC\Router;
 use Model\Follow;
 use Classes\Email;
+use Model\AdminAjusteSancion;
+use Model\Autenticacion;
 use Model\Mensaje;
 use Model\Usuario;
 use Model\Favorito;
 use Model\Producto;
 use Model\Direccion;
 use Model\Valoracion;
+use Model\Notificacion;
 use Model\ImagenProducto;
 use Model\ReporteProducto;
 use Model\PreferenciaUsuario;
 use Model\HistorialInteraccion;
+use Model\PreguntaUsuario;
+use Model\ReporteValoracion;
+use Model\VendedorViolacion;
 
 class DatosController {
 
@@ -63,7 +69,7 @@ class DatosController {
             $email = new Email($usuario->email, $usuario->nombre, $usuario->token_eliminacion);
             $email->enviarConfirmacionEliminacion(); // Necesitarás crear este método en la clase Email
             
-            Usuario::setAlerta('exito', 'Se ha enviado un correo electrónico para confirmar la eliminación de tu cuenta.');
+            Usuario::setAlerta('exito', 'Se ha enviado un correo al correo proporcionado para confirmar la eliminación de tu cuenta.');
 
             // Redirección dinámica basada en el rol del usuario
             $redirectUrl = '/'; // URL por defecto
@@ -104,10 +110,16 @@ class DatosController {
             PreferenciaUsuario::eliminarPorUsuario($usuario->id); 
             Producto::eliminarPorUsuario($usuario->id); 
             ImagenProducto::eliminarPorUsuario($usuario->id); 
-            ReporteProducto::eliminarPorUsuario($usuario->id); 
+            ReporteProducto::eliminarPorUsuario($usuario->id);
+            ReporteValoracion::eliminarPorUsuario($usuario->id);
             Valoracion ::eliminarPorUsuario($usuario->id); 
             Follow::eliminarPorUsuario($usuario->id); 
             Direccion::eliminarPorUsuario($usuario->id);
+            Notificacion::eliminarPorUsuario($usuario->id);
+            PreguntaUsuario::eliminarPorUsuario($usuario->id);
+            VendedorViolacion::eliminarPorUsuario($usuario->id);
+            AdminAjusteSancion::eliminarPorUsuario($usuario->id);
+            Autenticacion::eliminarPorUsuario($usuario->id);
             
             // Eliminar al usuario
             $usuario->eliminar();

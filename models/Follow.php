@@ -30,7 +30,8 @@ class Follow extends ActiveRecord {
     }
 
     public static function eliminarPorUsuario($usuarioId) {
-        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $usuarioIdEsc = self::$conexion->escape_string($usuarioId);
+        $query = "DELETE FROM " . static::$tabla . " WHERE seguidorId = '{$usuarioIdEsc}' OR seguidoId = '{$usuarioIdEsc}'";
         $resultado = self::$conexion->query($query);
         return $resultado;
     }

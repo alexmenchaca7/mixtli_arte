@@ -57,4 +57,10 @@ class PreguntaUsuario extends ActiveRecord {
     public static function findFrequentPendingReview() {
         return self::whereArray(['marcada_frecuente' => 1, 'estado_revision' => 'pendiente']);
     }
+
+    public static function eliminarPorUsuario($usuarioId) {
+        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
+        $resultado = self::$conexion->query($query);
+        return $resultado;
+    }
 }
