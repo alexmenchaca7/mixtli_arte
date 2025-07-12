@@ -2,3 +2,55 @@
 @forward 'layout';
 @forward 'ui';
 @forward 'dashboard';
+
+@media print {
+    /* Ocultar elementos no deseados en el PDF */
+    .header,
+    .footer,
+    .dashboard__sidebar,
+    .dashboard__header,
+    .dashboard__contenedor-boton {
+        display: none !important;
+    }
+
+    /* Ajustar el cuerpo y el contenido principal para la impresión */
+    body, .dashboard, .layout {
+        background-color: #fff !important;
+        display: block !important; /* Asegurar que el layout no sea grid */
+    }
+
+    .dashboard__contenido, .main, .politicas-contenido {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+        border: none;
+    }
+
+    /* Estilos de fuente para mejor legibilidad */
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 12pt;
+        color: #000;
+    }
+
+    h1, h2, h3 {
+        color: #000 !important;
+        border-bottom: 2px solid #ccc;
+    }
+
+    /* Evitar saltos de página inoportunos */
+    h1, h2, h3, h4 {
+        page-break-after: avoid;
+    }
+
+    p, ul, ol {
+        page-break-inside: avoid;
+    }
+
+    /* Ocultar enlaces para que no aparezcan subrayados en azul */
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+}

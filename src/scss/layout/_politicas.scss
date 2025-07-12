@@ -1,0 +1,26 @@
+@use 'base/variables' as v;
+
+.politicas-contenido {
+    max-width: 80rem;
+    margin: 4rem auto;
+    padding: 3rem;
+    background-color: v.$blanco;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(v.$negro, 0.1);
+
+    h1, h2, h3 {
+        color: v.$primario;
+        border-bottom: 2px solid v.$gris-claro;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    p, li {
+        line-height: 1.8;
+        font-size: 1.6rem;
+    }
+
+    ul, ol {
+        padding-left: 2.5rem;
+    }
+}

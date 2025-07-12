@@ -297,9 +297,11 @@
     </form>
 
     <fieldset class="formulario__fieldset">
-        <legend class="formulario__legend">Gestión de Datos</legend>
-        <p>Puedes descargar todos los datos asociados a tu cuenta en formato JSON.</p>
-        <a href="/perfil/exportar-datos" class="formulario__submit" style="background-color: #007bff; max-width: 30rem;" download>Descargar mis Datos</a>
+        <legend class="formulario__legend">Políticas y Documentos</legend>
+        <p>Consulta nuestras políticas y gestiona tus datos.</p>
+        <a href="/terminos-condiciones" class="formulario__submit" style="background-color: #007bff; max-width: 30rem;">Términos y Condiciones</a>
+        <a href="/politica-privacidad" class="formulario__submit" style="background-color: #007bff; max-width: 30rem; margin-top: 1rem;">Política de Privacidad</a>
+        <a href="/perfil/exportar-datos" class="formulario__submit" style="background-color: #007bff; max-width: 30rem; margin-top: 1rem;" download>Descargar mis Datos</a>
     </fieldset>
 
     <fieldset class="formulario__fieldset">

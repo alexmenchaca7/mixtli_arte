@@ -2,7 +2,6 @@
     <nav class="dashboard__menu">
         <a href="/vendedor/dashboard" class="dashboard__enlace <?php echo pagina_actual('/dashboard') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-house dashboard__icono"></i>
-
             <span class="dashboard__menu-texto">
                 Inicio
             </span>  
@@ -10,7 +9,6 @@
 
         <a href="/vendedor/productos" class="dashboard__enlace <?php echo pagina_actual('/productos') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-palette dashboard__icono"></i>
-
             <span class="dashboard__menu-texto">
                 Productos
             </span>  
@@ -18,7 +16,6 @@
 
         <a href="/vendedor/mensajes" class="dashboard__enlace <?php echo pagina_actual('/mensajes') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-comments dashboard__icono"></i>
-
             <span class="dashboard__menu-texto">
                 Mensajes
             </span>  
@@ -43,6 +40,16 @@
             <span class="dashboard__menu-texto">
                 FAQs
             </span>
+        </a>
+
+        <a href="/terminos-condiciones" class="dashboard__enlace <?php echo pagina_actual('/terminos-condiciones') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-file-contract dashboard__icono"></i>
+            <span class="dashboard__menu-texto">Términos</span>
+        </a>
+
+        <a href="/politica-privacidad" class="dashboard__enlace <?php echo pagina_actual('/politica-privacidad') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-shield-alt dashboard__icono"></i>
+            <span class="dashboard__menu-texto">Privacidad</span>
         </a>
 
         <a href="/contacto" class="dashboard__enlace <?php echo pagina_actual('/contacto') ? 'dashboard__enlace--actual' : ''; ?>"> <i class="fa-solid fa-headset dashboard__icono"></i>
