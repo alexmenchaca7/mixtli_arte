@@ -2,6 +2,10 @@
     <a href="/generar-pdf.php?documento=terminos" class="boton-rosa" target="_blank">Descargar en PDF</a>
 
     <div class="politicas-contenido">
+        <?php if($_SESSION['rol'] == 'vendedor'): ?>
+            <h1 class="mt-0 t-align-center">Terminos y Condiciones</h1>
+        <?php endif; ?>
+        
         <p><strong>Última actualización:</strong> 12 de julio de 2025</p>
 
         <p>Estos Términos y Condiciones ("Términos") rigen tu acceso y uso del marketplace MixtliArte. Al acceder o utilizar el servicio, aceptas estar sujeto a estos Términos.</p>

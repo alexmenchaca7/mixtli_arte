@@ -2,6 +2,10 @@
     <a href="/generar-pdf.php?documento=privacidad" class="boton-rosa" target="_blank">Descargar en PDF</a>
 
     <div class="politicas-contenido">
+        <?php if($_SESSION['rol'] == 'vendedor'): ?>
+            <h1 class="mt-0 t-align-center">Politica de Privacidad</h1>
+        <?php endif; ?>
+        
         <p><strong>Última actualización:</strong> 12 de julio de 2025</p>
 
         <p>Bienvenido a MixtliArte. Tu privacidad es de suma importancia para nosotros. Esta Política de Privacidad explica qué datos personales recopilamos, cómo los usamos, compartimos y protegemos.</p>
