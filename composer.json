@@ -20,6 +20,7 @@
         "phpmailer/phpmailer": "^6.5",
         "vlucas/phpdotenv": "^5.4",
         "intervention/image": "3.0",
-        "sonata-project/google-authenticator": "^2.3"
+        "sonata-project/google-authenticator": "^2.3",
+        "fpdf/fpdf": "^1.86"
     }
 }

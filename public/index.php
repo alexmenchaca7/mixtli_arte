@@ -11,6 +11,7 @@ use Controllers\PaginasController;
 use Controllers\MensajesController;
 use Controllers\UsuariosController;
 use Controllers\FavoritosController;
+use Controllers\PoliticasController;
 use Controllers\ProductosController;
 use Controllers\SeguridadController;
 use Controllers\CategoriasController;
@@ -76,6 +77,9 @@ $router->post('/faqs', [FaqsController::class, 'index']);
 
 $router->get('/bloqueado/temporal', [PaginasController::class, 'bloqueoTemporal']);
 $router->get('/bloqueado/permanente', [PaginasController::class, 'bloqueoPermanente']);
+
+$router->get('/politica-privacidad', [PoliticasController::class, 'privacidad']);
+$router->get('/terminos-condiciones', [PoliticasController::class, 'terminos']);
 
 
 

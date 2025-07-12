@@ -197,10 +197,10 @@
                         <a href="/contacto">Contacto</a>
                         <a href="/login">Iniciar sesión</a>
                     <?php else: ?>
-                        <a href="#">Categorias</a>
-                        <a href="#">Para Ti</a>
-                        <a href="#">Lista de Deseos</a>
-                        <a href="#">Perfil</a>
+                        <a href="/marketplace">Para Ti</a>
+                        <a href="/mensajes">Mensajes</a>
+                        <a href="/favoritos">Lista de Deseos</a>
+                        <a href="<?= $perfilUrl ?>">Perfil</a>
                     <?php endif; ?>
                     
                 </div>
@@ -209,8 +209,8 @@
                     <h3>Soporte</h3>
                     <a href="/faqs">Preguntas Frecuentes</a>
                     <a href="/contacto">Contacto</a>
-                    <a href="#">Términos de servicio</a>
-                    <a href="#">Política de privacidad</a>
+                    <a href="/terminos-condiciones">Términos de servicio</a>
+                    <a href="/politica-privacidad">Política de privacidad</a>
                 </div>
         
                 <!-- Sección de suscripción -->
