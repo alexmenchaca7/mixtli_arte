@@ -96,6 +96,9 @@ $router->get('/perfil/confirmar-eliminacion', [DatosController::class, 'confirma
 
 // Marketplace (VISTA COMPRADOR)
 $router->get('/marketplace', [MarketplaceController::class, 'index']);
+$router->get('/mas-vendido', [MarketplaceController::class, 'masVendido']);
+$router->get('/novedades', [MarketplaceController::class, 'novedades']);
+$router->get('/artesanos-destacados', [MarketplaceController::class, 'artesanosDestacados']);
 $router->get('/marketplace/autocompletar', [MarketplaceController::class, 'autocompletar']);
 $router->get('/marketplace/producto', [MarketplaceController::class, 'producto']);
 $router->post('/producto/reportar', [MarketplaceController::class, 'reportarProducto']);

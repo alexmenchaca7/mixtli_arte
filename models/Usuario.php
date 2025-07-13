@@ -36,6 +36,8 @@ class Usuario extends ActiveRecord {
     public $bloqueado_permanentemente;
     public $token_eliminacion;
     public $token_eliminacion_expira;
+    public $promedio_valoraciones;
+    public $total_valoraciones;
 
     public $password_actual;
     public $password_nuevo; 
@@ -65,6 +67,8 @@ class Usuario extends ActiveRecord {
         $this->bloqueado_permanentemente = $args['bloqueado_permanentemente'] ?? 0;
         $this->token_eliminacion = $args['token_eliminacion'] ?? null;
         $this->token_eliminacion_expira = $args['token_eliminacion_expira'] ?? null;
+        $this->promedio_valoraciones = $args['promedio_valoraciones'] ?? null;
+        $this->total_valoraciones = $args['total_valoraciones'] ?? null;
     }
 
     // Busca todos los usuarios con rol de administrador

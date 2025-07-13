@@ -178,6 +178,129 @@ class MarketplaceController {
         ]);
     }
 
+    public static function masVendido(Router $router) {
+        if(!is_auth('comprador')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $titulo = 'Lo Más Vendido';
+        $usuarioId = $_SESSION['id'];
+
+        // Query para obtener los productos más vendidos basándose en las valoraciones
+        $query = "
+            SELECT p.*, AVG(v.estrellas) as promedio_valoraciones
+            FROM productos p
+            LEFT JOIN valoraciones v ON p.id = v.productoId
+            WHERE p.estado != 'agotado'
+            GROUP BY p.id
+            ORDER BY promedio_valoraciones DESC
+            LIMIT 20;
+        ";
+
+        $productos = Producto::consultarSQL($query);
+
+        // Obtener favoritos del usuario
+        $favoritosIds = [];
+        $favoritos = Favorito::whereField('usuarioId', $usuarioId);
+        $favoritosIds = $favoritos ? array_column($favoritos, 'productoId') : [];
+
+        // Obtener imágenes principales para cada producto
+        foreach($productos as $producto) {
+            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
+        }
+
+        $categorias = Categoria::all();
+
+        $router->render('marketplace/mas-vendido', [
+            'titulo' => $titulo,
+            'productos' => $productos,
+            'categorias' => $categorias,
+            'favoritosIds' => $favoritosIds,
+        ]);
+    }
+
+    public static function novedades(Router $router) {
+        if(!is_auth('comprador')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $titulo = 'Novedades';
+        $usuarioId = $_SESSION['id'];
+
+        $condiciones = ["estado != 'agotado'"];
+        $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
+        $registros_por_pagina = 20;
+
+        $total = Producto::totalCondiciones($condiciones);
+        $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total);
+
+        if ($paginacion->total_paginas() < $pagina_actual && $pagina_actual > 1) {
+            header('Location: /novedades?page=1');
+            exit();
+        }
+
+        $params = [
+            'condiciones' => $condiciones,
+            'orden' => 'creado DESC',
+            'limite' => $registros_por_pagina,
+            'offset' => $paginacion->offset()
+        ];
+
+        $productos = Producto::metodoSQL($params);
+
+        // Obtener favoritos del usuario
+        $favoritosIds = [];
+        $favoritos = Favorito::whereField('usuarioId', $usuarioId);
+        $favoritosIds = $favoritos ? array_column($favoritos, 'productoId') : [];
+
+        // Obtener imágenes principales para cada producto
+        foreach($productos as $producto) {
+            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
+        }
+
+        $categorias = Categoria::all();
+
+        $router->render('marketplace/novedades', [
+            'titulo' => $titulo,
+            'productos' => $productos,
+            'categorias' => $categorias,
+            'paginacion' => $paginacion->paginacion(),
+            'favoritosIds' => $favoritosIds,
+        ]);
+    }
+
+    public static function artesanosDestacados(Router $router) {
+        if(!is_auth('comprador')) {
+            header('Location: /login');
+            exit();
+        }
+
+        $titulo = 'Artesanos Destacados';
+
+        // Query para obtener los artesanos destacados basándose en sus valoraciones
+        $query = "
+            SELECT u.*, AVG(v.estrellas) as promedio_valoraciones, COUNT(v.id) as total_valoraciones
+            FROM usuarios u
+            LEFT JOIN valoraciones v ON u.id = v.calificadoId
+            WHERE u.rol = 'vendedor'
+            GROUP BY u.id
+            HAVING total_valoraciones > 0
+            ORDER BY promedio_valoraciones DESC, total_valoraciones DESC
+            LIMIT 20;
+        ";
+
+        $artesanos = Usuario::consultarSQL($query);
+
+        $router->render('marketplace/artesanos-destacados', [
+            'titulo' => $titulo,
+            'artesanos' => $artesanos,
+        ]);
+    }
+
     public static function producto(Router $router) {
         if(!is_auth('comprador')) {
             header('Location: /login');

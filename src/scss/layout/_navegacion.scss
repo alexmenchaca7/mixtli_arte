@@ -346,13 +346,120 @@
             }
         }
 
-        // Linea separadora
-        > *:not(:last-child) {
+        // Línea separadora (solo para los elementos intermedios, no el primero ni el último)
+        > *:not(:first-child):not(:last-child) {
             border-bottom: 1px solid rgba(v.$blanco, 0.2);
             .header:not(.inicio) & {
-                border-bottom: 1px solid v.$gris-claro;
+            border-bottom: 1px solid v.$gris-claro;
             }
         }
     }
 }
 // ===== FIN: CÓDIGO RESPONSIVE FINAL Y COMPLETO =====
+
+
+//=========================================
+// ESTILOS PARA EL MENÚ DESPLEGABLE
+//=========================================
+.dropdown {
+    position: relative;
+    text-align: center;
+    display: inline-block;
+
+    &__boton {
+        // Hereda estilos de los otros enlaces de la barra
+        font-weight: v.$bold;
+        font-size: 2rem;
+        background: none;
+        border: none;
+        color: v.$negro;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center; // Centra el contenido del botón
+        text-align: center;      // Centra el texto
+        gap: .5rem;
+        width: 100%;
+        padding: 1.2rem 0;
+
+        @include m.desktop {
+            width: auto; // En desktop, el ancho se ajusta al contenido
+        }
+
+        // Estilo para el header de la página de inicio (fondo oscuro)
+        .inicio & {
+            color: v.$blanco;
+        }
+
+        i {
+            font-size: 1.4rem;
+            transition: transform 0.3s ease;
+        }
+    }
+
+    &__contenido {
+        display: none; // Oculto por defecto
+        position: absolute;
+        background-color: v.$blanco;
+        min-width: 220px; // Ancho mínimo
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1001; // Asegura que esté por encima de otros elementos
+        border-radius: .8rem;
+        overflow: hidden; // Para que los bordes redondeados se apliquen a los 'a'
+        animation: fadeIn 0.3s ease-out;
+
+        @media (max-width: (v.$desktop - 1px)) {
+            width: 100%; // En móvil, ocupa todo el ancho
+        }
+
+        a {
+            color: v.$gris-oscuro;
+            padding: 1.2rem 1.6rem;
+            text-decoration: none;
+            display: block;
+            font-size: 1.6rem; // Tamaño de fuente más estándar para menú
+            font-weight: 400;
+
+            &:hover {
+                background-color: #f1f1f1;
+            }
+        }
+    }
+
+    // Clase para mostrar el contenido
+    &.mostrar .dropdown__contenido {
+        display: block;
+    }
+
+    // Rotar la flecha cuando el menú está abierto
+    &.mostrar .dropdown__boton i {
+        transform: rotate(180deg);
+    }
+
+    // ===== Border bottom en móvil como los otros elementos =====
+    @media (max-width: (v.$desktop - 1px)) {
+        width: 100%;
+    }
+}
+
+@media (max-width: (v.$desktop - 1px)) {
+    .dropdown {
+        width: 100%;
+
+        &__contenido {
+            width: 100%;
+        }
+    }
+}
+
+// Keyframe para la animación
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -29,6 +29,25 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // --- LÓGICA PARA EL NUEVO MENÚ DESPLEGABLE "EXPLORAR" ---
+    const dropdown = document.querySelector('.dropdown');
+
+    if (dropdown) {
+        const dropdownButton = dropdown.querySelector('.dropdown__boton');
+
+        dropdownButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Evita que el evento se propague al 'window'
+            dropdown.classList.toggle('mostrar');
+        });
+
+        // Cierra el menú si se hace clic fuera de él
+        window.addEventListener('click', (event) => {
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('mostrar');
+            }
+        });
+    }
+
     /** CONTADORES ANIMADOS **/
     const contadores = document.querySelectorAll(".contador");
     const duracion = 500;
