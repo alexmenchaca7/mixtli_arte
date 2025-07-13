@@ -186,6 +186,19 @@ document.addEventListener("DOMContentLoaded", () => {
                         card.style.opacity = '0';
                         setTimeout(() => card.remove(), 500);
                     }
+                    
+                    // Mostrar notificación
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert-notification';
+                    alertDiv.innerHTML = '<i class="fas fa-check-circle"></i> No volveremos a mostrarte este producto.';
+                    alertDiv.style.backgroundColor = '#2196F3'; // Un color azul para la notificación
+                    document.body.appendChild(alertDiv);
+
+                    setTimeout(() => {
+                        alertDiv.style.opacity = '0';
+                        setTimeout(() => alertDiv.remove(), 300);
+                    }, 3000);
+
                 } else {
                     alert('Error: ' + data.error);
                 }
@@ -195,6 +208,32 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+
+    // ELIMINAR PRODUCTO NO INTERESADO DE LA LISTA DE PREFERENCIAS
+    document.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('btn-eliminar-preferencia')) {
+            const itemDiv = e.target.closest('.item-no-interesado');
+            const productoId = itemDiv.dataset.productoId;
+
+            try {
+                const response = await fetch('/perfil/eliminar-no-interesa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productoId: productoId })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    itemDiv.remove();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    });
+
     
 
     // MODAL REPORTE DE VALORACIÓN

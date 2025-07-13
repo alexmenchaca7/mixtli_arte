@@ -566,23 +566,12 @@ class MarketplaceController {
             $valoracion->producto = Producto::find($valoracion->productoId);
         }
 
-        // Obtener productos no interesados para mostrarlos en el perfil
-        $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $idUsuario);
-        $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
-        
-        $productosExcluidos = [];
-        if(!empty($idsNoInteresados)) {
-            $idsString = implode(',', $idsNoInteresados);
-            $productosExcluidos = Producto::consultarSQL("SELECT id, nombre FROM productos WHERE id IN ($idsString)");
-        }
-
         $router->render('marketplace/perfil/index', [
             'titulo' => 'Mi Perfil',
             'usuario' => $usuario,
             'direcciones' => $direcciones,
             'categoriasInteres' => $categoriasInteres,
             'valoraciones' => $valoracionesRecibidas,
-            'productosExcluidos' => $productosExcluidos,
             'show_hero' => false
         ]);
     }
@@ -866,6 +855,16 @@ class MarketplaceController {
                 exit();
             }
         }
+
+        // Obtener productos no interesados para mostrarlos en el perfil
+        $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuario->id);
+        $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
+        
+        $productosExcluidos = [];
+        if(!empty($idsNoInteresados)) {
+            $idsString = implode(',', $idsNoInteresados);
+            $productosExcluidos = Producto::consultarSQL("SELECT id, nombre FROM productos WHERE id IN ($idsString)");
+        }
     
         $router->render('marketplace/perfil/editar', [
             'titulo' => 'Editar Mi Perfil',
@@ -874,6 +873,7 @@ class MarketplaceController {
             'direcciones' => $direcciones,
             'categorias' => $categorias,
             'categoriasSeleccionadas' => $categoriasSeleccionadas,
+            'productosExcluidos' => $productosExcluidos,
             'fecha_hoy' => date('Y-m-d')
         ]);
     }

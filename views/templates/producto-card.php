@@ -1,4 +1,4 @@
-<div class="producto <?php echo ($producto->estado === 'agotado') ? 'agotado' : ''; ?>">
+<div class="producto <?php echo ($producto->estado === 'agotado') ? 'agotado' : ''; ?>" data-producto-card-id="<?php echo $producto->id; ?>">
     <?php if ($producto->estado === 'agotado'): ?>
         <div class="producto__agotado-overlay">
             <span>Agotado</span>

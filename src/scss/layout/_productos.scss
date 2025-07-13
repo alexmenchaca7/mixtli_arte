@@ -120,6 +120,29 @@
                 color: v.$primario;
             }
         }
+
+        .no-interesa-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: .5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+
+            i {
+                font-size: 2.2rem;
+                color: v.$gris-claro;
+                transition: color 0.2s ease, transform 0.2s ease;
+            }
+
+            &:hover i {
+                color: #f44336; // Rojo al pasar el mouse
+                transform: scale(1.1);
+            }
+        }
     }
 }
 
