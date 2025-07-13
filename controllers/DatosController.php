@@ -19,6 +19,7 @@ use Model\ReporteProducto;
 use Model\PreferenciaUsuario;
 use Model\HistorialInteraccion;
 use Model\PreguntaUsuario;
+use Model\ProductoNoInteresado;
 use Model\ReporteValoracion;
 use Model\VendedorViolacion;
 
@@ -120,6 +121,7 @@ class DatosController {
             VendedorViolacion::eliminarPorUsuario($usuario->id);
             AdminAjusteSancion::eliminarPorUsuario($usuario->id);
             Autenticacion::eliminarPorUsuario($usuario->id);
+            ProductoNoInteresado::eliminarPorUsuario($usuario->id);
             
             // Eliminar al usuario
             $usuario->eliminar();

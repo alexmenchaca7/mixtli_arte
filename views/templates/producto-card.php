@@ -39,11 +39,17 @@
         <div class="precio">
             <p>$<?php echo number_format($producto->precio, 2); ?> MXN</p>
             
-            <?php if($producto->estado !== 'agotado'): // Solo mostrar el botón de favorito si no está agotado ?>
-            <button class="favorito-btn" data-producto-id="<?php echo $producto->id; ?>">
-                <i class="fa-heart <?php echo (isset($favoritosIds) && in_array($producto->id, $favoritosIds)) ? 'fa-solid' : 'fa-regular'; ?>"></i>
-            </button>
-            <?php endif; ?>
+            <div class="producto-acciones">
+                <?php if($producto->estado !== 'agotado'): ?>
+                    <button class="favorito-btn" data-producto-id="<?php echo $producto->id; ?>" title="Me gusta">
+                        <i class="fa-heart <?php echo (isset($favoritosIds) && in_array($producto->id, $favoritosIds)) ? 'fa-solid' : 'fa-regular'; ?>"></i>
+                    </button>
+                    
+                    <button class="no-interesa-btn" data-producto-id="<?php echo $producto->id; ?>" title="No me interesa">
+                        <i class="fa-regular fa-thumbs-down"></i>
+                    </button>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>

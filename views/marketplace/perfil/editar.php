@@ -99,6 +99,23 @@
         </form>
 
         <fieldset class="formulario__fieldset">
+            <legend class="formulario__legend">Productos que no te interesan</legend>
+            <p>Aquí puedes ver los productos que marcaste como "No me interesa". Puedes eliminarlos de esta lista para que vuelvan a aparecer en tus recomendaciones.</p>
+            <div id="lista-no-interesados">
+                <?php if(!empty($productosExcluidos)): ?>
+                    <?php foreach($productosExcluidos as $producto): ?>
+                        <div class="item-no-interesado" data-producto-id="<?php echo $producto->id; ?>">
+                            <span><?php echo htmlspecialchars($producto->nombre); ?></span>
+                            <button type="button" class="btn-eliminar-preferencia">Eliminar</button>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No has marcado ningún producto como "No me interesa".</p>
+                <?php endif; ?>
+            </div>
+        </fieldset>
+
+        <fieldset class="formulario__fieldset">
             <legend class="formulario__legend">Gestión de Datos</legend>
             <p>Puedes descargar todos los datos asociados a tu cuenta en formato JSON.</p>
             <a href="/perfil/exportar-datos" class="formulario__submit" style="background-color: #007bff; max-width: 30rem;" download>Descargar mis Datos</a>
@@ -143,9 +160,25 @@
     .preferencia__label:hover {
         background-color: #f7f7f7;
     }
+    .item-no-interesado {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .btn-eliminar-preferencia {
+        background-color: #C62828;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+    }
 </style>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
     // Se activa el input de archivo al hacer clic en el contenedor de la imagen
     document.getElementById('imagenPreview').addEventListener('click', () => document.getElementById('imagen').click());
 
@@ -179,4 +212,29 @@
             reader.readAsDataURL(file);
         }
     }
+
+    // LISTA PRODUCTOS NO INTERESADOS
+    document.getElementById('lista-no-interesados').addEventListener('click', async function(e) {
+        if (e.target.classList.contains('btn-eliminar-preferencia')) {
+            const itemDiv = e.target.closest('.item-no-interesado');
+            const productoId = itemDiv.dataset.productoId;
+
+            try {
+                const response = await fetch('/perfil/eliminar-no-interesa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productoId: productoId })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    itemDiv.remove();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    });
+});
 </script>

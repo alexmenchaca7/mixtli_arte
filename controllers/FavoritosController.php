@@ -23,7 +23,7 @@ class FavoritosController {
         // Obtener productos favoritos
         $query = "SELECT p.* FROM favoritos f
                   INNER JOIN productos p ON f.productoId = p.id
-                  WHERE f.usuarioId = '$usuarioId'";
+                  WHERE f.usuarioId = '$usuarioId' AND p.estado != 'agotado'";
         $productos = Producto::consultarSQL($query);
 
         // Obtener imágenes principales

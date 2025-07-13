@@ -114,6 +114,9 @@ $router->post('/comprador/perfil/cambiar-password', [MarketplaceController::clas
 $router->get('/favoritos', [FavoritosController::class, 'index']);
 $router->post('/favoritos/toggle', [FavoritosController::class, 'toggle']);
 
+$router->post('/api/productos/no-interesa', [MarketplaceController::class, 'marcarNoInteresa']);
+$router->post('/perfil/eliminar-no-interesa', [MarketplaceController::class, 'eliminarPreferenciaNoInteresa']);
+
 $router->get('/mensajes', [MensajesController::class, 'index']);
 $router->post('/mensajes/enviar', [MensajesController::class, 'enviar']);
 $router->post('/mensajes/upload', [MensajesController::class, 'subirArchivo']);

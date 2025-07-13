@@ -113,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.favorito-btn').forEach(button => {
         button.addEventListener('click', async (e) => {
             e.preventDefault();
+            if (this.disabled) return;
             const productoId = button.dataset.productoId;
             const icon = button.querySelector('i');
 
@@ -161,6 +162,40 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+
+    // NO INTERESA
+    document.body.addEventListener('click', async function(e) {
+        if (e.target.closest('.no-interesa-btn')) {
+            const button = e.target.closest('.no-interesa-btn');
+            const productoId = button.dataset.productoId;
+            
+            try {
+                const response = await fetch('/api/productos/no-interesa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productoId: productoId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Ocultar la tarjeta del producto
+                    const card = button.closest('.producto[data-producto-card-id="' + productoId + '"]');
+                    if (card) {
+                        card.style.transition = 'opacity 0.5s ease';
+                        card.style.opacity = '0';
+                        setTimeout(() => card.remove(), 500);
+                    }
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('No se pudo completar la acción.');
+            }
+        }
+    });
+    
 
     // MODAL REPORTE DE VALORACIÓN
     const modal = document.getElementById('modal-reporte-valoracion');

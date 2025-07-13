@@ -16,6 +16,7 @@ use Model\ImagenProducto;
 use Model\ReporteProducto;
 use Model\PreferenciaUsuario;
 use Model\HistorialInteraccion;
+use Model\ProductoNoInteresado;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -37,6 +38,10 @@ class MarketplaceController {
         }
 
         $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $categoriaId = filter_var($_GET['categoria'] ?? null, FILTER_VALIDATE_INT);
+        $condiciones = ["estado != 'agotado'"]; // Excluir siempre los productos agotados
+        $titulo = 'Para Ti';
+        $usuarioId = $_SESSION['id'];
 
         // Guardando las busquedas realizadas en el historial de interacciones
         if (!empty($busqueda) && is_auth()) {
@@ -48,10 +53,14 @@ class MarketplaceController {
             $interaccion->guardar();
         }
 
-        $categoriaId = filter_var($_GET['categoria'] ?? null, FILTER_VALIDATE_INT);
-        $condiciones = [];
-        $titulo = 'Para Ti';
-        $usuarioId = $_SESSION['id'];
+        // Obtener productos que NO le interesan al usuario
+        $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuarioId);
+        $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
+
+        if (!empty($idsNoInteresados)) {
+            $idsStringNoInteresados = implode(',', $idsNoInteresados);
+            $condiciones[] = "id NOT IN ($idsStringNoInteresados)";
+        }
 
         // Lógica de búsqueda
         if (!empty($busqueda)) {
@@ -491,6 +500,7 @@ class MarketplaceController {
         // Buscar productos
         $productos = Producto::whereArray([
             'nombre LIKE' => "%{$termino}%",
+            'estado !=' => 'agotado'
         ]);
     
         // Buscar categorías
@@ -556,12 +566,23 @@ class MarketplaceController {
             $valoracion->producto = Producto::find($valoracion->productoId);
         }
 
+        // Obtener productos no interesados para mostrarlos en el perfil
+        $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $idUsuario);
+        $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
+        
+        $productosExcluidos = [];
+        if(!empty($idsNoInteresados)) {
+            $idsString = implode(',', $idsNoInteresados);
+            $productosExcluidos = Producto::consultarSQL("SELECT id, nombre FROM productos WHERE id IN ($idsString)");
+        }
+
         $router->render('marketplace/perfil/index', [
             'titulo' => 'Mi Perfil',
             'usuario' => $usuario,
             'direcciones' => $direcciones,
             'categoriasInteres' => $categoriasInteres,
             'valoraciones' => $valoracionesRecibidas,
+            'productosExcluidos' => $productosExcluidos,
             'show_hero' => false
         ]);
     }
@@ -947,5 +968,75 @@ class MarketplaceController {
             'promedioEstrellasRecibidas' => $promedioEstrellasRecibidas, // Nuevo
             'desgloseEstrellasRecibidas' => $desgloseEstrellasRecibidas // Nuevo
         ]);
+    }
+
+    public static function marcarNoInteresa() {
+        header('Content-Type: application/json');
+        if (!is_auth()) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión.']);
+            return;
+        }
+
+        $datos = json_decode(file_get_contents('php://input'), true);
+        $productoId = filter_var($datos['productoId'] ?? null, FILTER_VALIDATE_INT);
+        $usuarioId = $_SESSION['id'];
+
+        if (!$productoId) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Producto no válido.']);
+            return;
+        }
+
+        $existente = ProductoNoInteresado::whereArray(['usuarioId' => $usuarioId, 'productoId' => $productoId]);
+        if ($existente) {
+            echo json_encode(['success' => true, 'message' => 'Preferencia ya registrada.']);
+            return;
+        }
+
+        $preferencia = new ProductoNoInteresado(['usuarioId' => $usuarioId, 'productoId' => $productoId]);
+        $resultado = $preferencia->guardar();
+
+        if ($resultado) {
+            // Registrar la interacción
+            $interaccion = new HistorialInteraccion([
+                'tipo' => 'no_interesa',
+                'usuarioId' => $usuarioId,
+                'productoId' => $productoId
+            ]);
+            $interaccion->guardar();
+            echo json_encode(['success' => true, 'message' => 'Producto marcado como no interesante.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'No se pudo guardar la preferencia.']);
+        }
+    }
+
+    public static function eliminarPreferenciaNoInteresa() {
+        header('Content-Type: application/json');
+        if (!is_auth()) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión.']);
+            return;
+        }
+
+        $datos = json_decode(file_get_contents('php://input'), true);
+        $productoId = filter_var($datos['productoId'] ?? null, FILTER_VALIDATE_INT);
+        $usuarioId = $_SESSION['id'];
+
+        if (!$productoId) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Producto no válido.']);
+            return;
+        }
+
+        $preferencia = ProductoNoInteresado::whereArray(['usuarioId' => $usuarioId, 'productoId' => $productoId]);
+        if ($preferencia) {
+            $preferencia[0]->eliminar();
+            echo json_encode(['success' => true, 'message' => 'Preferencia eliminada.']);
+        } else {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'error' => 'Preferencia no encontrada.']);
+        }
     }
 }

@@ -6430,3 +6430,1045 @@ Orden Final de Categorías Recomendadas (por ID):
 6, 9, 12
 -------------------------------------------------
 
+-------------------------------------------------
+Fecha: 2025-07-13 02:30:47
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+6, 9, 12
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:31:12
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (por ID):
+6, 9, 12
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:33:06
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 87.75
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Multiplicador por favoritos (x1.5): 26 -> 39
+    - Multiplicador por favoritos (x1.5): 39 -> 58.5
+    - Multiplicador por favoritos (x1.5): 58.5 -> 87.75
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:34:40
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 91.125
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Multiplicador por favoritos (x1.5): 27 -> 40.5
+    - Multiplicador por favoritos (x1.5): 40.5 -> 60.75
+    - Multiplicador por favoritos (x1.5): 60.75 -> 91.125
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:34:44
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 94.5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Multiplicador por favoritos (x1.5): 28 -> 42
+    - Multiplicador por favoritos (x1.5): 42 -> 63
+    - Multiplicador por favoritos (x1.5): 63 -> 94.5
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:35:16
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 94.5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Multiplicador por favoritos (x1.5): 28 -> 42
+    - Multiplicador por favoritos (x1.5): 42 -> 63
+    - Multiplicador por favoritos (x1.5): 63 -> 94.5
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:38:10
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 124.875
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (77s) en producto ID 59: +3
+    - Interacción 'clic' en producto ID 58: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Multiplicador por favoritos (x1.5): 37 -> 55.5
+    - Multiplicador por favoritos (x1.5): 55.5 -> 83.25
+    - Multiplicador por favoritos (x1.5): 83.25 -> 124.875
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:41:14
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 135
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (77s) en producto ID 59: +3
+    - Interacción 'clic' en producto ID 58: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (70s) en producto ID 59: +3
+    - Multiplicador por favoritos (x1.5): 40 -> 60
+    - Multiplicador por favoritos (x1.5): 60 -> 90
+    - Multiplicador por favoritos (x1.5): 90 -> 135
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:52:37
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 189
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (77s) en producto ID 59: +3
+    - Interacción 'clic' en producto ID 58: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (70s) en producto ID 59: +3
+    - Interacción 'autocompletado_producto' en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (78s) en producto ID 110: +3
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (572s) en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Multiplicador por favoritos (x1.5): 56 -> 84
+    - Multiplicador por favoritos (x1.5): 84 -> 126
+    - Multiplicador por favoritos (x1.5): 126 -> 189
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:53:23
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 189
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (77s) en producto ID 59: +3
+    - Interacción 'clic' en producto ID 58: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (70s) en producto ID 59: +3
+    - Interacción 'autocompletado_producto' en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (78s) en producto ID 110: +3
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (572s) en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Multiplicador por favoritos (x1.5): 56 -> 84
+    - Multiplicador por favoritos (x1.5): 84 -> 126
+    - Multiplicador por favoritos (x1.5): 126 -> 189
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:56:34
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 229.5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (77s) en producto ID 59: +3
+    - Interacción 'clic' en producto ID 58: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (70s) en producto ID 59: +3
+    - Interacción 'autocompletado_producto' en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (78s) en producto ID 110: +3
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (572s) en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'autocompletado_producto' en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (79s) en producto ID 110: +3
+    - Interacción 'clic' en producto ID 110: +1
+    - Multiplicador por favoritos (x1.5): 68 -> 102
+    - Multiplicador por favoritos (x1.5): 102 -> 153
+    - Multiplicador por favoritos (x1.5): 153 -> 229.5
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 02:56:38
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 229.5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (77s) en producto ID 59: +3
+    - Interacción 'clic' en producto ID 58: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (70s) en producto ID 59: +3
+    - Interacción 'autocompletado_producto' en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (78s) en producto ID 110: +3
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (572s) en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'autocompletado_producto' en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (79s) en producto ID 110: +3
+    - Interacción 'clic' en producto ID 110: +1
+    - Multiplicador por favoritos (x1.5): 68 -> 102
+    - Multiplicador por favoritos (x1.5): 102 -> 153
+    - Multiplicador por favoritos (x1.5): 153 -> 229.5
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+
+-------------------------------------------------
+Fecha: 2025-07-13 03:00:36
+Usuario ID: 31
+
+Fórmula de Pesos por Interacción:
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría:
+
+[Categoría: Decoración del hogar (ID: 3)] - Peso Total: 229.5
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 112: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Agregó a favoritos producto ID 112: +8
+    - Interacción 'clic' en producto ID 111: +1
+    - Interacción 'clic' en producto ID 60: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (77s) en producto ID 59: +3
+    - Interacción 'clic' en producto ID 58: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 109: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Interacción 'clic' en producto ID 59: +1
+    - Tiempo en Página (70s) en producto ID 59: +3
+    - Interacción 'autocompletado_producto' en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (78s) en producto ID 110: +3
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (572s) en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'autocompletado_producto' en producto ID 110: +5
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'clic' en producto ID 110: +1
+    - Interacción 'clic' en producto ID 110: +1
+    - Tiempo en Página (79s) en producto ID 110: +3
+    - Interacción 'clic' en producto ID 110: +1
+    - Multiplicador por favoritos (x1.5): 68 -> 102
+    - Multiplicador por favoritos (x1.5): 102 -> 153
+    - Multiplicador por favoritos (x1.5): 153 -> 229.5
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 49.5
+  Desglose del cálculo:
+    - Interacción 'autocompletado_producto' en producto ID 18: +5
+    - Interacción 'clic' en producto ID 18: +1
+    - Agregó a favoritos producto ID 96: +8
+    - Agregó a favoritos producto ID 96: +8
+    - Multiplicador por favoritos (x1.5): 22 -> 33
+    - Multiplicador por favoritos (x1.5): 33 -> 49.5
+
+[Categoría: Cuidado personal (ID: 12)] - Peso Total: 27
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Agregó a favoritos producto ID 114: +8
+    - Multiplicador por favoritos (x1.5): 18 -> 27
+
+[Categoría: Moda (ID: 6)] - Peso Total: 20
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+    - Interacción 'clic' en producto ID 89: +1
+    - Interacción 'clic' en producto ID 19: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Interacción 'clic' en producto ID 36: +1
+    - Tiempo en Página (23s) en producto ID 36: +1
+    - Interacción 'clic' en producto ID 20: +1
+    - Tiempo en Página (92s) en producto ID 20: +4
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 46: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Festividades (ID: 7)] - Peso Total: 12
+  Desglose del cálculo:
+    - Agregó a favoritos producto ID 55: +8
+    - Multiplicador por favoritos (x1.5): 8 -> 12
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+  Desglose del cálculo:
+    - Preferencia Explícita: +10
+
+[Categoría: Jardín y naturaleza (ID: 11)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 79: +1
+
+[Categoría: Productos ecológicos (ID: 8)] - Peso Total: 1
+  Desglose del cálculo:
+    - Interacción 'clic' en producto ID 105: +1
+
+Orden Final de Categorías Recomendadas (por ID):
+3, 5, 12, 6, 2, 7, 9, 11, 8
+-------------------------------------------------
+

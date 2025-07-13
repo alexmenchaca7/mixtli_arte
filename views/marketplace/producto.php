@@ -54,8 +54,11 @@ if ($usuarioId) {
         </div>
     </div>
 
+    <?php if($producto->estado === 'agotado'): ?>
+        <p class="alerta alerta__error">Este producto no está disponible por el momento.</p>
+    <?php endif; ?>
+
     <div class="producto-vista__grid">
-        
         <div class="producto-vista__imagenes">
             <div class="imagen-principal">
                 <?php if (!empty($producto->imagenes[0])): ?>
@@ -78,7 +81,12 @@ if ($usuarioId) {
         <div class="producto-vista__detalles">
             <div class="producto-header">
                 <h1><?= htmlspecialchars($producto->nombre) ?></h1>
-                <button class="favorito-btn-detalle" data-producto-id="<?php echo $producto->id; ?>" title="Añadir a favoritos">
+                <button
+                    class="favorito-btn-detalle"
+                    data-producto-id="<?php echo $producto->id; ?>"
+                    title="<?php echo ($producto->estado === 'agotado') ? 'Producto no disponible' : 'Añadir a favoritos'; ?>"
+                    <?php if ($producto->estado === 'agotado') echo 'disabled'; ?>
+                >
                     <i class="fa-heart <?php echo $esFavorito ? 'fa-solid' : 'fa-regular'; ?>"></i>
                 </button>
             </div>
@@ -114,10 +122,19 @@ if ($usuarioId) {
                         <input type="hidden" name="productoId" value="<?= $producto->id ?>">
                         <input type="hidden" name="destinatarioId" value="<?= $vendedor->id ?>">
                         <input type="hidden" name="mensaje" value="Hola, estoy interesado/a en '<?php echo htmlspecialchars($producto->nombre); ?>'. ¿Sigue disponible?">
-                        <button type="submit" class="boton-rosa-block">
-                            <span class="texto-boton">Contactar al vendedor</span>
-                            <div class="spinner"></div>
-                        </button>
+                        <?php if ($producto->estado === 'agotado'): ?>
+                            <button type="button" class="boton-rosa-block" disabled>Producto Agotado</button>
+                        <?php else: ?>
+                            <form id="form-mensaje" method="POST">
+                                <input type="hidden" name="productoId" value="<?= $producto->id ?>">
+                                <input type="hidden" name="destinatarioId" value="<?= $vendedor->id ?>">
+                                <input type="hidden" name="mensaje" value="Hola, estoy interesado/a en '<?php echo htmlspecialchars($producto->nombre); ?>'. ¿Sigue disponible?">
+                                <button type="submit" class="boton-rosa-block">
+                                    <span class="texto-boton">Contactar al vendedor</span>
+                                    <div class="spinner"></div>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     </form>
                     <div id="mensaje-exito" class="mensaje-exito"></div>
                     <div id="mensaje-error" class="mensaje-error"></div>
@@ -173,9 +190,6 @@ if ($usuarioId) {
 
     <div class="productos-relacionados-seccion">
         <h2><?= ($producto->estado === 'agotado') ? 'Productos Similares que Podrían Interesarte' : 'También te Podría Gustar'; ?></h2>
-        <?php if($producto->estado === 'agotado'): ?>
-            <p class="alerta alerta__error">Este producto no está disponible por el momento.</p>
-        <?php endif; ?>
 
         <?php if (!empty($productosRelacionados)): ?>
             <div class="contenedor-productos">

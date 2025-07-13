@@ -195,6 +195,23 @@
     }
 }
 
+.favorito-btn-detalle:disabled,
+.panel-contacto .boton-rosa-block:disabled {
+    background-color: #e0e0e0; // Un gris claro para el fondo
+    cursor: not-allowed;      // El cursor indicará que no se puede hacer clic
+    color: #9e9e9e;           // Color de texto más apagado
+    border-color: #ccc;       // Borde también grisáceo
+
+    i {
+        color: #9e9e9e; // Asegura que el ícono del corazón también se vea gris
+    }
+
+    &:hover {
+        transform: none; // Evita cualquier efecto hover como el escalado
+        background-color: #e0e0e0; // Mantiene el color de fondo en hover
+    }
+}
+
 // --- Spinner del botón (reutilizado de antes) ---
 .spinner {
     display: none;
