@@ -1,14 +1,15 @@
 <main class="contenedor seccion">
-    <h2 class="auth__heading"><?php echo $titulo; ?></h2>
-
-    <div style="max-width: 60rem; margin: 0 auto;">
-        <div class="dashboard__contenedor-boton" style="margin-bottom: 2rem;">
-            <a class="dashboard__boton" href="/comprador/perfil/editar">
-                <i class="fa-solid fa-circle-arrow-left"></i>
-                Volver
-            </a>
-        </div>
-    
+    <div class="dashboard__contenedor-boton" style="margin-bottom: 2rem;">
+        <a class="dashboard__boton" href="/comprador/perfil/editar">
+            <i class="fa-solid fa-circle-arrow-left"></i>
+            Volver
+        </a>
+    </div>
+    <div class="auth">
+        <?php if($_SESSION['rol'] === 'vendedor'): ?>
+            <h2 class="auth__heading"><?php echo $titulo; ?></h2>
+        <?php endif; ?>
+        
         <div class="dashboard__formulario">
             <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
             

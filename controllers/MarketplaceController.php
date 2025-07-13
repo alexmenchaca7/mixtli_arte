@@ -841,7 +841,7 @@ class MarketplaceController {
                 }   
                 
                 Usuario::setAlerta('exito', 'Perfil actualizado correctamente');
-                header('Location: /comprador/perfil');
+                header('Location: /comprador/perfil/editar');
                 exit();
             }
         }

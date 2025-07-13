@@ -29,14 +29,16 @@
         <button type="button" class="chat__back-btn" id="chat-back-btn">
             <i class="fa-solid fa-arrow-left"></i>
         </button>
-        <picture>
-            <img src="/img/usuarios/<?php echo isset($contactoChat->imagen) && $contactoChat->imagen ? $contactoChat->imagen . '.png' : 'default.png'; ?>"
-                    class="chat__imagen" 
-                    alt="<?= $contactoChat->nombre ?>">
-        </picture>
-        <div class="chat__info">
-            <h3><?= $contactoChat->nombre . ' • ' . $productoChat->nombre ?></h3>
-        </div>
+        <a href="/perfil?id=<?= htmlspecialchars($contactoChat->id); ?>" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+            <picture>
+                <img src="/img/usuarios/<?php echo isset($contactoChat->imagen) && $contactoChat->imagen ? $contactoChat->imagen . '.png' : 'default.png'; ?>"
+                        class="chat__imagen" 
+                        alt="<?= $contactoChat->nombre ?>">
+            </picture>
+            <div class="chat__info">
+                <h3><?= $contactoChat->nombre . ' • ' . $productoChat->nombre ?></h3>
+            </div>
+        </a>
     </div>
 
     <div class="chat__mensajes" id="mensajes-container">

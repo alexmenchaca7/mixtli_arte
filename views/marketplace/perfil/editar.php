@@ -1,10 +1,12 @@
 <main class="contenedor seccion">
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-        <a href="/comprador/perfil" class="boton-rosa" style="display: inline-block;">Volver al Perfil</a>
-        <div class="botones-perfil">
-            <a href="/comprador/perfil/cambiar-password" class="boton-rosa" style="background-color: #555;">Cambiar Contraseña</a>
-            <a href="/seguridad/2fa" class="boton-rosa" style="background-color: #555;">Seguridad (2FA)</a>
+    <div class="dashboard__contenedor-boton" style="margin-bottom: 2rem;">
+        <a class="dashboard__boton" href="/comprador/perfil">
+            <i class="fa-solid fa-circle-arrow-left"></i>
+            Volver
+        </a>
+        <div class="botones-perfil" style="display: flex; justify-content: space-between;">
+            <a href="/comprador/perfil/cambiar-password" class="dashboard__boton" style="background-color: #555;">Cambiar Contraseña</a>
+            <a href="/seguridad/2fa" class="dashboard__boton" style="background-color: #555;">Seguridad (2FA)</a>
         </div>
     </div>
 

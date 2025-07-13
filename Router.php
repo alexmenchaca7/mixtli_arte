@@ -55,6 +55,15 @@ class Router {
     // Método para renderizar vistas
     public function render($view, $datos = [], $layout = 'layout') {
 
+        // 1. Recuperamos las alertas de la sesión para esta petición.
+        $alertas = $_SESSION['alertas'] ?? [];
+        
+        // 2. Inmediatamente después de leerlas, las borramos.
+        unset($_SESSION['alertas']); 
+
+        // 3. Añadimos las alertas al array de datos (la vista siempre recibirá una variable $alertas, aunque esté vacía)
+        $datos['alertas'] = $alertas;
+
         // Extrae los datos enviados para usarlos en la vista
         foreach($datos as $key => $value) {
             $$key = $value; // Convierte los elementos del array asociativo en variables con el mismo nombre de la clave
