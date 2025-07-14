@@ -110,38 +110,28 @@ class MarketplaceController {
             $titulo = $categoria ? $categoria->nombre : $titulo;
         } else {
             // --- LÓGICA DE PERSONALIZACIÓN Y RECOMENDACIÓN ---
-            $logFilePath = __DIR__ . '/../marketplace_controller.log';
-            $logDir = dirname($logFilePath);
-            if (!is_dir($logDir)) { mkdir($logDir, 0775, true); } // Crea el directorio si no existe
-
-            $logContent = "--- INICIANDO RECOMENDACIÓN 'PARA TI' (ID Usuario: {$usuarioId}) ---\n";
-
-            // 1. Obtener recomendaciones por similitud
-            $idsPorSimilitud = RecomendacionController::obtenerRecomendacionesPorSimilitud($usuarioId);
-            if (!empty($idsPorSimilitud)) {
-                $logContent .= "Se encontraron " . count($idsPorSimilitud) . " recomendaciones por SIMILITUD.\n";
+            $logFilePath = __DIR__ . '/../recomendaciones.log';
+            if (!is_dir(dirname($logFilePath))) {
+                mkdir(dirname($logFilePath), 0775, true);
             }
 
-            // 2. Obtener recomendaciones por categorías preferidas
-            $idsPorCategorias = RecomendacionController::obtenerCategoriasRecomendadas($usuarioId);
-             if (!empty($idsPorCategorias)) {
-                $logContent .= "Se encontraron " . count($idsPorCategorias) . " recomendaciones por CATEGORÍA.\n";
-            }
-
-            // 3. Unificar todas las recomendaciones
-            $todosLosIdsRecomendados = array_unique(array_merge($idsPorSimilitud, $idsPorCategorias));
+            $log = "--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: {$usuarioId}) ---\n";
             
+            // Llamada al nuevo método unificado en RecomendacionController
+            $resultadoRecomendacion = RecomendacionController::obtenerRecomendacionesUnificadas($usuarioId);
+            $todosLosIdsRecomendados = $resultadoRecomendacion['ids'];
+            $log .= $resultadoRecomendacion['log']; // Añadimos el log generado por el controlador
+
             if (!empty($todosLosIdsRecomendados)) {
-                $titulo = 'Para Ti'; // El título se mantiene
-                $logContent .= "Total de " . count($todosLosIdsRecomendados) . " recomendaciones únicas para 'Para Ti'.\n";
+                $titulo = 'Para Ti';
+                $log .= "Total de " . count($todosLosIdsRecomendados) . " recomendaciones únicas para 'Para Ti'.\n";
                 $idsString = implode(',', $todosLosIdsRecomendados);
                 $condiciones[] = "id IN ($idsString)";
-                // El orden prioriza los productos por similitud y luego por categoría
+                // El orden prioriza los productos recomendados
                 $ordenPersonalizado = "FIELD(id, $idsString)";
-
             } else {
-                // 4. FALLBACK: Si no hay ninguna recomendación, mostrar productos populares
-                $logContent .= "Fallback: No se encontraron recomendaciones. Mostrando productos populares.\n";
+                // FALLBACK: Si no hay ninguna recomendación, mostrar productos populares
+                $log .= "Fallback General: No se encontraron recomendaciones de ningún tipo. Mostrando productos populares.\n";
                 $titulo = 'Productos Populares';
                 $queryPopulares = "SELECT categoriaId, COUNT(id) as total FROM productos WHERE estado != 'agotado' GROUP BY categoriaId ORDER BY total DESC LIMIT 5";
                 $resultadoPopulares = Producto::consultarSQL($queryPopulares);
@@ -151,7 +141,8 @@ class MarketplaceController {
                     $condiciones[] = "categoriaId IN (" . implode(',', $idsPopulares) . ")";
                 }
             }
-            file_put_contents($logFilePath, $logContent, FILE_APPEND);
+            $log .= "--- FIN DEL PROCESO ---\n\n";
+            file_put_contents($logFilePath, $log, FILE_APPEND);
         }
 
         // Configuración de paginación
