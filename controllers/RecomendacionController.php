@@ -192,7 +192,7 @@ class RecomendacionController {
         $logContent .= "\n-------------------------------------------------\n\n";
 
         $logFilePath = __DIR__ . '/../recomendaciones.log';
-        file_put_contents($logFilePath, $logContent, FILE_APPEND);
+        file_put_contents($logFilePath, $logContent);
         // --- FIN DEL CÓDIGO DE LOGGING ---
 
 
