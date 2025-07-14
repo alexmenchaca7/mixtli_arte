@@ -4,6 +4,7 @@ namespace Controllers;
 use MVC\Router;
 use Model\Favorito;
 use Model\Producto;
+use Model\Categoria;
 use Model\ImagenProducto;
 use Model\HistorialInteraccion;
 
@@ -32,10 +33,14 @@ class FavoritosController {
             $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
         }
 
+        // Obtener categorias
+        $categorias = Categoria::all();
+
         $router->render('marketplace/favoritos', [
             'titulo' => 'Favoritos',
             'productos' => $productos,
-            'favoritosIds' => $favoritosIds
+            'favoritosIds' => $favoritosIds,
+            'categorias' => $categorias
         ]);
     }
 

@@ -6,6 +6,7 @@ use Model\Producto;
 use Model\Categoria;
 use Model\PreferenciaUsuario;
 use Model\HistorialInteraccion;
+use Model\ProductoNoInteresado;
 
 class RecomendacionController {
 
@@ -16,6 +17,23 @@ class RecomendacionController {
         
         // Estructura unificada para guardar los pesos y el desglose de cada categoría
         $categoriasInteres = [];
+
+        // Penalizar categorías de productos "No me interesa"
+        $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuarioId);
+        if (!empty($productosNoInteresados)) {
+            foreach ($productosNoInteresados as $item) {
+                $producto = Producto::find($item->productoId);
+                if ($producto && $producto->categoriaId) {
+                    $catId = $producto->categoriaId;
+                    if (!isset($categoriasInteres[$catId])) {
+                        $categoriasInteres[$catId] = ['total' => 0, 'breakdown' => []];
+                    }
+                    $penalizacion = -1000;
+                    $categoriasInteres[$catId]['total'] += $penalizacion;
+                    $categoriasInteres[$catId]['breakdown'][] = "Penalización por 'No me interesa' (Producto ID {$producto->id}): {$penalizacion}";
+                }
+            }
+        }
 
         // Obtener preferencias explícitas del usuario y darles un peso inicial alto (10)
         $preferencias = PreferenciaUsuario::where('usuarioId', $usuarioId);
@@ -104,21 +122,33 @@ class RecomendacionController {
                 foreach ($productosFavoritos as $fav) {
                     $producto = Producto::find($fav->productoId);
                     if ($producto && isset($categoriasInteres[$producto->categoriaId])) {
-                        $pesoAntiguo = $categoriasInteres[$producto->categoriaId]['total'];
+                        // Solo aplicar el multiplicador si el peso actual de la categoría es POSITIVO.
+                        if ($categoriasInteres[$producto->categoriaId]['total'] > 0) {
+                            $pesoAntiguo = $categoriasInteres[$producto->categoriaId]['total'];
 
-                        // Multiplicamos el peso para dar un gran impulso a las categorías de favoritos
-                        $categoriasInteres[$producto->categoriaId]['total'] *= 1.5;
-                        $pesoNuevo = $categoriasInteres[$producto->categoriaId]['total'];
-                        $categoriasInteres[$producto->categoriaId]['breakdown'][] = "Multiplicador por favoritos (x1.5): {$pesoAntiguo} -> {$pesoNuevo}";
+                            // Multiplicamos el peso para dar un gran impulso a las categorías de favoritos
+                            $categoriasInteres[$producto->categoriaId]['total'] *= 1.5;
+                            
+                            // Redondear para evitar decimales largos en el log
+                            $categoriasInteres[$producto->categoriaId]['total'] = round($categoriasInteres[$producto->categoriaId]['total'], 2);
+
+                            $pesoNuevo = $categoriasInteres[$producto->categoriaId]['total'];
+                            $categoriasInteres[$producto->categoriaId]['breakdown'][] = "Multiplicador por favoritos (x1.5): {$pesoAntiguo} -> {$pesoNuevo}";
+                        }
                     }
                 }
             }
         }
         
-        // --- Ordenar las categorías según el peso total ---
+        // Ordenar las categorías según el peso total (las penalizadas quedarán al final o no aparecerán si su peso es negativo)
         uasort($categoriasInteres, function ($a, $b) {
             return $b['total'] <=> $a['total'];
         });
+
+        // Filtrar categorías con peso negativo antes de devolver
+        $categoriasOrdenadas = array_keys(array_filter($categoriasInteres, function($categoria) {
+            return $categoria['total'] > 0;
+        }));
 
 
         // --- INICIO DEL CÓDIGO DE LOGGING ---
@@ -127,7 +157,8 @@ class RecomendacionController {
         $logContent = "-------------------------------------------------\n";
         $logContent .= "Fecha: " . date('Y-m-d H:i:s') . "\n";
         $logContent .= "Usuario ID: " . $usuarioId . "\n\n";
-        $logContent .= "Fórmula de Pesos por Interacción:\n";
+        $logContent .= "Fórmula de Pesos y Penalizaciones:\n";
+        $logContent .= " - Penalización 'No me interesa': -1000\n"; // Se añade para claridad
         $logContent .= " - Compra: 15\n";
         $logContent .= " - Preferencia Explícita: 10\n";
         $logContent .= " - Favorito: 8\n";

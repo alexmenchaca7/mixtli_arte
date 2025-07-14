@@ -105,7 +105,10 @@
                 <?php if(!empty($productosExcluidos)): ?>
                     <?php foreach($productosExcluidos as $producto): ?>
                         <div class="item-no-interesado" data-producto-id="<?php echo $producto->id; ?>">
-                            <span><?php echo htmlspecialchars($producto->nombre); ?></span>
+                            <div class="item-no-interesado__info">
+                                <img src="/img/productos/<?php echo htmlspecialchars($producto->imagen_principal ?? 'placeholder.jpg'); ?>.png" alt="Miniatura de <?php echo htmlspecialchars($producto->nombre); ?>" class="item-no-interesado__imagen">
+                                <span><?php echo htmlspecialchars($producto->nombre); ?></span>
+                            </div>
                             <button type="button" class="btn-eliminar-preferencia">Eliminar</button>
                         </div>
                     <?php endforeach; ?>
@@ -166,6 +169,17 @@
         align-items: center;
         padding: 1rem;
         border-bottom: 1px solid #e0e0e0;
+    }
+    .item-no-interesado__info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    .item-no-interesado__imagen {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
     }
     .btn-eliminar-preferencia {
         background-color: #C62828;

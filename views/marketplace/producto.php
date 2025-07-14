@@ -158,6 +158,9 @@ if ($usuarioId) {
                 
                 <div class="panel-acciones-adicionales">
                     <button id="reportar-btn"><i class="fa-solid fa-flag"></i> Reportar producto</button>
+                    <button class="no-interesa-btn" data-producto-id="<?php echo $producto->id; ?>" title="No me interesa" style="background: none; border: none; color: #777; cursor: pointer;">
+                        <i class="fa-regular fa-thumbs-down"></i> No me interesa
+                    </button>
                     <div class="compartir-links">
                         <span>Compartir:</span>
                         <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($_ENV['HOST'] . $_SERVER['REQUEST_URI']); ?>" target="_blank" title="Compartir en Facebook"><i class="fa-brands fa-facebook"></i></a>

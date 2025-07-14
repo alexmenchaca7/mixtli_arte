@@ -23,7 +23,6 @@
         <p class="producto-categoria">
             <?php 
             $categoriaNombre = 'Sin categoría';
-            // Busca el nombre de la categoría en el array $categorias (si existe)
             if (isset($categorias) && is_array($categorias)) {
                 foreach ($categorias as $categoria) {
                     if ($categoria->id == $producto->categoriaId) {
@@ -39,7 +38,7 @@
         <div class="precio">
             <p>$<?php echo number_format($producto->precio, 2); ?> MXN</p>
             
-            <div class="producto-acciones">
+            <div class="producto__acciones">
                 <?php if($producto->estado !== 'agotado'): ?>
                     <button class="favorito-btn" data-producto-id="<?php echo $producto->id; ?>" title="Me gusta">
                         <i class="fa-heart <?php echo (isset($favoritosIds) && in_array($producto->id, $favoritosIds)) ? 'fa-solid' : 'fa-regular'; ?>"></i>

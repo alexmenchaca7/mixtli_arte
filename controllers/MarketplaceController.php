@@ -39,7 +39,6 @@ class MarketplaceController {
 
         $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
         $categoriaId = filter_var($_GET['categoria'] ?? null, FILTER_VALIDATE_INT);
-        $condiciones = ["estado != 'agotado'"]; // Excluir siempre los productos agotados
         $titulo = 'Para Ti';
         $usuarioId = $_SESSION['id'];
 
@@ -57,6 +56,10 @@ class MarketplaceController {
         $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuarioId);
         $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
 
+        // Inicializar condiciones
+        $condiciones = ["estado != 'agotado'"];
+
+        // Añadir condición para excluir productos no interesados
         if (!empty($idsNoInteresados)) {
             $idsStringNoInteresados = implode(',', $idsNoInteresados);
             $condiciones[] = "id NOT IN ($idsStringNoInteresados)";
@@ -856,7 +859,7 @@ class MarketplaceController {
             }
         }
 
-        // Obtener productos no interesados para mostrarlos en el perfil
+       // Obtener productos no interesados para mostrarlos en el perfil
         $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuario->id);
         $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
         
@@ -864,6 +867,12 @@ class MarketplaceController {
         if(!empty($idsNoInteresados)) {
             $idsString = implode(',', $idsNoInteresados);
             $productosExcluidos = Producto::consultarSQL("SELECT id, nombre FROM productos WHERE id IN ($idsString)");
+            
+            // **AÑADIR ESTO:** Obtener la imagen para cada producto excluido
+            foreach($productosExcluidos as $producto) {
+                $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+                $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
+            }
         }
     
         $router->render('marketplace/perfil/editar', [
@@ -1030,12 +1039,24 @@ class MarketplaceController {
             return;
         }
 
-        $preferencia = ProductoNoInteresado::whereArray(['usuarioId' => $usuarioId, 'productoId' => $productoId]);
-        if ($preferencia) {
-            $preferencia[0]->eliminar();
-            echo json_encode(['success' => true, 'message' => 'Preferencia eliminada.']);
+        // whereArray devuelve un array de objetos.
+        $preferencias = ProductoNoInteresado::whereArray(['usuarioId' => $usuarioId, 'productoId' => $productoId]);
+
+        // 1. Verificamos que el array NO esté vacío.
+        if (!empty($preferencias)) {
+            // 2. Accedemos al primer (y único) objeto del array.
+            $preferenciaAEliminar = $preferencias[0]; 
+            $resultado = $preferenciaAEliminar->eliminar();
+
+            if ($resultado) {
+                echo json_encode(['success' => true, 'message' => 'Preferencia eliminada.']);
+            } else {
+                http_response_code(500); // Internal Server Error
+                echo json_encode(['success' => false, 'error' => 'Ocurrió un error al eliminar la preferencia.']);
+            }
         } else {
-            http_response_code(404);
+            // Si el array está vacío, significa que la preferencia no se encontró.
+            http_response_code(404); // Not Found
             echo json_encode(['success' => false, 'error' => 'Preferencia no encontrada.']);
         }
     }

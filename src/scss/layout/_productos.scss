@@ -45,6 +45,11 @@
             transition: transform 0.3s ease;
         }
     }
+
+    &__acciones {
+        display: flex;
+        flex-direction: row;
+    }
     
     // Efecto de zoom suave en la imagen al pasar el mouse
     &:hover &__imagen-contenedor img {

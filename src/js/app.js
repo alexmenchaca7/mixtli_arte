@@ -217,19 +217,30 @@ document.addEventListener("DOMContentLoaded", () => {
             const productoId = itemDiv.dataset.productoId;
 
             try {
+                // --- CORRECCIÓN FINAL AQUÍ ---
+                // La URL ahora coincide exactamente con tu archivo de rutas.
                 const response = await fetch('/perfil/eliminar-no-interesa', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ productoId: productoId })
                 });
+                
+                if (!response.ok) {
+                    // Esto te ayudará a ver errores HTTP en la consola en el futuro.
+                    const errorText = await response.text();
+                    throw new Error(`Error HTTP ${response.status}: ${errorText}`);
+                }
+
                 const data = await response.json();
-                if(data.success) {
+                if (data.success) {
                     itemDiv.remove();
                 } else {
                     alert('Error: ' + data.error);
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error al procesar la solicitud:', error);
+                // Mostramos el error para que sea más fácil depurar.
+                alert('No se pudo completar la acción. Revisa la consola para más detalles.');
             }
         }
     });
