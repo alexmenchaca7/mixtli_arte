@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Model\Usuario;
+use Model\Favorito;
 use Model\Producto;
 use Model\Categoria;
 use Model\PreferenciaUsuario;
@@ -42,10 +43,21 @@ class RecomendacionController {
         // 4. Filtrar productos que al usuario no le interesan
         $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuarioId);
         $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
+
+        // Obtener productos que el usuario ya compró
+        $compras = HistorialInteraccion::whereArray(['usuarioId' => $usuarioId, 'tipo' => 'compra']);
+        $idsComprados = array_column($compras, 'productoId');
+
+        // Obtener productos que el usuario ya tiene en favoritos
+        $favoritos = Favorito::whereField('usuarioId', $usuarioId);
+        $idsFavoritos = array_column($favoritos, 'productoId');
+
+        // Unificar todos los IDs a excluir
+        $idsParaExcluir = array_unique(array_merge($idsNoInteresados, $idsComprados, $idsFavoritos));
         
-        if(!empty($idsNoInteresados)) {
-            $log .= "Filtrando " . count($idsNoInteresados) . " productos marcados como 'No me interesa'.\n";
-            $todosLosIds = array_diff($todosLosIds, $idsNoInteresados);
+        if(!empty($idsParaExcluir)) {
+            $log .= "Filtrando " . count($idsParaExcluir) . " productos (no interesados, comprados o favoritos).\n";
+            $todosLosIds = array_diff($todosLosIds, $idsParaExcluir);
         }
 
         return [
