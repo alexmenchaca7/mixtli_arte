@@ -226,29 +226,5 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.readAsDataURL(file);
         }
     }
-
-    // LISTA PRODUCTOS NO INTERESADOS
-    document.getElementById('lista-no-interesados').addEventListener('click', async function(e) {
-        if (e.target.classList.contains('btn-eliminar-preferencia')) {
-            const itemDiv = e.target.closest('.item-no-interesado');
-            const productoId = itemDiv.dataset.productoId;
-
-            try {
-                const response = await fetch('/perfil/eliminar-no-interesa', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productoId: productoId })
-                });
-                const data = await response.json();
-                if(data.success) {
-                    itemDiv.remove();
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-    });
 });
 </script>

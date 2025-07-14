@@ -140,15 +140,15 @@ class RecomendacionController {
             }
         }
         
-        // Ordenar las categorías según el peso total (las penalizadas quedarán al final o no aparecerán si su peso es negativo)
-        uasort($categoriasInteres, function ($a, $b) {
-            return $b['total'] <=> $a['total'];
+        // FILTRAR para quedarnos solo con lo relevante
+        $categoriasPositivas = array_filter($categoriasInteres, function($categoria) {
+            return $categoria['total'] > 0;
         });
 
-        // Filtrar categorías con peso negativo antes de devolver
-        $categoriasOrdenadas = array_keys(array_filter($categoriasInteres, function($categoria) {
-            return $categoria['total'] > 0;
-        }));
+        // ORDENAR únicamente las categorías que tienen un peso positivo
+        uasort($categoriasPositivas, function ($a, $b) {
+            return $b['total'] <=> $a['total'];
+        });
 
 
         // --- INICIO DEL CÓDIGO DE LOGGING ---
@@ -158,7 +158,7 @@ class RecomendacionController {
         $logContent .= "Fecha: " . date('Y-m-d H:i:s') . "\n";
         $logContent .= "Usuario ID: " . $usuarioId . "\n\n";
         $logContent .= "Fórmula de Pesos y Penalizaciones:\n";
-        $logContent .= " - Penalización 'No me interesa': -1000\n"; // Se añade para claridad
+        $logContent .= " - Penalización 'No me interesa': -1000\n";
         $logContent .= " - Compra: 15\n";
         $logContent .= " - Preferencia Explícita: 10\n";
         $logContent .= " - Favorito: 8\n";
@@ -167,23 +167,28 @@ class RecomendacionController {
         $logContent .= " - Clic: 1\n";
         $logContent .= " - Tiempo en Página: 1 punto por cada 20s (máx 5)\n\n";
 
-        $logContent .= "Cálculo Detallado de Intereses por Categoría:\n";
+        // Ordenamos el array de intereses COMPLETO (incluyendo negativos) solo para el log
+        uasort($categoriasInteres, function ($a, $b) {
+            return $b['total'] <=> $a['total'];
+        });
+
+        $logContent .= "Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):\n";
         if (empty($categoriasInteres)) {
             $logContent .= "No se calcularon intereses para este usuario.\n";
         } else {
             foreach ($categoriasInteres as $id => $data) {
                 $nombreCategoria = Categoria::find($id)->nombre ?? 'Desconocida';
                 $logContent .= "\n[Categoría: {$nombreCategoria} (ID: {$id})] - Peso Total: {$data['total']}\n";
-                $logContent .= "  Desglose del cálculo:\n";
+                $logContent .= "   Desglose del cálculo:\n";
                 foreach ($data['breakdown'] as $linea) {
-                    $logContent .= "    - " . $linea . "\n";
+                    $logContent .= "     - " . $linea . "\n";
                 }
             }
         }
 
-        $categoriasOrdenadas = array_keys($categoriasInteres);
-        $logContent .= "\nOrden Final de Categorías Recomendadas (por ID):\n";
-        $logContent .= empty($categoriasOrdenadas) ? "Ninguna" : implode(', ', $categoriasOrdenadas);
+        $categoriasFinalesParaUsuario = array_keys($categoriasPositivas);
+        $logContent .= "\nOrden Final de Categorías Recomendadas (Peso > 0):\n";
+        $logContent .= empty($categoriasFinalesParaUsuario) ? "Ninguna" : implode(', ', $categoriasFinalesParaUsuario);
         $logContent .= "\n-------------------------------------------------\n\n";
 
         $logFilePath = __DIR__ . '/../recomendaciones.log';
@@ -191,8 +196,8 @@ class RecomendacionController {
         // --- FIN DEL CÓDIGO DE LOGGING ---
 
 
-        // 4. Devolver solo los IDs de las categorías ordenadas
-        return array_keys($categoriasInteres);
+        // 3. DEVOLVER el array final: filtrado y ordenado.
+        return $categoriasFinalesParaUsuario;
     }
 
 

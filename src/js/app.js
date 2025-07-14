@@ -212,35 +212,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ELIMINAR PRODUCTO NO INTERESADO DE LA LISTA DE PREFERENCIAS
     document.addEventListener('click', async (e) => {
+        // Nos aseguramos de que el objetivo sea el botón correcto
         if (e.target.classList.contains('btn-eliminar-preferencia')) {
-            const itemDiv = e.target.closest('.item-no-interesado');
+            
+            const boton = e.target; // Guardamos la referencia al botón
+            const itemDiv = boton.closest('.item-no-interesado');
             const productoId = itemDiv.dataset.productoId;
 
+            // 1. Si el botón ya fue presionado, no hacemos nada más.
+            if (boton.disabled) {
+                return;
+            }
+
+            // 2. Deshabilitamos el botón INMEDIATAMENTE para prevenir doble clic.
+            boton.disabled = true;
+            boton.textContent = 'Eliminando...'; // Feedback visual
+
             try {
-                // --- CORRECCIÓN FINAL AQUÍ ---
-                // La URL ahora coincide exactamente con tu archivo de rutas.
                 const response = await fetch('/perfil/eliminar-no-interesa', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ productoId: productoId })
                 });
                 
-                if (!response.ok) {
-                    // Esto te ayudará a ver errores HTTP en la consola en el futuro.
-                    const errorText = await response.text();
-                    throw new Error(`Error HTTP ${response.status}: ${errorText}`);
+                const data = await response.json();
+
+                // Verificamos si la operación en el servidor fue exitosa (código 200)
+                if (response.ok && data.success) {
+                    // Animación suave para eliminar el elemento
+                    itemDiv.style.transition = 'opacity 0.3s ease';
+                    itemDiv.style.opacity = '0';
+                    setTimeout(() => itemDiv.remove(), 300);
+                } else {
+                    // Si el servidor devuelve un error, lo mostramos y reactivamos el botón
+                    throw new Error(data.error || 'Error desconocido del servidor.');
                 }
 
-                const data = await response.json();
-                if (data.success) {
-                    itemDiv.remove();
-                } else {
-                    alert('Error: ' + data.error);
-                }
             } catch (error) {
                 console.error('Error al procesar la solicitud:', error);
-                // Mostramos el error para que sea más fácil depurar.
-                alert('No se pudo completar la acción. Revisa la consola para más detalles.');
+                alert(error.message); // Mostramos un mensaje de error claro
+                
+                // Reactivamos el botón para que el usuario pueda intentarlo de nuevo
+                boton.disabled = false;
+                boton.textContent = 'Eliminar';
             }
         }
     });

@@ -1022,42 +1022,52 @@ class MarketplaceController {
     }
 
     public static function eliminarPreferenciaNoInteresa() {
+        // Aseguramos que la respuesta será JSON
         header('Content-Type: application/json');
+
+        // 1. Validar que el usuario esté autenticado
         if (!is_auth()) {
-            http_response_code(401);
-            echo json_encode(['success' => false, 'error' => 'Debes iniciar sesión.']);
+            http_response_code(401); // Unauthorized
+            echo json_encode(['success' => false, 'error' => 'Acceso no autorizado. Debes iniciar sesión.']);
             return;
         }
 
+        // 2. Obtener y validar los datos de la solicitud
         $datos = json_decode(file_get_contents('php://input'), true);
         $productoId = filter_var($datos['productoId'] ?? null, FILTER_VALIDATE_INT);
         $usuarioId = $_SESSION['id'];
 
         if (!$productoId) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Producto no válido.']);
+            http_response_code(400); // Bad Request
+            echo json_encode(['success' => false, 'error' => 'El ID del producto no es válido.']);
             return;
         }
 
-        // whereArray devuelve un array de objetos.
+        // 3. Buscar la preferencia en la base de datos
+        // Sabemos por la depuración que esta línea funciona correctamente.
         $preferencias = ProductoNoInteresado::whereArray(['usuarioId' => $usuarioId, 'productoId' => $productoId]);
 
-        // 1. Verificamos que el array NO esté vacío.
-        if (!empty($preferencias)) {
-            // 2. Accedemos al primer (y único) objeto del array.
-            $preferenciaAEliminar = $preferencias[0]; 
-            $resultado = $preferenciaAEliminar->eliminar();
-
-            if ($resultado) {
-                echo json_encode(['success' => true, 'message' => 'Preferencia eliminada.']);
-            } else {
-                http_response_code(500); // Internal Server Error
-                echo json_encode(['success' => false, 'error' => 'Ocurrió un error al eliminar la preferencia.']);
-            }
-        } else {
-            // Si el array está vacío, significa que la preferencia no se encontró.
+        // 4. Comprobar si se encontró la preferencia
+        if (empty($preferencias)) {
+            // Si por alguna razón no se encuentra, devolvemos 404.
             http_response_code(404); // Not Found
-            echo json_encode(['success' => false, 'error' => 'Preferencia no encontrada.']);
+            echo json_encode(['success' => false, 'error' => 'La preferencia a eliminar no fue encontrada.']);
+            return;
+        }
+        
+        // 5. Intentar eliminar el registro
+        $preferenciaAEliminar = $preferencias[0]; // Obtenemos el objeto a eliminar
+        $resultado = $preferenciaAEliminar->eliminar();
+
+        // 6. Devolver una respuesta basada en el resultado de la eliminación
+        if ($resultado) {
+            // ¡Éxito!
+            http_response_code(200); // OK
+            echo json_encode(['success' => true, 'message' => 'Preferencia eliminada correctamente.']);
+        } else {
+            // Si eliminar() devuelve false, hubo un error en la base de datos.
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['success' => false, 'error' => 'Error del servidor: No se pudo eliminar el registro de la base de datos.']);
         }
     }
 }
