@@ -1,5 +1,6 @@
 node_modules
 package-lock.json
+recomendaciones.log
 .env
 .DS_Store
 .vscode
