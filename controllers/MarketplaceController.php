@@ -110,31 +110,48 @@ class MarketplaceController {
             $titulo = $categoria ? $categoria->nombre : $titulo;
         } else {
             // --- LÓGICA DE PERSONALIZACIÓN Y RECOMENDACIÓN ---
-            $categoriasRecomendadasIds = RecomendacionController::obtenerCategoriasRecomendadas($usuarioId);
+            $logFilePath = __DIR__ . '/../marketplace_controller.log';
+            $logDir = dirname($logFilePath);
+            if (!is_dir($logDir)) { mkdir($logDir, 0775, true); } // Crea el directorio si no existe
 
-            if (!empty($categoriasRecomendadasIds)) {
-                $titulo = 'Para Ti';
-                $idsString = implode(',', $categoriasRecomendadasIds);
-                $condiciones[] = "categoriaId IN ($idsString)";
-                // Para mantener el orden de relevancia, podemos usar FIELD en la cláusula ORDER BY
-                $ordenPersonalizado = "FIELD(categoriaId, $idsString)";
+            $logContent = "--- INICIANDO RECOMENDACIÓN 'PARA TI' (ID Usuario: {$usuarioId}) ---\n";
+
+            // 1. Obtener recomendaciones por similitud
+            $idsPorSimilitud = RecomendacionController::obtenerRecomendacionesPorSimilitud($usuarioId);
+            if (!empty($idsPorSimilitud)) {
+                $logContent .= "Se encontraron " . count($idsPorSimilitud) . " recomendaciones por SIMILITUD.\n";
+            }
+
+            // 2. Obtener recomendaciones por categorías preferidas
+            $idsPorCategorias = RecomendacionController::obtenerCategoriasRecomendadas($usuarioId);
+             if (!empty($idsPorCategorias)) {
+                $logContent .= "Se encontraron " . count($idsPorCategorias) . " recomendaciones por CATEGORÍA.\n";
+            }
+
+            // 3. Unificar todas las recomendaciones
+            $todosLosIdsRecomendados = array_unique(array_merge($idsPorSimilitud, $idsPorCategorias));
+            
+            if (!empty($todosLosIdsRecomendados)) {
+                $titulo = 'Para Ti'; // El título se mantiene
+                $logContent .= "Total de " . count($todosLosIdsRecomendados) . " recomendaciones únicas para 'Para Ti'.\n";
+                $idsString = implode(',', $todosLosIdsRecomendados);
+                $condiciones[] = "id IN ($idsString)";
+                // El orden prioriza los productos por similitud y luego por categoría
+                $ordenPersonalizado = "FIELD(id, $idsString)";
+
             } else {
-                // FALLBACK: Si no hay NADA (ni preferencias, ni interacciones), mostrar de categorías populares
+                // 4. FALLBACK: Si no hay ninguna recomendación, mostrar productos populares
+                $logContent .= "Fallback: No se encontraron recomendaciones. Mostrando productos populares.\n";
                 $titulo = 'Productos Populares';
-                // Consulta para obtener IDs de las 5 categorías con más productos
                 $queryPopulares = "SELECT categoriaId, COUNT(id) as total FROM productos WHERE estado != 'agotado' GROUP BY categoriaId ORDER BY total DESC LIMIT 5";
                 $resultadoPopulares = Producto::consultarSQL($queryPopulares);
-                
-                $idsPopulares = [];
-                foreach($resultadoPopulares as $fila) {
-                    $idsPopulares[] = $fila->categoriaId;
-                }
+                $idsPopulares = array_column($resultadoPopulares, 'categoriaId');
 
                 if (!empty($idsPopulares)) {
-                    $idsString = implode(',', $idsPopulares);
-                    $condiciones[] = "categoriaId IN ($idsString)";
+                    $condiciones[] = "categoriaId IN (" . implode(',', $idsPopulares) . ")";
                 }
             }
+            file_put_contents($logFilePath, $logContent, FILE_APPEND);
         }
 
         // Configuración de paginación

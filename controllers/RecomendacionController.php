@@ -192,7 +192,7 @@ class RecomendacionController {
         $logContent .= "\n-------------------------------------------------\n\n";
 
         $logFilePath = __DIR__ . '/../recomendaciones.log';
-        file_put_contents($logFilePath, $logContent);
+        file_put_contents($logFilePath, $logContent, FILE_APPEND);
         // --- FIN DEL CÓDIGO DE LOGGING ---
 
 
@@ -200,9 +200,97 @@ class RecomendacionController {
         return $categoriasFinalesParaUsuario;
     }
 
+    // Obtiene recomendaciones de productos basadas en la similitud con otros usuarios (Filtro Colaborativo).
+    public static function obtenerRecomendacionesPorSimilitud(int $usuarioId): array {
+        $logFilePath = __DIR__ . '/../recomendaciones_similitud.log';
+        $logContent = "--- INICIO RECOMENDACIÓN POR SIMILITUD PARA USUARIO ID: {$usuarioId} ---\n";
 
-    private static function obtenerPesoInteraccion(string $tipo): int
-    {
+        // 1. Obtener interacciones significativas del usuario actual (favoritos, compras)
+        $interaccionesUsuarioActual = HistorialInteraccion::whereField('usuarioId', $usuarioId);
+        $idsProductosUsuarioActual = [];
+        foreach ($interaccionesUsuarioActual as $interaccion) {
+            if ($interaccion->productoId && ($interaccion->tipo === 'favorito' || $interaccion->tipo === 'compra')) {
+                $idsProductosUsuarioActual[] = $interaccion->productoId;
+            }
+        }
+
+        if (empty($idsProductosUsuarioActual)) {
+            $logContent .= "El usuario no tiene interacciones significativas. Abortando.\n";
+            file_put_contents($logFilePath, $logContent, FILE_APPEND);
+            return [];
+        }
+        $logContent .= "Usuario actual interactuó con productos: " . implode(', ', $idsProductosUsuarioActual) . "\n";
+
+        // 2. Encontrar usuarios similares
+        $usuariosSimilares = self::encontrarUsuariosSimilares($usuarioId, $idsProductosUsuarioActual);
+
+        if (empty($usuariosSimilares)) {
+            $logContent .= "No se encontraron usuarios similares.\n";
+            file_put_contents($logFilePath, $logContent, FILE_APPEND);
+            return [];
+        }
+        $logContent .= "Se encontraron " . count($usuariosSimilares) . " usuarios similares con puntuaciones: \n";
+        foreach ($usuariosSimilares as $idUsuario => $puntuacion) {
+            $logContent .= " - Usuario ID: {$idUsuario}, Puntuación: {$puntuacion}\n";
+        }
+
+        // 3. Obtener productos que gustaron a usuarios similares
+        $idsUsuariosSimilares = array_keys($usuariosSimilares);
+        $interaccionesSimilares = HistorialInteraccion::consultarSQL(
+            "SELECT DISTINCT productoId FROM historial_interacciones WHERE usuarioId IN (" . implode(',', $idsUsuariosSimilares) . ") AND (tipo = 'favorito' OR tipo = 'compra')"
+        );
+
+        $idsProductosRecomendados = [];
+        foreach ($interaccionesSimilares as $interaccion) {
+            // Excluir productos con los que el usuario actual ya interactuó
+            if (!in_array($interaccion->productoId, $idsProductosUsuarioActual)) {
+                $idsProductosRecomendados[] = $interaccion->productoId;
+            }
+        }
+
+        // 4. Obtener productos que no le interesan al usuario
+        $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuarioId);
+        $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
+        
+        // Filtrar productos no deseados
+        $idsProductosRecomendados = array_diff($idsProductosRecomendados, $idsNoInteresados);
+
+        $logContent .= "IDs de productos recomendados (antes de filtrar no interesados): " . implode(', ', $idsProductosRecomendados) . "\n";
+        $logContent .= "IDs de productos recomendados finales: " . implode(', ', $idsProductosRecomendados) . "\n";
+        $logContent .= "--- FIN RECOMENDACIÓN POR SIMILITUD ---\n\n";
+        file_put_contents($logFilePath, $logContent, FILE_APPEND);
+
+        return array_values(array_unique($idsProductosRecomendados));
+    }
+
+    // Encuentra usuarios con gustos similares basados en el índice de Jaccard.
+    private static function encontrarUsuariosSimilares(int $idUsuarioActual, array $idsProductosUsuarioActual): array {
+        $interaccionesOtrosUsuarios = HistorialInteraccion::consultarSQL(
+            "SELECT usuarioId, productoId FROM historial_interacciones WHERE usuarioId != {$idUsuarioActual} AND (tipo = 'favorito' OR tipo = 'compra')"
+        );
+
+        $mapaUsuarioProducto = [];
+        foreach ($interaccionesOtrosUsuarios as $interaccion) {
+            $mapaUsuarioProducto[$interaccion->usuarioId][] = $interaccion->productoId;
+        }
+
+        $similitudes = [];
+        foreach ($mapaUsuarioProducto as $idUsuario => $idsProductos) {
+            $interseccion = count(array_intersect($idsProductosUsuarioActual, $idsProductos));
+            $union = count(array_unique(array_merge($idsProductosUsuarioActual, $idsProductos)));
+            if ($union > 0) {
+                $indiceJaccard = $interseccion / $union;
+                if ($indiceJaccard > 0.1) { // Umbral de similitud
+                    $similitudes[$idUsuario] = $indiceJaccard;
+                }
+            }
+        }
+        arsort($similitudes); // Ordenar por puntuación de similitud
+        return array_slice($similitudes, 0, 10, true); // Devolver los 10 usuarios más similares
+    }
+
+
+    private static function obtenerPesoInteraccion(string $tipo): int {
         switch ($tipo) {
             // Interacciones de alta intención
             case 'compra':
