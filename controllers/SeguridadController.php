@@ -60,7 +60,6 @@ class SeguridadController {
                         }
                     }
                 } else {
-                    $alertas = $usuario2fa->getAlertas();
                     if(empty($alertas['error'])) {
                         Usuario::setAlerta('error', 'Código incorrecto');
                     }
@@ -89,8 +88,6 @@ class SeguridadController {
                     Usuario::setAlerta('error', 'Error al regenerar códigos');
                 }
             }
-            
-            $alertas = array_merge($alertas, Usuario::getAlertas());
         }
 
         $qrUrl = GoogleQrUrl::generate(
@@ -114,7 +111,6 @@ class SeguridadController {
             'usuario2fa' => $usuario2fa,
             'qrUrl' => $qrUrl,
             'backupCodes' => $backupCodes ?: json_decode($usuario2fa->backup_codes, true),
-            'alertas' => $alertas
         ], $layout); // Usar la variable de layout dinámico
     }
 }

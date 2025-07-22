@@ -66,8 +66,6 @@ class PaginasController {
             }
         }
 
-        $alertas = Soporte::getAlertas();
-
         // Lógica para determinar el layout
         $layout = 'layout'; 
 
@@ -82,7 +80,6 @@ class PaginasController {
         $router->render('paginas/contacto', [
             'titulo' => 'Contacto',
             'inicio' => $inicio, 
-            'alertas' => $alertas,
             'consulta' => $consulta
         ], $layout);
     }

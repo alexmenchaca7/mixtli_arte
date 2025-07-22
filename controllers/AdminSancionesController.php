@@ -32,7 +32,6 @@ class AdminSancionesController {
             'titulo' => 'Gestión de Sanciones de Vendedores',
             'vendedores' => $vendedores,
             'paginacion' => $paginacion->paginacion(),
-            'alertas' => Usuario::getAlertas()
         ], 'admin-layout');
     }
 

@@ -66,11 +66,9 @@ class AuthController {
             }
         }
 
-        $alertas = Usuario::getAlertas();
         $router->render('auth/login', [
             'titulo' => 'Iniciar Sesión',
             'inicio' => $inicio,
-            'alertas' => $alertas
         ]);
     }
 
@@ -106,11 +104,9 @@ class AuthController {
             }
         }
 
-        $alertas = Usuario::getAlertas();
         $router->render('auth/verificar-2fa', [
             'titulo' => 'Verificación en dos pasos',
             'inicio' => $inicio,
-            'alertas' => $alertas
         ]);
     }
 
@@ -173,7 +169,6 @@ class AuthController {
 
                 if($existeUsuario) {
                     Usuario::setAlerta('error', 'El usuario ya esta registrado');
-                    $alertas = Usuario::getAlertas();
                 } else {
                     // Hashear el password
                     $usuario->hashPassword();
@@ -203,7 +198,6 @@ class AuthController {
             'titulo' => 'Crea tu cuenta en MixtliArte',
             'inicio' => $inicio,
             'usuario' => $usuario, 
-            'alertas' => $alertas,
             'fecha_hoy' => date('Y-m-d')
         ]);
     }
@@ -234,16 +228,10 @@ class AuthController {
                     $email = new Email( $usuario->email, $usuario->nombre, $usuario->token );
                     $email->enviarInstrucciones();
 
-
                     // Imprimir la alerta
-                    // Usuario::setAlerta('exito', 'Hemos enviado las instrucciones a tu email');
-
-                    $alertas['exito'][] = 'Hemos enviado las instrucciones a tu email';
+                    Usuario::setAlerta('exito', 'Hemos enviado las instrucciones a tu email');
                 } else {
-                 
-                    // Usuario::setAlerta('error', 'El Usuario no existe o no esta verificado');
-
-                    $alertas['error'][] = 'El usuario no existe o no esta verificado';
+                    Usuario::setAlerta('error', 'El Usuario no existe o no esta verificado');
                 }
             }
         }
@@ -252,12 +240,10 @@ class AuthController {
         $router->render('auth/olvide', [
             'titulo' => 'Olvide mi Password',
             'inicio' => $inicio,
-            'alertas' => $alertas
         ]);
     }
 
     public static function reestablecer(Router $router) {
-
 
         $inicio = true;
         $token_valido = true;
@@ -298,14 +284,11 @@ class AuthController {
                 }
             }
         }
-
-        $alertas = Usuario::getAlertas();
         
         // Muestra la vista
         $router->render('auth/reestablecer', [
             'titulo' => 'Reestablecer Password',
             'inicio' => $inicio,
-            'alertas' => $alertas,
             'token_valido' => $token_valido
         ]);
     }
@@ -345,12 +328,9 @@ class AuthController {
             Usuario::setAlerta('exito', 'Cuenta comprobada éxitosamente');
         }
 
-     
-
         $router->render('auth/confirmar', [
             'titulo' => 'Confirma tu cuenta MixtliArte',
             'inicio' => $inicio,
-            'alertas' => Usuario::getAlertas()
         ]);
     }
 
@@ -393,12 +373,9 @@ class AuthController {
             }
         }
 
-        $alertas = Usuario::getAlertas();
-
         $router->render('auth/establecer-password', [
             'titulo' => 'Establecer Password',
             'inicio' => $inicio,
-            'alertas' => $alertas,
             'token_valido' => $token_valido
         ]);
     }
@@ -433,14 +410,12 @@ class AuthController {
                 exit();
             } else {
                 PreferenciaUsuario::setAlerta('error', 'Hubo un error al guardar tus preferencias. Inténtalo de nuevo.');
-                $alertas = PreferenciaUsuario::getAlertas();
             }
         }
         
         $router->render('auth/preferencias', [
             'titulo' => 'Selecciona tus Intereses',
             'categorias' => $categorias,
-            'alertas' => $alertas
         ]);
     }
 

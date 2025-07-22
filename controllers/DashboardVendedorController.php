@@ -148,7 +148,6 @@ class DashboardVendedorController {
                     $_SESSION['imagen'] = $vendedor->imagen;
 
                     Usuario::setAlerta('exito', 'Perfil actualizado correctamente');
-                    $alertas = Usuario::getAlertas();
                 }
             }
         }
@@ -156,7 +155,6 @@ class DashboardVendedorController {
         $router->render('vendedor/perfil/index', [
             'titulo' => 'Editar Perfil',
             'usuario' => $vendedor,
-            'alertas' => $alertas,
             'direcciones' => Direccion::whereArray(['usuarioId' => $vendedor->id])
         ], 'vendedor-layout');
     }
@@ -182,7 +180,6 @@ class DashboardVendedorController {
 
                     if($resultado) {
                         Usuario::setAlerta('exito', 'Password actualizado correctamente');
-                        $alertas = Usuario::getAlertas();
                         
                         // Enviar email de notificación de cambio
                         $email = new Email($usuario->email, $usuario->nombre, ''); // El token no es necesario aquí
@@ -191,14 +188,12 @@ class DashboardVendedorController {
                     }
                 } else {
                     Usuario::setAlerta('error', 'El password actual es incorrecto');
-                    $alertas = Usuario::getAlertas();
                 }
             }
         }
 
         $router->render('vendedor/perfil/cambiar-password', [
             'titulo' => 'Cambiar Password',
-            'alertas' => $alertas
         ], 'vendedor-layout');
     }
 

@@ -210,7 +210,6 @@ class ProductosController {
         // Renderizar la vista de creación de producto
         $router->render('vendedor/productos/crear', [
             'titulo' => 'Registrar Producto',
-            'alertas' => $alertas,
             'producto' => $producto,
             'imagenes' => $imagenes,
             'categorias' => $categorias
@@ -334,7 +333,6 @@ class ProductosController {
         $router->render('vendedor/productos/editar', [
             'titulo' => 'Editar Producto',
             'producto' => $producto,
-            'alertas' => $alertas,
             'categorias' => $categorias,
             'imagenes_existentes' => $imagenes_existentes,
             'imagenes' => $imagenes,

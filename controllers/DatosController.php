@@ -134,7 +134,6 @@ class DatosController {
 
         $router->render('auth/confirmar-eliminacion', [
             'titulo' => 'Confirmar Eliminación',
-            'alertas' => Usuario::getAlertas()
         ]);
     }
 }

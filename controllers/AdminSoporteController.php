@@ -176,13 +176,11 @@ class AdminSoporteController {
                     Soporte::setAlerta('error', 'Estado no válido.');
                 }
             }
-            $alertas = array_merge($alertas, Soporte::getAlertas());
         }
 
         $router->render('admin/soporte/ver', [
             'titulo' => 'Ver Consulta de Soporte',
-            'consulta' => $consulta,
-            'alertas' => $alertas
+            'consulta' => $consulta
         ], 'admin-layout');
     }
 

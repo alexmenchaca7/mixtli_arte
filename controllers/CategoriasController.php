@@ -83,7 +83,6 @@ class CategoriasController {
 
                 if($existeCategoria) {
                     Categoria::setAlerta('error', 'La categoria ya esta registrada');
-                    $alertas = Categoria::getAlertas();
                 } else {
                     // Guardar en la BD
                     $resultado =  $categoria->guardar();
@@ -99,7 +98,6 @@ class CategoriasController {
         // Pasar las categorias a la vista
         $router->render('admin/categorias/crear', [
             'titulo' => 'Registrar Categoria',
-            'alertas' => $alertas,
             'categoria' => $categoria
         ], 'admin-layout');
     }
@@ -146,7 +144,6 @@ class CategoriasController {
         // Pasar las categorias a la vista
         $router->render('admin/categorias/editar', [
             'titulo' => 'Editar Categoria',
-            'alertas' => $alertas,
             'categoria' => $categoria
         ], 'admin-layout');
     }

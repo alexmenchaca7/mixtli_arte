@@ -886,7 +886,6 @@ class MarketplaceController {
         $router->render('marketplace/perfil/editar', [
             'titulo' => 'Editar Mi Perfil',
             'usuario' => $usuario,
-            'alertas' => $alertas,
             'direcciones' => $direcciones,
             'categorias' => $categorias,
             'categoriasSeleccionadas' => $categoriasSeleccionadas,
@@ -917,7 +916,6 @@ class MarketplaceController {
 
                     if($resultado) {
                         Usuario::setAlerta('exito', 'Contraseña actualizada correctamente.');
-                        $alertas = Usuario::getAlertas();
                         
                         // Enviar email de notificación
                         $email = new Email($usuario->email, $usuario->nombre, ''); // El token no es necesario aquí
@@ -925,14 +923,12 @@ class MarketplaceController {
                     }
                 } else {
                     Usuario::setAlerta('error', 'La contraseña actual es incorrecta.');
-                    $alertas = Usuario::getAlertas();
                 }
             }
         }
 
         $router->render('marketplace/perfil/cambiar-password', [
             'titulo' => 'Cambiar Contraseña',
-            'alertas' => $alertas
         ]);
     }
 

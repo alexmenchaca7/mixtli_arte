@@ -76,7 +76,6 @@ class FaqsController {
                         Faq::setAlerta('exito', 'Hemos recibido tu pregunta. Te contactaremos pronto con una respuesta.');
                     }
                 }
-                $alertas = array_merge($alertas, Faq::getAlertas());
             }
         }
 
@@ -86,7 +85,6 @@ class FaqsController {
             'categorias' => $categoriasFaq,
             'faqs' => $faqs,
             'preguntaUsuario' => $preguntaUsuario,
-            'alertas' => $alertas,
             'inicio' => $inicio // Pasamos la variable para que el layout sepa qué navegación mostrar
         ], $layout);
     }
@@ -174,7 +172,6 @@ class FaqsController {
             'titulo' => 'Crear FAQ',
             'faq' => $faq,
             'categorias' => $categoriasFaq,
-            'alertas' => $alertas
         ], 'admin-layout');
     }
 
@@ -222,7 +219,6 @@ class FaqsController {
             'titulo' => 'Editar FAQ',
             'faq' => $faq,
             'categorias' => $categoriasFaq,
-            'alertas' => $alertas
         ], 'admin-layout');
     }
 
@@ -319,12 +315,10 @@ class FaqsController {
                 Faq::setAlerta('error', 'Hubo un error al crear la FAQ.');
             }
         }
-        $alertas = array_merge($alertas, Faq::getAlertas());
         
         $router->render('admin/faqs/frequent-questions', [ // Render the list with alerts
             'titulo' => 'Preguntas Frecuentes de Usuarios',
             'preguntas' => PreguntaUsuario::findFrequentPendingReview(), // Reload list
-            'alertas' => $alertas
         ], 'admin-layout');
     }
 }

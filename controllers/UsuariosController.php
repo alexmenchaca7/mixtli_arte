@@ -107,7 +107,6 @@ class UsuariosController {
 
                 if($existeUsuario) {
                     Usuario::setAlerta('error', 'El usuario ya esta registrado');
-                    $alertas = Usuario::getAlertas();
                 } else {
                     // Guardar las imagenes solo si se subió una imagen
                     if(!empty($_FILES['imagen']['tmp_name'])) {
@@ -166,7 +165,6 @@ class UsuariosController {
         // Pasar los usuarios a la vista
         $router->render('admin/usuarios/crear', [
             'titulo' => 'Registrar Usuario',
-            'alertas' => $alertas,
             'usuario' => $usuario,
             'fecha_hoy' => date('Y-m-d')
         ], 'admin-layout');
@@ -300,7 +298,6 @@ class UsuariosController {
         // Pasar los usuarios a la vista
         $router->render('admin/usuarios/editar', [
             'titulo' => 'Editar Usuario',
-            'alertas' => $alertas,
             'usuario' => $usuario,
             'fecha_hoy' => date('Y-m-d'),
             'direcciones' => $direcciones
