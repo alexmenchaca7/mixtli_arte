@@ -31,17 +31,6 @@ class ActiveRecord {
         $_SESSION['alertas'] = static::$alertas;
     }
 
-    // // Obtener las alertas desde la sesión
-    // public static function getAlertas() {
-    //     // Obtiene las alertas de la sesión, o un array vacío si no existe.
-    //     $alertas = $_SESSION['alertas'] ?? [];
-        
-    //     // Limpia las alertas de la sesión para que no se muestren en la siguiente carga de página.
-    //     unset($_SESSION['alertas']);
-        
-    //     return $alertas;
-    // }
-
     // Validación que se hereda en modelos
     public function validar() {
         static::$alertas = [];
