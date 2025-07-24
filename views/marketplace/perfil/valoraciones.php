@@ -9,7 +9,7 @@
     <div id="tab-1" class="tabs__contenido current">
         <?php if (!empty($valoraciones)): ?>
             <?php else: ?>
-            <p class="text-center">Aún no has realizado ninguna calificación.</p>
+            <p class="t-align-center">Aún no has realizado ninguna calificación.</p>
         <?php endif; ?>
     </div>
 
@@ -54,7 +54,7 @@
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="text-center">Aún no has recibido ninguna calificación.</p>
+            <p class="t-align-center">Aún no has recibido ninguna calificación.</p>
         <?php endif; ?>
         
         </div>

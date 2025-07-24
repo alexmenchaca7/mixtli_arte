@@ -109,6 +109,11 @@ class DashboardVendedorController {
                 $alertas['error'] = array_merge($alertas['error'] ?? [], $erroresDirecciones);
             }
 
+            // Si hay alertas (del perfil O de las direcciones), las guardamos todas en la sesión
+            if (!empty($alertas['error'])) {
+                Usuario::setAlerta('error', implode('<br>', $alertas['error']));
+            }
+
             if (empty($alertas)) {
                 // Si no se subió nueva imagen y no se elimina, mantener la anterior
                 if (empty($_FILES['imagen']['tmp_name']) && !isset($_POST['eliminar_imagen'])) {
@@ -204,13 +209,21 @@ class DashboardVendedorController {
         }
     
         $usuarioId = $_SESSION['id'];
-        $valoracionesRecibidas = Valoracion::whereArray(['calificadoId' => $usuarioId]);
-    
+
+        // Obtener las calificaciones que ha recibido el vendedor (y que están aprobadas)
+        $valoraciones = Valoracion::whereArray([
+            'calificadoId' => $usuarioId,
+            'moderado' => 1,
+            'tipo' => 'comprador' // Solo valoraciones hechas por compradores
+        ]);    
+        
+        // --- LÓGICA DE ESTADÍSTICAS ---
         $totalCalificaciones = 0;
         $totalEstrellas = 0;
+        $valoracionesConComentario = [];
         $desgloseEstrellas = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
-    
-        foreach($valoracionesRecibidas as $valoracion) {
+
+        foreach($valoraciones as $valoracion) {
             if ($valoracion->estrellas !== null) {
                 $totalCalificaciones++;
                 $totalEstrellas += $valoracion->estrellas;
@@ -218,7 +231,7 @@ class DashboardVendedorController {
                     $desgloseEstrellas[$valoracion->estrellas]++;
                 }
             }
-            // Cargar datos del producto y del usuario que calificó para dar contexto
+            // Cargar datos del producto y calificador para el contexto
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);
             $valoracion->producto = Producto::find($valoracion->productoId);
         }
@@ -227,10 +240,11 @@ class DashboardVendedorController {
     
         $router->render('vendedor/perfil/valoraciones', [
             'titulo' => 'Mis Calificaciones Recibidas',
-            'valoracionesRecibidas' => $valoracionesRecibidas,
-            'totalCalificaciones' => $totalCalificaciones,        
-            'promedioEstrellas' => $promedioEstrellas,          
-            'desgloseEstrellas' => $desgloseEstrellas,          
+            'valoraciones' => $valoraciones,
+            'promedioEstrellas' => $promedioEstrellas,
+            'totalCalificaciones' => $totalCalificaciones,
+            'desgloseEstrellas' => $desgloseEstrellas,
+            'valoracionesConComentario' => $valoracionesConComentario,          
         ], 'vendedor-layout');
     }
 }

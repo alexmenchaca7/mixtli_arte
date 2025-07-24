@@ -9,7 +9,7 @@
             <p>
                 <?php echo ($vendedor->sexo === 'Femenino') ? 'Artesana / Vendedora' : 'Artesano / Vendedor'; ?>
             </p>
-            <?php if ($totalCalificaciones > 0): ?>
+            <?php if ($totalCalificaciones >= 5): ?>
                 <div class="vendedor-rating">
                     <span><?php echo $promedioEstrellas; ?> ⭐</span>
                     <span>(<?php echo $totalCalificaciones; ?> calificaciones)</span>
@@ -87,9 +87,9 @@
                         <?php endforeach; ?>
                     </div>
                 </div>
-
-                <?php foreach($valoraciones as $valoracion): ?>
-                    <?php if($valoracion->estrellas): // Solo mostrar valoraciones completas ?>
+                
+                <?php if(!empty($valoracionesConComentario)): ?>
+                    <?php foreach($valoracionesConComentario as $valoracion): ?>
                         <div class="valoracion-item">
                             <div class="valoracion-item__header">
                                 <span class="valoracion-item__estrellas"><?php echo str_repeat('⭐', $valoracion->estrellas); ?></span>
@@ -108,8 +108,10 @@
                                 </button>
                             </div>
                         </div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>Este vendedor aún no ha recibido ninguna calificación con comentario.</p>
+                <?php endif; ?>
             <?php else: ?>
                 <p>Este vendedor necesita al menos 5 calificaciones para que se muestren públicamente.</p>
             <?php endif; ?>

@@ -146,7 +146,7 @@ if ($usuarioId) {
                         <img src="/img/usuarios/<?= $vendedor->imagen ? htmlspecialchars($vendedor->imagen) . '.png' : 'default.png'; ?>" alt="Imagen de <?= htmlspecialchars($vendedor->nombre); ?>">
                         <div class="vendedor-info__texto">
                             <span class="vendedor-info__nombre"><?= htmlspecialchars($vendedor->nombre . ' ' . $vendedor->apellido); ?></span>
-                            <?php if ($totalCalificaciones > 0): ?>
+                            <?php if ($totalCalificaciones >= 5): ?>
                                 <div class="vendedor-info__rating">
                                     <span><?= $promedioEstrellas; ?> ⭐</span>
                                     <small>(<?= $totalCalificaciones; ?> calificaciones)</small>
@@ -171,25 +171,53 @@ if ($usuarioId) {
             </div>
         </aside>
     </div>
+    
+    <?php if ($totalCalificaciones >= 5): ?>
+        <?php
+            // Filtrar valoraciones para mostrar solo las que tienen comentario
+            $valoracionesConComentario = [];
+            if (!empty($valoraciones)) {
+                foreach ($valoraciones as $v) {
+                    if (!empty(trim($v->comentario))) {
+                        $valoracionesConComentario[] = $v;
+                    }
+                }
+            }
+        ?>
 
-    <div class="valoraciones-seccion">
-        <h2>Opiniones sobre el Vendedor</h2>
-        <?php if(!empty($valoraciones)): ?>
-            <?php foreach($valoraciones as $valoracion): ?>
-                <div class="valoracion-item">
-                    <div class="valoracion-item__header">
-                        <span class="valoracion-item__estrellas"><?php echo str_repeat('⭐', $valoracion->estrellas); ?></span>
-                        <span class="valoracion-item__comprador">Por: <strong><?= htmlspecialchars($valoracion->calificador->nombre); ?></strong></span>
-                    </div>
-                    <?php if($valoracion->comentario): ?>
-                        <p class="valoracion-item__comentario">"<?= htmlspecialchars($valoracion->comentario); ?>"</p>
-                    <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>Este vendedor aún no tiene opiniones.</p>
-        <?php endif; ?>
-    </div>
+        <div class="valoraciones-seccion" style="margin-top: 4rem; border-top: 1px solid #eee; padding-top: 2rem;">
+            <h2 style="margin-bottom: 2rem;">Opiniones Recientes sobre este Vendedor</h2>
+
+            <?php if($totalCalificaciones > 0): ?>
+                <?php if($totalCalificaciones >= 5 && !empty($valoracionesConComentario)): ?>
+                    <?php foreach($valoracionesConComentario as $valoracion): ?>
+                        <div class="valoracion-item">
+                            <div class="valoracion-item__header">
+                                <span class="valoracion-item__estrellas"><?php echo str_repeat('⭐', $valoracion->estrellas); ?></span>
+                                <span class="valoracion-item__contexto">
+                                    Sobre: <strong><?php echo htmlspecialchars($valoracion->producto->nombre); ?></strong>
+                                    el <?php echo date('d/m/Y', strtotime($valoracion->creado)); ?>
+                                </span>
+                            </div>
+                            <p class="valoracion-item__comentario">"<?php echo htmlspecialchars($valoracion->comentario); ?>"</p>
+
+                            <div class="valoracion-item__footer">
+                                <span>De: <strong><?php echo htmlspecialchars($valoracion->calificador->nombre . ' ' . $valoracion->calificador->apellido); ?></strong></span>
+                                <button class="reportar-btn" data-valoracion-id="<?= $valoracion->id ?>">
+                                    <i class="fa-solid fa-flag"></i> Reportar
+                                </button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php elseif($totalCalificaciones >= 5): ?>
+                    <p>Este vendedor aún no tiene calificaciones con comentarios.</p>
+                <?php endif; ?>
+
+            <?php else: ?>
+                <p>Este vendedor aún no ha recibido ninguna calificación.</p>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="productos-relacionados-seccion">
         <h2><?= ($producto->estado === 'agotado') ? 'Productos Similares que Podrían Interesarte' : 'También te Podría Gustar'; ?></h2>

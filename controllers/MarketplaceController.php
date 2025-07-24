@@ -348,18 +348,41 @@ class MarketplaceController {
         // Obtener valoraciones del vendedor
         $valoracionesVendedor = Valoracion::whereArray([
             'calificadoId' => $vendedor->id,
-            'moderado' => 1,
-            'estrellas IS NOT' => 'NULL'
+            'moderado' => 1
         ]);
-        
+
+        // Inicializar todas las variables de estadísticas
         $totalEstrellas = 0;
+        $totalCalificaciones = 0;
+
         foreach ($valoracionesVendedor as $valoracion) {
-            $valoracion->calificador = Usuario::find($valoracion->calificadorId); // Cargar datos del comprador que calificó
-            $totalEstrellas += $valoracion->estrellas;
-        }
+            $valoracion->calificador = Usuario::find($valoracion->calificadorId);
         
-        $totalCalificaciones = count($valoracionesVendedor);
+            // Asegurarse de que la valoración tenga estrellas para contarla
+            if ($valoracion->estrellas !== null) {
+                $totalEstrellas += $valoracion->estrellas;
+                $totalCalificaciones++;
+            }
+        }
+
         $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+
+        // Obtener solo las 3 valoraciones MÁS RECIENTES con comentario para MOSTRAR en la lista
+        $valoracionesParaMostrar = Valoracion::metodoSQL([
+            'condiciones' => [
+                "calificadoId = '{$vendedor->id}'",
+                "moderado = 1",
+                "comentario IS NOT NULL AND comentario != ''" // Asegura que solo vengan las que tienen texto
+            ],
+            'orden' => 'creado DESC', // Más recientes primero
+            'limite' => 3 // Límite de 3 opiniones
+        ]);
+
+        // Cargar datos del calificador y producto solo para las valoraciones que se van a mostrar
+        foreach($valoracionesParaMostrar as $valoracion) {
+            $valoracion->calificador = Usuario::find($valoracion->calificadorId);
+            $valoracion->producto = Producto::find($valoracion->productoId);
+        }
         
         // Lógica para productos relacionados o alternativos
         $productosRelacionados = [];
@@ -386,9 +409,9 @@ class MarketplaceController {
             'vendedor' => $vendedor,
             'promedioEstrellas' => $promedioEstrellas,
             'totalCalificaciones' => $totalCalificaciones,
-            'valoraciones' => $valoracionesVendedor, 
+            'valoraciones' => $valoracionesParaMostrar, 
             'productosRelacionados' => $productosRelacionados, 
-            'categorias' => Categoria::all()
+            'categorias' => $categorias,
         ]);
     }
 
@@ -566,23 +589,50 @@ class MarketplaceController {
             }
         }
         
-        $valoracionesRecibidas = Valoracion::whereArray([
+        // Obtener las calificaciones que ha recibido el comprador (y que están aprobadas)
+        $valoraciones = Valoracion::whereArray([
             'calificadoId' => $idUsuario,
-            'estrellas IS NOT' => 'NULL',
-            'moderado' => 1
+            'moderado' => 1,
+            'tipo' => 'vendedor' // Solo valoraciones hechas por vendedores
         ]);
 
-        foreach($valoracionesRecibidas as $valoracion) {
+        // --- LÓGICA DE ESTADÍSTICAS ---
+        $totalCalificaciones = 0;
+        $totalEstrellas = 0;
+        $valoracionesConComentario = [];
+        $desgloseEstrellas = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+
+        foreach($valoraciones as $valoracion) {
+            if ($valoracion->estrellas !== null) {
+                $totalCalificaciones++;
+                $totalEstrellas += $valoracion->estrellas;
+
+                // Contar para el desglose
+                if (isset($desgloseEstrellas[$valoracion->estrellas])) {
+                    $desgloseEstrellas[$valoracion->estrellas]++;
+                }
+            }
+            if (!empty($valoracion->comentario)) {
+                $valoracionesConComentario[] = $valoracion;
+            }
+
+            // Cargar datos del producto y calificador para el contexto
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);
             $valoracion->producto = Producto::find($valoracion->productoId);
         }
+
+        $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
 
         $router->render('marketplace/perfil/index', [
             'titulo' => 'Mi Perfil',
             'usuario' => $usuario,
             'direcciones' => $direcciones,
             'categoriasInteres' => $categoriasInteres,
-            'valoraciones' => $valoracionesRecibidas,
+            'valoraciones' => $valoraciones,
+            'valoracionesConComentario' => $valoracionesConComentario,
+            'promedioEstrellas' => $promedioEstrellas,
+            'totalCalificaciones' => $totalCalificaciones,
+            'desgloseEstrellas' => $desgloseEstrellas,
             'show_hero' => false
         ]);
     }
@@ -605,6 +655,22 @@ class MarketplaceController {
             exit();
         }
 
+        // Obteniendo la sesión del usuario autenticado
+        $usuarioId = $_SESSION['id'];
+
+        // Inicializar condiciones
+        $condiciones = ["usuarioId = '{$vendedor->id}'"];
+
+        // Obtener productos que NO le interesan al usuario
+        $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuarioId);
+        $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
+
+        // Añadir condición para excluir productos no interesados
+        if (!empty($idsNoInteresados)) {
+            $idsStringNoInteresados = implode(',', $idsNoInteresados);
+            $condiciones[] = "id NOT IN ($idsStringNoInteresados)";
+        }
+
         // --- LÓGICA DE PAGINACIÓN PARA PRODUCTOS ---
         $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
         if(!$pagina_actual || $pagina_actual < 1) {
@@ -612,9 +678,7 @@ class MarketplaceController {
             exit();
         }
         
-        $registros_por_pagina = 8; // Puedes ajustar este número
-        $condiciones = ["usuarioId = '{$vendedor->id}'"];
-        
+        $registros_por_pagina = 8; 
         $total_productos = Producto::totalCondiciones($condiciones);
         $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total_productos);
         
@@ -643,11 +707,17 @@ class MarketplaceController {
             $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
         }
 
-        $valoraciones = Valoracion::whereArray(['calificadoId' => $vendedor->id, 'moderado' => 1]);
+        // Obtener las calificaciones que ha recibido el vendedor (y que están aprobadas)
+        $valoraciones = Valoracion::whereArray([
+            'calificadoId' => $vendedor->id,
+            'moderado' => 1,
+            'tipo' => 'comprador' // Solo valoraciones hechas por compradores
+        ]);
 
-        // --- INICIO: NUEVA LÓGICA DE ESTADÍSTICAS ---
+        // --- LÓGICA DE ESTADÍSTICAS ---
         $totalCalificaciones = 0;
         $totalEstrellas = 0;
+        $valoracionesConComentario = [];
         $desgloseEstrellas = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
 
         foreach($valoraciones as $valoracion) {
@@ -658,6 +728,10 @@ class MarketplaceController {
                     $desgloseEstrellas[$valoracion->estrellas]++;
                 }
             }
+            if (!empty($valoracion->comentario)) {
+                $valoracionesConComentario[] = $valoracion;
+            }
+
             // Cargar datos del producto y calificador para el contexto
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);
             $valoracion->producto = Producto::find($valoracion->productoId);
@@ -685,6 +759,7 @@ class MarketplaceController {
             'promedioEstrellas' => $promedioEstrellas,
             'totalCalificaciones' => $totalCalificaciones,
             'desgloseEstrellas' => $desgloseEstrellas,
+            'valoracionesConComentario' => $valoracionesConComentario,
             'esSeguidor' => $esSeguidor,
             'favoritosIds' => $favoritosIds,
             'categorias' => $categorias,
@@ -706,39 +781,54 @@ class MarketplaceController {
             exit();
         }
 
-        // 2. Obtener datos del comprador
+        // Obtener datos del comprador
         $comprador = Usuario::find($id);
         if (!$comprador || $comprador->rol !== 'comprador') {
             header('Location: /404'); // O si el ID no corresponde a un comprador
             exit();
         }
 
-        // 3. Obtener las calificaciones que ha recibido el comprador (y que están aprobadas)
+        // Obtener las calificaciones que ha recibido el comprador (y que están aprobadas)
         $valoraciones = Valoracion::whereArray([
             'calificadoId' => $comprador->id,
             'moderado' => 1,
             'tipo' => 'vendedor' // Solo valoraciones hechas por vendedores
         ]);
 
+        // --- LÓGICA DE ESTADÍSTICAS ---
         $totalCalificaciones = 0;
         $totalEstrellas = 0;
+        $valoracionesConComentario = [];
+        $desgloseEstrellas = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+
         foreach($valoraciones as $valoracion) {
-            // Cargar el producto asociado a cada valoración
-            $valoracion->producto = Producto::find($valoracion->productoId);
-            if($valoracion->estrellas) {
-                $totalEstrellas += $valoracion->estrellas;
+            if ($valoracion->estrellas !== null) {
                 $totalCalificaciones++;
+                $totalEstrellas += $valoracion->estrellas;
+                if (isset($desgloseEstrellas[$valoracion->estrellas])) {
+                    $desgloseEstrellas[$valoracion->estrellas]++;
+                }
             }
+            if (!empty($valoracion->comentario)) {
+                $valoracionesConComentario[] = $valoracion;
+            }
+
+            // Cargar datos del producto y calificador para el contexto
+            $valoracion->calificador = Usuario::find($valoracion->calificadorId);
+            $valoracion->producto = Producto::find($valoracion->productoId);
         }
+
         $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
 
-        // 4. Renderizar la vista
+        // Renderizar la vista
         $router->render('marketplace/comprador', [
             'titulo' => 'Perfil del Comprador',
             'comprador' => $comprador,
             'valoraciones' => $valoraciones,
             'totalCalificaciones' => $totalCalificaciones,
-            'promedioEstrellas' => $promedioEstrellas
+            'desgloseEstrellas' => $desgloseEstrellas,
+            'promedioEstrellas' => $promedioEstrellas,
+            'valoracionesConComentario' => $valoracionesConComentario
         ], 'vendedor-layout'); // Usar el layout de vendedor para consistencia
     }
 
@@ -828,6 +918,11 @@ class MarketplaceController {
             }
             if ($camposLlenos > 0 && $camposLlenos < count($camposDireccion)) {
                 $alertas['error'][] = 'Si decides llenar tu dirección, todos los campos son requeridos.';
+            }
+
+            // Si hay alertas (del perfil O de las direcciones), las guardamos todas en la sesión
+            if (!empty($alertas['error'])) {
+                Usuario::setAlerta('error', implode('<br>', $alertas['error']));
             }
     
             if (empty($alertas)) {

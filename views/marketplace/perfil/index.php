@@ -60,8 +60,33 @@
 
             <main class="perfil-usuario__valoraciones">
                 <h3>Valoraciones Recibidas</h3>
-                 <?php if(!empty($valoraciones)): ?>
-                    <?php foreach($valoraciones as $valoracion): ?>
+
+                <div class="valoraciones-estadisticas" style="margin-bottom: 2rem; border: 1px solid #e0e0e0; padding: 1.5rem; border-radius: .8rem; background-color: #f9f9f9;">
+                    <h4>Resumen de Calificaciones</h4>
+                    <p style="font-size: 1.6rem; margin: 0 0 1rem 0;">
+                        <strong>Promedio General:</strong> <?php echo $promedioEstrellas; ?> ⭐ 
+                        <span style="color: #666;">(Basado en <?php echo $totalCalificaciones; ?> reseñas)</span>
+                    </p>
+                    <?php if ($totalCalificaciones < 5): ?>
+                        <p style="font-size: 1.3rem; color: #777; margin: 0;"><i>Tus calificaciones y promedio serán públicos para otros usuarios después de que recibas 5 o más valoraciones.</i></p>
+                    <?php endif; ?>
+
+                    <div class="desglose-barras" style="margin-top: 1.5rem;">
+                        <?php krsort($desgloseEstrellas); // Ordenar de 5 a 1 ?>
+                        <?php foreach($desgloseEstrellas as $estrellas => $cantidad): ?>
+                            <div class="barra-item">
+                                <span class="barra-label"><?php echo $estrellas; ?> estrella<?php echo $estrellas > 1 ? 's' : ''; ?></span>
+                                <div class="barra-fondo">
+                                    <div class="barra-progreso" style="width: <?php echo $totalCalificaciones > 0 ? ($cantidad / $totalCalificaciones) * 100 : 0; ?>%;"></div>
+                                </div>
+                                <span class="barra-porcentaje"><?php echo $totalCalificaciones > 0 ? round(($cantidad / $totalCalificaciones) * 100) : 0; ?>%</span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <?php if(!empty($valoracionesConComentario)): ?>
+                    <?php foreach($valoracionesConComentario as $valoracion): ?>
                         <div class="valoracion-item">
                             <div class="valoracion-item__header">
                                 <span class="valoracion-item__estrellas"><?php echo str_repeat('⭐', $valoracion->estrellas); ?></span>
@@ -70,18 +95,19 @@
                                     el <?php echo date('d/m/Y', strtotime($valoracion->creado)); ?>
                                 </span>
                             </div>
-                            <?php if(!empty($valoracion->comentario)): ?>
-                                <p class="valoracion-item__comentario">"<?php echo htmlspecialchars($valoracion->comentario); ?>"</p>
-                            <?php endif; ?>
+                            
+                            <p class="valoracion-item__comentario">"<?php echo htmlspecialchars($valoracion->comentario); ?>"</p>
+                            
                             <div class="valoracion-item__footer">
                                 <span>De: <strong><?php echo htmlspecialchars($valoracion->calificador->nombre); ?></strong></span>
                                 <button class="reportar-btn" data-valoracion-id="<?= $valoracion->id ?>">
                                     <i class="fa-solid fa-flag"></i> Reportar
                                 </button>
                             </div>
+                        </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p>Aún no has recibido ninguna calificación aprobada.</p>
+                    <p>Aún no has recibido ninguna calificación con comentario.</p>
                 <?php endif; ?>
             </main>
         </div>

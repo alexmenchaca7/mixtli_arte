@@ -118,7 +118,7 @@
         $html = preg_replace('/<a href="\/generar-pdf.php[^>]*>.*?<\/a>/is', '', $html);
         
         // 2. Eliminar el título h3 inicial para evitar duplicados
-        $html = preg_replace('/<h3 class="text-center my-5">.*?<\/h3>/is', '', $html, 1);
+        $html = preg_replace('/<h3 class="t-align-center my-5">.*?<\/h3>/is', '', $html, 1);
         
         // 3. Limpiar espacios en blanco extra entre etiquetas
         $html = preg_replace('/>\s+</', '><', $html);
