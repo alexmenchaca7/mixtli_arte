@@ -13,7 +13,7 @@ use Model\ProductoNoInteresado;
 class RecomendacionController {
 
     // MÉTODO PÚBLICO Y UNIFICADO
-    public static function obtenerRecomendacionesUnificadas(int $usuarioId, int $limiteProductosPorCategoria = 5): array {
+    public static function obtenerRecomendacionesUnificadas(int $usuarioId, int $limiteProductosPorCategoria = 15): array {
         $log = "";
         
         // 1. Obtener recomendaciones por similitud de usuarios (alta prioridad)
@@ -28,9 +28,13 @@ class RecomendacionController {
             $log .= "Categorías recomendadas por interacción (ordenadas por peso): " . implode(', ', $categoriasRecomendadas) . "\n";
             $idsCategoriasString = implode(',', $categoriasRecomendadas);
             
-            $query = "SELECT id FROM productos WHERE categoriaId IN ({$idsCategoriasString}) AND estado != 'agotado' ORDER BY FIELD(categoriaId, {$idsCategoriasString}) LIMIT " . ($limiteProductosPorCategoria * count($categoriasRecomendadas));
-            $productosDeCategorias = Producto::consultarSQL($query);
-            $idsPorCategorias = array_column($productosDeCategorias, 'id');
+            foreach ($categoriasRecomendadas as $catId) {
+                $query = "SELECT id FROM productos WHERE categoriaId = {$catId} AND estado != 'agotado' LIMIT {$limiteProductosPorCategoria}";
+                $productosDeCategoria = Producto::consultarSQL($query);
+                $idsDeCategoria = array_column($productosDeCategoria, 'id');
+                $idsPorCategorias = array_merge($idsPorCategorias, $idsDeCategoria);
+            }
+            
             $log .= "Se obtuvieron " . count($idsPorCategorias) . " productos de las categorías recomendadas.\n";
         } else {
             $log .= "No se encontraron categorías recomendadas por interacción.\n";

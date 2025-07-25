@@ -140,6 +140,11 @@ class ProductosController {
                 $alertas['error'][] = "Máximo 5 imágenes permitidas";
             }
 
+            // Si hay alertas las guardamos todas en la sesión
+            if (!empty($alertas['error'])) {
+                Usuario::setAlerta('error', implode('<br>', $alertas['error']));
+            }
+
             if(empty($alertas['error'])) {
                 $resultado = $producto->guardar();
                 
@@ -201,6 +206,7 @@ class ProductosController {
                         }
                     }
                     
+                    Usuario::setAlerta('exito', 'Producto Creado Correctamente');
                     header('Location: /vendedor/productos');
                     exit();
                 }
