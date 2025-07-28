@@ -5,7 +5,7 @@ namespace Model;
 class Producto extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'nombre', 'descripcion', 'precio', 'stock', 'estado', 'creado', 'usuarioId', 'categoriaId'];
+    protected static $columnasDB = ['id', 'nombre', 'descripcion', 'precio', 'stock', 'estado', 'tipo_original', 'creado', 'modificado', 'usuarioId', 'categoriaId'];
     protected static $tabla = 'productos';
 
     // Propiedad con las columnas a buscar
@@ -17,7 +17,9 @@ class Producto extends ActiveRecord {
     public $precio;
     public $stock;
     public $estado;
+    public $tipo_original;
     public $creado;
+    public $modificado;
     public $usuarioId;
     public $categoriaId;
 
@@ -30,13 +32,18 @@ class Producto extends ActiveRecord {
         $this->precio = $args['precio'] ?? '';
         $this->stock = $args['stock'] ?? '';
         $this->estado = $args['estado'] ?? '';
+        $this->tipo_original = $args['tipo_original'] ?? '';
         $this->creado = $args['creado'] ?? date('Y-m-d H:i:s');
+        $this->modificado = $args['modificado'] ?? null;
         $this->usuarioId = $args['usuarioId'] ?? '';
         $this->categoriaId = $args['categoriaId'] ?? '';
     }
 
 
     public function validar() {
+        // Reiniciamos el array de alertas para evitar duplicados en cada llamada
+        self::$alertas = []; 
+
         if(!$this->nombre) {
             self::$alertas['error'][] = 'El titulo del producto es obligatorio';
         } 

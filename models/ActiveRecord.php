@@ -26,9 +26,8 @@ class ActiveRecord {
 
     // Setear un tipo de Alerta y guardarla en la sesión
     public static function setAlerta($tipo, $mensaje) {
-        static::$alertas[$tipo][] = $mensaje;
-        // La siguiente línea es la clave: guarda la alerta en la sesión para que sobreviva la redirección.
-        $_SESSION['alertas'] = static::$alertas;
+        // Guarda la alerta en la sesión para que sobreviva la redirección.
+        $_SESSION['alertas'][$tipo][] = $mensaje;
     }
 
     // Validación que se hereda en modelos
@@ -117,10 +116,16 @@ class ActiveRecord {
     public function guardar() {
         $resultado = '';
         if(!is_null($this->id)){ 
-            // Actualizar registro
+            // --- Actualizar registro ---
+
+            // Verificamos si la clase actual tiene la propiedad 'modificado' y le asignamos la fecha y hora actual ANTES de actualizar.
+            if (property_exists($this, 'modificado')) {
+                $this->modificado = date('Y-m-d H:i:s');
+            }
+
             $resultado = $this->actualizar();
         } else {
-            // Creando un nuevo registro
+            // --- Creando un nuevo registro ---
             $resultado = $this->crear();
         }
         return $resultado;

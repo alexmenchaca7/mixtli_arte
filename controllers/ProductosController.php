@@ -37,54 +37,68 @@ class ProductosController {
         }
 
         $registros_por_pagina = 10;
-        $condiciones = [];
 
-        // Add condition to filter by the current seller's ID
-        $condiciones[] = "usuarioId = '$usuarioId'"; // Filter products by the current user's ID
-
-        if(!empty($busqueda)) {
-            // Apply search conditions in addition to the user ID filter
-            $searchConditions = Producto::buscar($busqueda);
-            if (!empty($searchConditions)) {
-                $condiciones[] = "(" . implode(' AND ', $searchConditions) . ")";
-            }
-        }
-
-        // Obtener total de registros con las nuevas condiciones
-        $total = Producto::totalCondiciones($condiciones);
-        
-        // Crear instancia de paginación
-        $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total);
-        
-        if ($paginacion->total_paginas() < $pagina_actual && $pagina_actual > 1) {
+        // Paginación para Productos Activos
+        $pagina_actual_activos = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
+        if($pagina_actual_activos < 1) {
             header('Location: /vendedor/productos?page=1');
             exit();
         }
-
-        // Obtener productos
-        $params = [
-            'condiciones' => $condiciones,
-            'orden' => 'nombre ASC',
-            'limite' => $registros_por_pagina,
-            'offset' => $paginacion->offset()
-        ];
         
-        $productos = Producto::metodoSQL($params);
+        // Paginación para el Historial
+        $pagina_actual_historial = filter_var($_GET['page_historial'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
+        if($pagina_actual_historial < 1) {
+            header('Location: /vendedor/productos?page_historial=1');
+            exit();
+        }
 
-        // Obtener las imagenes relacionadas para cada producto
-        foreach($productos as $producto) {
-            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id); 
+        // 1. Consulta y Paginación de Productos Activos
+        $condiciones_activos = ["usuarioId = '$usuarioId'", "(estado = 'disponible' OR estado = 'unico')"];
+        if(!empty($busqueda)) {
+            $searchConditions = Producto::buscar($busqueda);
+            if (!empty($searchConditions)) {
+                $condiciones_activos[] = "(" . implode(' AND ', $searchConditions) . ")";
+            }
+        }
+        $total_activos = Producto::totalCondiciones($condiciones_activos);
 
-            // Asigna la URL a la propiedad 'imagen_principal' del objeto Producto
-            // Si no hay imagen, asigna null
-            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null; 
+        $paginacion_activos = new Paginacion($pagina_actual_activos, $registros_por_pagina, $total_activos, 'page');
+        
+        $productos_activos = Producto::metodoSQL([
+            'condiciones' => $condiciones_activos,
+            'orden' => 'modificado DESC',
+            'limite' => $registros_por_pagina,
+            'offset' => $paginacion_activos->offset()
+        ]);
+        foreach($productos_activos as $producto) {
+            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
+        }
+
+        // 2. Consulta y Paginación del Historial
+        $condiciones_historial = ["usuarioId = '$usuarioId'", "estado = 'agotado'"];
+        $total_historial = Producto::totalCondiciones($condiciones_historial);
+
+        $paginacion_historial = new Paginacion($pagina_actual_historial, $registros_por_pagina, $total_historial, 'page_historial');
+
+        $productos_historial = Producto::metodoSQL([
+            'condiciones' => $condiciones_historial,
+            'orden' => 'modificado DESC',
+            'limite' => $registros_por_pagina,
+            'offset' => $paginacion_historial->offset()
+        ]);
+        foreach($productos_historial as $producto) {
+            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+            $producto->imagen_principal = $imagenPrincipal ? $imagenPrincipal->url : null;
         }
 
         // Pasar los productos a la vista
         $router->render('vendedor/productos/index', [
             'titulo' => 'Productos',
-            'productos' => $productos,
-            'paginacion' => $paginacion->paginacion(),
+            'productos_activos' => $productos_activos,
+            'productos_historial' => $productos_historial,
+            'paginacion_activos' => $paginacion_activos->paginacion(),
+            'paginacion_historial' => $paginacion_historial->paginacion(),
             'busqueda' => $busqueda
         ], 'vendedor-layout');
     }
@@ -110,12 +124,18 @@ class ProductosController {
                 exit();
             }
 
+            // Limpiamos las alertas de la sesión ANTES de hacer cualquier otra cosa.
+            // Esto evita que se acumulen errores de intentos anteriores.
+            $_SESSION['alertas'] = [];
+
             // Sincronizar datos del formulario
             $producto->sincronizar($_POST);
 
             // Forzar stock a 1 si es artículo único
             if ($producto->estado === 'unico') {
-                $producto->stock = 1;
+                $producto->tipo_original = 'unico'; // Guardamos su naturaleza original
+            } else {
+                $producto->tipo_original = 'disponible';
             }
 
             $producto->usuarioId = $_SESSION['id']; 
@@ -140,12 +160,12 @@ class ProductosController {
                 $alertas['error'][] = "Máximo 5 imágenes permitidas";
             }
 
-            // Si hay alertas las guardamos todas en la sesión
-            if (!empty($alertas['error'])) {
-                Usuario::setAlerta('error', implode('<br>', $alertas['error']));
-            }
-
-            if(empty($alertas['error'])) {
+            if(!empty($alertas['error'])) {
+                // Usamos la función setAlerta para cada error, en lugar de usar implode.
+                foreach($alertas['error'] as $error) {
+                    Usuario::setAlerta('error', $error);
+                }
+            } else {
                 $resultado = $producto->guardar();
                 
                 if($resultado) {
@@ -230,6 +250,7 @@ class ProductosController {
 
         $id = $_GET['id'];
         $producto = Producto::find($id);
+        $producto_estado_actual = $producto->estado; 
         $alertas = [];
         $manager = new ImageManager(new Driver());
 
@@ -253,11 +274,13 @@ class ProductosController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $producto->sincronizar($_POST);
 
-            // Forzar stock a 1 si es artículo único
-            if ($producto->estado === 'unico') {
-                $producto->stock = 1;
-            } else {
-                $producto->stock = (int)$_POST['stock'] ?? 0;
+            // Reglas de negocio
+            if ($producto->tipo_original === 'unico') {
+                $producto->stock = ($producto->estado === 'agotado') ? 0 : 1;
+            }
+
+            if ((int)$producto->stock === 0 && $producto->tipo_original !== 'unico') {
+                $producto->estado = 'agotado';
             }
 
             $alertas = $producto->validar();
@@ -284,7 +307,12 @@ class ProductosController {
                 $alertas['error'][] = "Máximo 5 imágenes permitidas";
             }
 
-            if (empty($alertas['error'])) {
+            if(!empty($alertas['error'])) {
+                // Usamos la función setAlerta para cada error, en lugar de usar implode.
+                foreach($alertas['error'] as $error) {
+                    Usuario::setAlerta('error', $error);
+                }
+            } else {
                 // Eliminar imágenes marcadas
                 foreach ($imagenes_eliminadas as $id_imagen) {
                     $imagen = ImagenProducto::find($id_imagen);
@@ -331,6 +359,7 @@ class ProductosController {
                 }
 
                 $producto->guardar();
+                Usuario::setAlerta('exito', 'Producto Actualizado Correctamente');
                 header('Location: /vendedor/productos');
                 exit();
             }
@@ -342,7 +371,8 @@ class ProductosController {
             'categorias' => $categorias,
             'imagenes_existentes' => $imagenes_existentes,
             'imagenes' => $imagenes,
-            'edicion' => true
+            'edicion' => true,
+            'producto_estado_actual' => $producto_estado_actual
         ], 'vendedor-layout');
     }
 
@@ -393,6 +423,7 @@ class ProductosController {
             $resultado = $producto->eliminar();
     
             if($resultado) {
+                Usuario::setAlerta('exito', 'Producto Eliminado Correctamente');
                 header('Location: /vendedor/productos');
                 exit;
             }

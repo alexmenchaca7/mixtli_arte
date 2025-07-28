@@ -14,16 +14,17 @@ class AdminValoracionesController {
             exit();
         }
 
-        // --- Obtener valoraciones pendientes (moderado = 0) ---
-        $valoracionesPendientes = Valoracion::whereField('moderado', 0);
+        // --- OBTENER VALORACIONES PENDIENTES (moderado = 0) ---
+        $queryPendientes = "SELECT * FROM " . Valoracion::getTablaNombre() . " WHERE moderado = 0 AND comentario IS NOT NULL AND comentario != '' ORDER BY id DESC";
+        $valoracionesPendientes = Valoracion::consultarSQL($queryPendientes);
         foreach($valoracionesPendientes as $valoracion) {
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);
             $valoracion->calificado = Usuario::find($valoracion->calificadoId);
             $valoracion->producto = Producto::find($valoracion->productoId);
         }
         
-        // --- OBTENER VALORACIONES YA PROCESADAS (aprobadas o rechazadas) ---
-        $queryProcesadas = "SELECT * FROM " . Valoracion::getTablaNombre() . " WHERE moderado IN (1, 2) ORDER BY id DESC";
+        // --- OBTENER VALORACIONES YA PROCESADAS (moderado = 1) ---
+        $queryProcesadas = "SELECT * FROM " . Valoracion::getTablaNombre() . " WHERE moderado IN (1, 2) AND comentario IS NOT NULL AND comentario != '' ORDER BY id DESC";
         $valoracionesProcesadas = Valoracion::consultarSQL($queryProcesadas);
         foreach($valoracionesProcesadas as $valoracion) {
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);

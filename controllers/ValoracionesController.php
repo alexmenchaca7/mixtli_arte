@@ -68,7 +68,14 @@ class ValoracionesController {
 
         $valoracion->estrellas = $estrellas;
         $valoracion->comentario = $comentario;
-        $valoracion->moderado = 0; // 0 = Pendiente de Moderación para evitar mensajes inapropiados
+
+        // Si no hay comentario, la valoración se aprueba automáticamente (moderado = 1).
+        // Si tiene comentario, pasa a pendiente de moderación (moderado = 0).
+        if (empty($comentario)) {
+            $valoracion->moderado = 1; // 1 = Aprobado
+        } else {
+            $valoracion->moderado = 0; // 0 = Pendiente de Moderación
+        }
         
         $resultadoValoracion = $valoracion->guardar();
 

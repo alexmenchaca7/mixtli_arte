@@ -1,17 +1,28 @@
 <fieldset class="formulario__fieldset">
     <legend class="formulario__legend">Información General</legend>
 
+    <?php
+        // Variable para controlar si el formulario debe estar deshabilitado
+        $esUnicoAgotadoPermanente = (isset($edicion) && $producto->tipo_original === 'unico' && $producto->estado === 'agotado');
+    ?>
+
     <!-- Estado del producto -->
     <div class="formulario__campo">
         <label for="estado" class="formulario__label">Estado del Producto</label>
-        <select class="formulario__input" name="estado" id="estado">
-            <option value="" disabled selected>Selecciona un tipo</option>
-            <option value="disponible" <?php echo ($producto->estado === 'disponible') ? 'selected' : ''; ?>>Disponible</option>
-            <?php if(!isset($edicion) && !$edicion): ?>
-                <option value="unico" <?php echo ($producto->estado === 'unico') ? 'selected' : ''; ?>>Articulo Unico</option>
-            <?php endif; ?>
-            <?php if(isset($edicion) && $edicion): ?>
-                <option value="agotado" <?php echo ($producto->estado === 'agotado') ? 'selected' : ''; ?>>Agotado</option>
+        <select class="formulario__input" name="estado" id="estado" data-estado-actual="<?php echo $producto_estado_actual ?? ''; ?>" data-tipo-original="<?php echo $producto->tipo_original ?? 'disponible'; ?>" <?php if($esUnicoAgotadoPermanente) echo 'disabled'; ?>>
+             <option value="" disabled>-- Selecciona un tipo --</option>
+
+            <?php if (isset($edicion) && $edicion): ?>
+                <?php if ($producto->tipo_original === 'unico'): ?>
+                    <option value="unico" <?php echo ($producto->estado === 'unico') ? 'selected' : ''; ?>>Articulo Unico</option>
+                    <option value="agotado" <?php echo ($producto->estado === 'agotado') ? 'selected' : ''; ?>>Agotado (Acción Permanente)</option>
+                <?php else: ?>
+                    <option value="disponible" <?php echo ($producto->estado === 'disponible') ? 'selected' : ''; ?>>Disponible</option>
+                    <option value="agotado" <?php echo ($producto->estado === 'agotado') ? 'selected' : ''; ?>>Agotado</option>
+                <?php endif; ?>
+            <?php else: ?>
+                <option value="disponible" selected>Disponible</option>
+                <option value="unico">Articulo Unico</option>
             <?php endif; ?>
         </select>
     </div>
@@ -45,12 +56,13 @@
     <div class="formulario__campo">
         <label for="nombre" class="formulario__label">Nombre</label>
         <input 
-        type="text"
-        class="formulario__input"
-        id="nombre"
-        name="nombre"
-        placeholder="Nombre Producto"
-        value="<?php echo $producto->nombre ?? ''; ?>"
+            type="text"
+            class="formulario__input"
+            id="nombre"
+            name="nombre"
+            placeholder="Nombre Producto"
+            value="<?php echo $producto->nombre ?? ''; ?>" 
+            <?php if($esUnicoAgotadoPermanente) echo 'disabled'; ?>
         >
     </div>
     
@@ -63,8 +75,9 @@
             id="precio"
             name="precio"
             placeholder="Precio Producto"
-            value="<?php echo $producto->precio ?? ''; ?>"
             min="0"
+            value="<?php echo $producto->precio ?? ''; ?>" 
+            <?php if($esUnicoAgotadoPermanente) echo 'disabled'; ?>
         >
     </div>
 
@@ -76,8 +89,9 @@
             id="stock"
             name="stock"
             placeholder="Stock Disponible"
-            value="<?php echo $producto->stock ?? ''; ?>"
             min="0"
+            value="<?php echo $producto->stock ?? ''; ?>"
+            <?php if($esUnicoAgotadoPermanente) echo 'disabled'; ?>
         >
     </div>
 
@@ -100,6 +114,17 @@
         <textarea class="formulario__input" name="descripcion" id="descripcion" rows="4"><?php echo $producto->descripcion ?? ''; ?></textarea>
     </div>
 </fieldset>
+
+<div id="agotadoModal" class="modal-eliminar">
+    <div class="modal-eliminar__content">
+        <h3>Acción Permanente</h3>
+        <p id="modalMessageAgotado">Estás a punto de marcar un 'Artículo Único' como 'Agotado'. Esta acción es irreversible y el producto se moverá a tu historial permanentemente, sin opción de reabastecerlo. ¿Deseas continuar?</p>
+        <div class="modal-eliminar__acciones">
+            <button id="cancelAgotado" type="button" class="modal-eliminar__cancel">Cancelar</button>
+            <button id="confirmAgotado" type="button" class="modal-eliminar__confirm">Sí, Continuar</button>
+        </div>
+    </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -189,8 +214,60 @@
         }
 
         // ------------- Manejar lógica de estado y stock -------------
+        const form = document.querySelector('.formulario');
         const estadoSelect = document.getElementById('estado');
         const stockInput = document.getElementById('stock');
+
+        // Obtenemos los datos desde los atributos data-*
+        const estadoActual = estadoSelect.dataset.estadoActual;
+        const tipoOriginal = estadoSelect.dataset.tipoOriginal;
+
+        // --- LÓGICA DEL MODAL ---
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Condición para mostrar el modal:
+                // 1. Es un artículo originalmente único.
+                // 2. Su estado actual NO es 'agotado'.
+                // 3. El nuevo estado seleccionado ES 'agotado'.
+                // 4. El formulario aún no tiene la confirmación.
+                if (tipoOriginal === 'unico' && estadoActual !== 'agotado' && estadoSelect.value === 'agotado' && !form.querySelector('[name="confirmacion_agotado_unico"]')) {
+                    e.preventDefault(); // Detenemos el envío
+                    
+                    // Mostramos el modal de confirmación de 'agotado'
+                    const modal = document.getElementById('agotadoModal');
+                    modal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        }
+
+        const confirmAgotadoBtn = document.getElementById('confirmAgotado');
+        if (confirmAgotadoBtn) {
+            confirmAgotadoBtn.addEventListener('click', function() {
+                // Creamos un input oculto para enviar la confirmación al backend
+                const confirmationInput = document.createElement('input');
+                confirmationInput.type = 'hidden';
+                confirmationInput.name = 'confirmacion_agotado_unico';
+                confirmationInput.value = 'true';
+                form.appendChild(confirmationInput);
+                
+                // Ahora sí, enviamos el formulario
+                form.submit();
+            });
+        }
+        
+        const cancelAgotadoBtn = document.getElementById('cancelAgotado');
+        if(cancelAgotadoBtn) {
+            cancelAgotadoBtn.addEventListener('click', function() {
+                const modal = document.getElementById('agotadoModal');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                // Opcional: revertir la selección del select al estado original
+                estadoSelect.value = estadoActual; 
+            });
+        }
+
+        // --- FINALIZA LOGICA DEL MODAL ---
 
         function actualizarCampoStock() {
             if (estadoSelect.value === 'unico') {
@@ -204,14 +281,32 @@
             }
         }
 
+        function actualizarEstadoPorStock() {
+            const stockValue = parseInt(stockInput.value, 10);
+            
+            // Solo aplica si el producto no es 'unico'
+            if (originalState !== 'unico') {
+                if (stockValue === 0) {
+                    // Si el stock es 0, selecciona 'agotado'
+                    estadoSelect.value = 'agotado';
+                } else if (estadoSelect.value === 'agotado' && stockValue > 0) {
+                    // Si estaba agotado y se añade stock, pasa a 'disponible'
+                    estadoSelect.value = 'disponible';
+                }
+            }
+        }
+
         // Actualizar al cargar la página
         actualizarCampoStock();
 
+        
+        // ------------- Event Listeners -------------
         // Escuchar cambios en el estado
         estadoSelect.addEventListener('change', actualizarCampoStock);
 
+        // Escuchar cambios en el campo de stock para actualizar el estado
+        stockInput.addEventListener('input', actualizarEstadoPorStock);
 
-        // ------------- Event Listeners -------------
         btnAgregarImagen.addEventListener('click', crearNuevaImagen);
 
         // Delegación de eventos

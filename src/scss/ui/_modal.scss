@@ -14,7 +14,7 @@
 
     &__content {
         background-color: v.$blanco;
-        margin: auto;
+        margin: 15% auto; /* Centrado vertical y horizontal */
         padding: 3rem;
         width: 80%; /* Ajusta el ancho del modal */
         max-width: 50rem;
