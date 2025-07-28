@@ -300,7 +300,8 @@ class UsuariosController {
             'titulo' => 'Editar Usuario',
             'usuario' => $usuario,
             'fecha_hoy' => date('Y-m-d'),
-            'direcciones' => $direcciones
+            'direcciones' => $direcciones,
+            'edicion' =>  true
         ], 'admin-layout');
     }
 

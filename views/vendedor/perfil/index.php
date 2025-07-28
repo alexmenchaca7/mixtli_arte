@@ -120,9 +120,11 @@
                     name="email"
                     value="<?php echo $usuario->email; ?>"
                     required
+                    disabled
                 >
+                <p style="font-size: 1.2rem; color: #666; margin-top: 0.5rem;">El correo electrónico no se puede modificar.</p>
             </div>
-
+                        
             <div class="formulario__campo">
                 <label for="telefono" class="formulario__label">Teléfono</label>
                 <input 

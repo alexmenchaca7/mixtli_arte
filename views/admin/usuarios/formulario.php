@@ -1,15 +1,3 @@
-<?php
-// Función helper para obtener valores de dirección
-function obtenerDireccion($direcciones, $tipo, $campo) {
-    foreach($direcciones as $direccion) {
-        if($direccion->tipo === $tipo) {
-            return htmlspecialchars($direccion->$campo ?? '');
-        }
-    }
-    return '';
-}
-?>
-
 <fieldset class="formulario__fieldset">
     <legend class="formulario__legend">Información General</legend>
 
@@ -118,7 +106,13 @@ function obtenerDireccion($direcciones, $tipo, $campo) {
             id="email"
             name="email"
             value="<?php echo $usuario->email; ?>"
+            <?php if(isset($edicion)): ?>
+                disabled
+            <?php endif; ?>
         >
+        <?php if(isset($edicion)): ?>
+            <p style="font-size: 1.2rem; color: #666; margin-top: 0.5rem;">El correo electrónico no se puede modificar.</p>
+        <?php endif; ?>
     </div>
 
     <div class="formulario__campo">
