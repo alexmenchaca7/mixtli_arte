@@ -116,9 +116,9 @@
                             <a href="/mensajes">
                                 <div class="icono-badge-container">
                                     <i class="fa-regular fa-comment icon-desktop"></i>
+                                    <span class="link-text-mobile">Mensajes</span>
                                     <span class="notification-badge" style="display: none;"></span>
                                 </div>
-                                <span class="link-text-mobile">Mensajes</span>
                             </a>
                             <a href="/favoritos">
                                 <i class="fa-regular fa-heart icon-desktop"></i>
