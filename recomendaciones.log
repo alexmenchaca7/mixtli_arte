@@ -326,3 +326,1678 @@ Se obtuvieron 28 productos de las categorías recomendadas.
 Total de 28 recomendaciones únicas para 'Para Ti'.
 --- FIN DEL PROCESO ---
 
+-------------------------------------------------
+Fecha: 2025-07-28 14:36:04
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 14:39:31
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 14:49:07
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 14:49:09
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 14:53:39
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 14:54:31
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 14:54:34
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 14:56:25
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:02:44
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:02:57
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:03:06
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:18:16
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:19:25
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:20:14
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:33:20
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:34:09
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:34:53
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:35:26
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:36:34
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:37:04
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:37:06
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:37:08
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:38:22
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:38:23
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-07-28 15:38:53
+Usuario ID: 31
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Accesorios personales (ID: 5)] - Peso Total: 36
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_categoria' en producto ID : +5 para el término 'Accesorios personales'
+     - Interacción 'clic' en producto ID 95: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 18: +1
+     - Interacción 'clic' en producto ID 189: +1
+     - Agregó a favoritos producto ID 182: +8
+     - Interacción 'clic' en producto ID 93: +1
+     - Interacción 'clic' en producto ID 188: +1
+     - Interacción 'clic' en producto ID 17: +1
+     - Interacción 'clic' en producto ID 184: +1
+     - Interacción 'clic' en producto ID 185: +1
+     - Interacción 'clic' en producto ID 190: +1
+     - Interacción 'clic' en producto ID 93: +1
+
+[Categoría: Moda (ID: 6)] - Peso Total: 30
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+     - Interacción 'autocompletado_producto' en producto ID 117: +5
+     - Interacción 'clic' en producto ID 117: +1
+     - Tiempo en Página (41s) en producto ID 117: +2
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+     - Interacción 'busqueda' en producto ID : +3 para el término 'moda'
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Juguetes tradicionales (ID: 9)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+5, 6, 2, 9
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 31) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 5, 6, 2, 9
+Se obtuvieron 58 productos de las categorías recomendadas.
+Filtrando 27 productos (no interesados, comprados o favoritos).
+Total de 48 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+

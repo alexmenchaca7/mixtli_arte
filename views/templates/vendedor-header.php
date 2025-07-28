@@ -4,9 +4,12 @@
             <img src="/build/img/logo.png" alt="Logo MixtliArte">
             <h2>MixtliArte</h2>
         </a>
-
+        
         <button type="button" class="dashboard__mobile-menu">
-            <i class="fa-solid fa-bars"></i>
+            <div class="icono-badge-container">   
+                <i class="fa-solid fa-bars"></i>
+                <span class="notification-badge" style="display: none;"></span>
+            </div>
         </button>
         
         <nav class="dashboard__nav">

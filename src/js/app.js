@@ -310,4 +310,48 @@ document.addEventListener("DOMContentLoaded", () => {
             alert('Error al conectar con el servidor. Inténtalo de nuevo.');
         }
     });
+
+
+
+    // --- CONTADOR DE MENSAJES NO LEÍDOS ---
+    const badges = document.querySelectorAll('.notification-badge');
+
+    if (badges.length > 0) {
+        const fetchUnreadCount = async () => {
+            // No hacer la petición si la pestaña no está visible
+            if (document.hidden) {
+                return;
+            }
+            try {
+                const response = await fetch('/mensajes/unread-count');
+                if (!response.ok) {
+                    // Si la sesión expira o hay un error, detenemos el polling
+                    if(response.status === 401 || response.status === 403) {
+                        clearInterval(pollingInterval);
+                    }
+                    return;
+                }
+                const data = await response.json();
+                updateBadges(data.unread_count);
+            } catch (error) {
+                console.error('Error al obtener el contador de no leídos:', error);
+            }
+        };
+
+        const updateBadges = (count) => {
+            // Itera sobre cada badge encontrado y lo actualiza
+            badges.forEach(badge => {
+                if (count > 0) {
+                    badge.textContent = count > 9 ? '9+' : count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+        };
+
+        // Iniciar polling
+        fetchUnreadCount(); // Llamada inicial
+        const pollingInterval = setInterval(fetchUnreadCount, 15000); // Consultar cada 15 segundos
+    }
 });

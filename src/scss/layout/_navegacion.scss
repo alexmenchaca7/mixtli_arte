@@ -122,6 +122,7 @@
         a {
             font-weight: v.$bold;
             color: v.$negro;
+            position: relative;
         }
 
         .icono_favorito {
@@ -206,16 +207,25 @@
     visibility: visible;
 }
 
+// Contenedor para el ícono en la barra de navegación del layout del comprador
+.icono-badge-container {
+    position: relative; // CREA EL CONTEXTO DE POSICIONAMIENTO
+    display: inline-flex; // Permite que se comporte bien dentro del enlace
+    align-items: center;
+    justify-content: center;
+}
+
+// Badge de notificación
 .notification-badge {
     position: absolute;
-    top: -8px;
-    right: -10px;
+    top: -5px;       
+    right: -8px;    
     background-color: v.$rojo; 
     color: v.$blanco;
     border-radius: 50%;
     padding: 2px 6px;
-    font-size: 1rem;
-    font-weight: v.$bold;
+    font-size: 1.2rem;
+    font-weight: 700;
     min-width: 20px;
     height: 20px;
     display: flex;

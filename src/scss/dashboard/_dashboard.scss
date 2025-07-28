@@ -176,6 +176,10 @@
         padding: 1rem;
         transition: 0.3s all ease;
 
+        i {
+            position: relative; // Permite posicionar el badge correctamente
+        }
+
         &:hover,
         &--actual {
             background-color: color.adjust(v.$dashboard, $lightness: 20%);
