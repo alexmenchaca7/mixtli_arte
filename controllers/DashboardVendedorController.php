@@ -9,6 +9,7 @@ use Model\Producto;
 use Model\Direccion;
 use Model\Valoracion;
 use Intervention\Image\ImageManager;
+use Controllers\MarketplaceController;
 use Intervention\Image\Drivers\Gd\Driver;
 
 class DashboardVendedorController {
@@ -237,6 +238,7 @@ class DashboardVendedorController {
         }
     
         $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+        $puntos_fuertes = MarketplaceController::obtenerPuntosFuertesAgrupados($valoraciones);
     
         $router->render('vendedor/perfil/valoraciones', [
             'titulo' => 'Mis Calificaciones Recibidas',
@@ -244,7 +246,8 @@ class DashboardVendedorController {
             'promedioEstrellas' => $promedioEstrellas,
             'totalCalificaciones' => $totalCalificaciones,
             'desgloseEstrellas' => $desgloseEstrellas,
-            'valoracionesConComentario' => $valoracionesConComentario,          
+            'valoracionesConComentario' => $valoracionesConComentario,       
+            'puntos_fuertes' => $puntos_fuertes   
         ], 'vendedor-layout');
     }
 }

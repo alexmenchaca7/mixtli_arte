@@ -85,6 +85,11 @@
                     </div>
                 </div>
 
+                <?php 
+                    $esPublico = false; // Mostrar todos los puntos en la vista privada
+                    include __DIR__ . '/../../templates/_puntos-fuertes.php'; 
+                ?>
+
                 <?php if(!empty($valoracionesConComentario)): ?>
                     <?php foreach($valoracionesConComentario as $valoracion): ?>
                         <div class="valoracion-item">

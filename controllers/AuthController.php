@@ -144,12 +144,24 @@ class AuthController {
     public static function logout() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_start();
-            session_unset(); // Eliminar todas las variables de sesión
-            session_destroy(); // Destruir la sesión
-            header('Location: /');
-            exit();
         }
-       
+
+        // 1. Verificamos si hay un usuario autenticado en la sesión
+        if (isset($_SESSION['id'])) {
+            // 2. Buscamos al usuario en la base de datos
+            $usuario = Usuario::find($_SESSION['id']);
+            if ($usuario) {
+                // 3. Forzamos su estado a "inactivo" actualizando last_active
+                //    Lo ponemos 4 minutos en el pasado para asegurar que el sistema lo vea inactivo.
+                $usuario->last_active = date('Y-m-d H:i:s', time() - 240);
+                $usuario->guardar(); // Guardamos el cambio en la BD
+            }
+        }
+
+        $_SESSION = [];
+        session_destroy();
+        header('Location: /');
+        exit;
     }
 
     public static function registro(Router $router) {

@@ -503,6 +503,13 @@ class MensajesController {
                 'mensaje' => $mensajeGuardado->toArray()
             ];
 
+            // Cierra la escritura de la sesión para liberar el archivo de sesión.
+            // Esto es CRUCIAL para que el comando exec() se ejecute en un segundo
+            // plano real y no bloquee la respuesta al navegador.
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+
             // Ignorar si el usuario aborta la conexión y quitar límite de tiempo
             ignore_user_abort(true);
             set_time_limit(0);
@@ -540,23 +547,17 @@ class MensajesController {
 
             // Solo envía el email si el usuario NO está online
             if (!$isOnline) {
-                $remitenteInfo = Usuario::find($usuarioId);
-                $productoInfo = Producto::find($productoId);
+                $phpPath = '/usr/bin/php';
+                $scriptPath = __DIR__ . '/../cron/enviar_notificacion_mensaje.php';
 
-                if ($destinatarioInfo && $remitenteInfo && $productoInfo) {
-                    $mensajeCortoPreview = substr(stripslashes($mensajeTexto), 0, 70);
-                    $urlConversacion = $_ENV['HOST'] . "/mensajes?productoId={$productoId}&contactoId={$usuarioId}";
-                    
-                    $email = new Email($destinatarioInfo->email, $destinatarioInfo->nombre, '');
-                    $email->enviarNotificacionNuevoMensaje(
-                        $destinatarioInfo->email,
-                        $destinatarioInfo->nombre . ' ' . $destinatarioInfo->apellido,
-                        $remitenteInfo->nombre,
-                        $productoInfo->nombre,
-                        $mensajeCortoPreview,
-                        $urlConversacion
-                    );
-                }
+                $command = "{$phpPath} {$scriptPath} "
+                        . escapeshellarg($destinatarioId) . " "
+                        . escapeshellarg($usuarioId) . " "
+                        . escapeshellarg($productoId) . " "
+                        . escapeshellarg($mensajeTexto)
+                        . " > /dev/null 2>&1 &";
+
+                exec($command);
             }
 
             exit();

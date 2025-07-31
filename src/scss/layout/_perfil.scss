@@ -186,3 +186,67 @@
         }
     }
 }
+
+.puntos-fuertes-resumen {
+    // Hereda el estilo de las tarjetas de perfil para consistencia
+    @extend .perfil-card; 
+    margin-top: 2rem;
+    margin-bottom: 0; // Se ajusta para que no haya doble margen
+
+    h4 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid v.$gris-claro;
+        padding-bottom: 1rem;
+        font-size: 1.8rem; // Tamaño consistente con otros títulos de tarjeta
+    }
+}
+
+.puntos-fuertes-lista {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.punto-fuerte-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .8rem;
+    background-color: color.adjust(v.$primario, $alpha: -0.9); // Fondo sutil del color primario
+    color: v.$primario;
+    border: 1px solid color.adjust(v.$primario, $alpha: -0.7);
+    padding: .6rem 1.2rem;
+    border-radius: 5rem; // Bordes bien redondeados para tags
+    font-size: 1.3rem;
+    font-weight: v.$bold;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: v.$primario;
+        color: v.$blanco;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(v.$negro, 0.1);
+    }
+}
+
+.punto-fuerte-total {
+    background-color: v.$primario;
+    color: v.$blanco;
+    border-radius: 50%;
+    width: 2.2rem;
+    height: 2.2rem;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: v.$bold;
+    flex-shrink: 0; // Evita que se encoja
+    transition: all 0.3s ease;
+
+    .punto-fuerte-tag:hover & {
+        background-color: v.$blanco;
+        color: v.$primario;
+    }
+}

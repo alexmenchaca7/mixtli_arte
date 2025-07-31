@@ -87,6 +87,13 @@
                         <?php endforeach; ?>
                     </div>
                 </div>
+
+                <?php 
+                    if ($totalCalificaciones >= 5) {
+                        $esPublico = true; // Variable para limitar a 3 puntos en la vista pública
+                        include __DIR__ . '/../templates/_puntos-fuertes.php';
+                    }
+                ?>
                 
                 <?php if(!empty($valoracionesConComentario)): ?>
                     <?php foreach($valoracionesConComentario as $valoracion): ?>

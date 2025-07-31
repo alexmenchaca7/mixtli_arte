@@ -36,6 +36,11 @@
         </div>
     </div>
 
+    <?php 
+        $esPublico = false; // Mostrar todos los puntos en la vista privada
+        include __DIR__ . '/../../templates/_puntos-fuertes.php'; 
+    ?>
+
     <div class="valoraciones-listado">
         <h4 style="margin-top: 4rem;">Detalle de Calificaciones Recibidas</h4>
         

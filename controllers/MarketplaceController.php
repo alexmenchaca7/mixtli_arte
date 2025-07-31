@@ -10,6 +10,7 @@ use Model\Producto;
 use Model\Categoria;
 use Model\Direccion;
 use Model\Valoracion;
+use Model\PuntoFuerte;
 use Classes\Paginacion;
 use Model\Notificacion;
 use Model\ImagenProducto;
@@ -622,6 +623,7 @@ class MarketplaceController {
         }
 
         $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+        $puntos_fuertes = self::obtenerPuntosFuertesAgrupados($valoraciones);
 
         $router->render('marketplace/perfil/index', [
             'titulo' => 'Mi Perfil',
@@ -633,6 +635,7 @@ class MarketplaceController {
             'promedioEstrellas' => $promedioEstrellas,
             'totalCalificaciones' => $totalCalificaciones,
             'desgloseEstrellas' => $desgloseEstrellas,
+            'puntos_fuertes' => $puntos_fuertes,
             'show_hero' => false
         ]);
     }
@@ -738,6 +741,7 @@ class MarketplaceController {
         }
 
         $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+        $puntos_fuertes = self::obtenerPuntosFuertesAgrupados($valoraciones);
         
         $esSeguidor = false;
         $favoritosIds = [];
@@ -760,6 +764,7 @@ class MarketplaceController {
             'totalCalificaciones' => $totalCalificaciones,
             'desgloseEstrellas' => $desgloseEstrellas,
             'valoracionesConComentario' => $valoracionesConComentario,
+            'puntos_fuertes' => $puntos_fuertes,
             'esSeguidor' => $esSeguidor,
             'favoritosIds' => $favoritosIds,
             'categorias' => $categorias,
@@ -819,6 +824,7 @@ class MarketplaceController {
         }
 
         $promedioEstrellas = $totalCalificaciones > 0 ? round($totalEstrellas / $totalCalificaciones, 1) : 0;
+        $puntos_fuertes = self::obtenerPuntosFuertesAgrupados($valoraciones);
 
         // Renderizar la vista
         $router->render('marketplace/comprador', [
@@ -828,7 +834,8 @@ class MarketplaceController {
             'totalCalificaciones' => $totalCalificaciones,
             'desgloseEstrellas' => $desgloseEstrellas,
             'promedioEstrellas' => $promedioEstrellas,
-            'valoracionesConComentario' => $valoracionesConComentario
+            'valoracionesConComentario' => $valoracionesConComentario,
+            'puntos_fuertes' => $puntos_fuertes
         ], 'vendedor-layout'); // Usar el layout de vendedor para consistencia
     }
 
@@ -1027,56 +1034,31 @@ class MarketplaceController {
         ]);
     }
 
-
-    public static function valoraciones(Router $router) {
-        if (!is_auth()) {
-            header('Location: /login');
-            return;
+    // Funcion helper para obtener los puntos fuertes agrupados
+    public static function obtenerPuntosFuertesAgrupados($valoraciones) {
+        if (empty($valoraciones)) {
+            return [];
         }
 
-        $usuarioId = $_SESSION['id'];
-        
-        // 1. Calificaciones que el usuario HA HECHO (lógica existente)
-        $valoracionesEmitidas = Valoracion::whereArray(['calificadorId' => $usuarioId]);
-        foreach ($valoracionesEmitidas as $valoracion) {
-            $valoracion->producto = Producto::find($valoracion->productoId);
-        }
-        
-        // --- INICIO: NUEVA LÓGICA PARA CALIFICACIONES RECIBIDAS ---
-        
-        // 2. Calificaciones que el usuario HA RECIBIDO
-        $valoracionesRecibidas = Valoracion::whereArray(['calificadoId' => $usuarioId, 'moderado' => 1]);
-        
-        // 3. Calcular estadísticas para las calificaciones recibidas
-        $totalCalificacionesRecibidas = 0;
-        $totalEstrellasRecibidas = 0;
-        $desgloseEstrellasRecibidas = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+        $valoracionesIds = array_map(fn($v) => $v->id, $valoraciones);
+        $idsString = implode(',', $valoracionesIds);
 
-        foreach($valoracionesRecibidas as $valoracion) {
-            if ($valoracion->estrellas !== null) {
-                $totalCalificacionesRecibidas++;
-                $totalEstrellasRecibidas += $valoracion->estrellas;
-                if (isset($desgloseEstrellasRecibidas[$valoracion->estrellas])) {
-                    $desgloseEstrellasRecibidas[$valoracion->estrellas]++;
-                }
-            }
-            // Cargar datos del producto y del usuario que calificó
-            $valoracion->calificador = Usuario::find($valoracion->calificadorId);
-            $valoracion->producto = Producto::find($valoracion->productoId);
+        if (empty($idsString)) {
+            return [];
         }
 
-        $promedioEstrellasRecibidas = $totalCalificacionesRecibidas > 0 ? round($totalEstrellasRecibidas / $totalCalificacionesRecibidas, 1) : 0;
-        // --- FIN: NUEVA LÓGICA ---
-
-        $router->render('marketplace/perfil/valoraciones', [
-            'titulo' => 'Mis Calificaciones',
-            'valoraciones' => $valoracionesEmitidas, // Mantenemos el nombre original para la primera pestaña
-            'valoracionesRecibidas' => $valoracionesRecibidas, // Nuevo
-            'totalCalificacionesRecibidas' => $totalCalificacionesRecibidas, // Nuevo
-            'promedioEstrellasRecibidas' => $promedioEstrellasRecibidas, // Nuevo
-            'desgloseEstrellasRecibidas' => $desgloseEstrellasRecibidas // Nuevo
-        ]);
+        $query = "SELECT punto, COUNT(punto) as total FROM puntos_fuertes_valoraciones WHERE valoracionId IN ({$idsString}) AND punto IS NOT NULL AND punto != '' GROUP BY punto ORDER BY total DESC";
+        $puntosFuertes = PuntoFuerte::consultarSQL($query);
+        
+        // Convertir el resultado a un array asociativo más simple
+        $resultado = [];
+        foreach($puntosFuertes as $punto) {
+            $resultado[$punto->punto] = $punto->total;
+        }
+        
+        return $resultado;
     }
+
 
     public static function marcarNoInteresa() {
         header('Content-Type: application/json');
