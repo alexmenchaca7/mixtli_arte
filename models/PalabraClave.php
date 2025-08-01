@@ -6,6 +6,9 @@ class PalabraClave extends ActiveRecord {
     protected static $tabla = 'palabras_clave';
     protected static $columnasDB = ['id', 'palabra'];
 
+    // Propiedad con las columnas a buscar
+    protected static $buscarColumns = ['palabra'];
+
     public $id;
     public $palabra;
 

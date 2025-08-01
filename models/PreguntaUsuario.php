@@ -40,18 +40,26 @@ class PreguntaUsuario extends ActiveRecord {
     }
 
     // Método para buscar preguntas similares
-    public static function buscarPreguntasSimilares($pregunta, $umbral = 0.7) {
+    public static function buscarPreguntasSimilares($pregunta, $umbral = 70) { // Umbral en porcentaje
         $preguntas = self::all();
         $similares = [];
 
+        // Normalizar la pregunta nueva una sola vez
+        $preguntaNormalizada = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', preg_replace('/[^\p{L}\p{N}\s]/u', '', $pregunta)));
+
         foreach ($preguntas as $p) {
-            similar_text(mb_strtolower($pregunta, 'UTF-8'), mb_strtolower($p->pregunta, 'UTF-8'), $percent);
-            if ($percent >= ($umbral * 100)) {
+            // Normalizar la pregunta existente en la BD
+            $pExistenteNormalizada = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', preg_replace('/[^\p{L}\p{N}\s]/u', '', $p->pregunta)));
+            
+            similar_text($preguntaNormalizada, $pExistenteNormalizada, $percent);
+            
+            if ($percent >= $umbral) {
                 $similares[] = $p;
             }
         }
         return $similares;
     }
+
 
     // New method to find frequent questions pending review
     public static function findFrequentPendingReview() {

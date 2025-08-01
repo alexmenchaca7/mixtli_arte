@@ -94,21 +94,44 @@ class FaqsController {
     }
 
     private static function etiquetarPalabrasClave($pregunta) {
-        // Lista de palabras clave para el etiquetado 
+        // Obtener todas las palabras clave de la BD
         $palabrasClave = PalabraClave::all();
-
-        if (empty($palabra)) {
+        if (empty($palabrasClave)) {
             return [];
         }
         
-        $preguntaNormalizada = strtolower(preg_replace('/[^\p{L}\p{N}\s]/u', '', $pregunta));
+        // Normalizar la pregunta del usuario (minúsculas, sin acentos, solo letras y números)
+        $preguntaNormalizada = strtolower($pregunta);
+        $preguntaNormalizada = iconv('UTF-8', 'ASCII//TRANSLIT', $preguntaNormalizada); // Quitar acentos
+        $preguntaNormalizada = preg_replace('/[^a-z0-9\s]/', '', $preguntaNormalizada);
+        $palabrasPregunta = explode(' ', $preguntaNormalizada); // Separar en palabras
+
         $encontradas = [];
-        
-        foreach ($palabrasClave as $palabra) {
-            if (str_contains($preguntaNormalizada, $palabra->palabra)) {
-                $encontradas[] = $palabra->palabra;
+
+        // Iterar sobre cada PalabraClave de la base de datos
+        foreach ($palabrasClave as $palabraClaveObj) {
+            // Normalizar la palabra clave de la BD de la misma forma
+            $palabraClaveNormalizada = strtolower($palabraClaveObj->palabra);
+            $palabraClaveNormalizada = iconv('UTF-8', 'ASCII//TRANSLIT', $palabraClaveNormalizada);
+            $palabraClaveNormalizada = preg_replace('/[^a-z0-9\s]/', '', $palabraClaveNormalizada);
+            
+            // Si la palabra clave tiene múltiples palabras (ej. "iniciar sesion"), las separamos
+            $palabrasDeClave = explode(' ', $palabraClaveNormalizada);
+
+            // Comprobar si TODAS las palabras de la palabra clave están en la pregunta del usuario
+            $todasLasPalabrasEncontradas = true;
+            foreach ($palabrasDeClave as $palabraDeClave) {
+                if (!in_array($palabraDeClave, $palabrasPregunta)) {
+                    $todasLasPalabrasEncontradas = false;
+                    break; // Si falta una, ya no es coincidencia
+                }
+            }
+
+            if ($todasLasPalabrasEncontradas) {
+                $encontradas[] = $palabraClaveObj->palabra; // Agregamos la palabra clave original
             }
         }
+
         return array_unique($encontradas);
     }
 

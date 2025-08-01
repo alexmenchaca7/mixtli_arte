@@ -1,6 +1,21 @@
 <h2 class="dashboard__heading"><?php echo $titulo; ?></h2>
 
 <div class="dashboard__contenedor-boton">
+    <form class="dashboard__busqueda" method="GET" action="/admin/palabras-clave">
+        <div class="campo-busqueda">
+            <input 
+                type="text" 
+                name="busqueda" 
+                class="input-busqueda" 
+                placeholder="Buscar por palabra clave..."
+                value="<?php echo htmlspecialchars($_GET['busqueda'] ?? ''); ?>"
+            >
+            <button type="submit" class="boton-busqueda">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </div>
+    </form>
+
     <a class="dashboard__boton" href="/admin/faqs">
         <i class="fa-solid fa-circle-arrow-left"></i>
         Volver
@@ -52,3 +67,5 @@
         <p class="t-align-center">No Hay Palabras Aún</p>
     <?php endif; ?>
 </div>
+
+<?php echo $paginacion; ?>
