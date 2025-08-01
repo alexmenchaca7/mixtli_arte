@@ -10,6 +10,11 @@
         <i class="fa-solid fa-circle-plus"></i>
         Añadir FAQ
     </a>
+
+    <a class="dashboard__boton" href="/admin/palabras-clave">
+        <i class="fa-solid fa-tags"></i>
+        Palabras Clave
+    </a>
 </div>
 
 <div class="dashboard__contenedor">

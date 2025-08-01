@@ -2,26 +2,15 @@
 
 namespace Controllers;
 
-use MVC\Router;
 use Model\Faq;
+use MVC\Router;
 // Antes: use Model\Categoria;
-use Model\CategoriaFaq; // Nuevo modelo para categorías de FAQ
-use Model\PreguntaUsuario;
 use Classes\Email;
+use Model\PalabraClave;
+use Model\PreguntaUsuario;
+use Model\CategoriaFaq; // Nuevo modelo para categorías de FAQ
 
 class FaqsController {
-    // Lista de palabras clave para el etiquetado (puedes expandirla)
-    private static $palabrasClavePredefinidas = [
-        'registro', 'cuenta', 'iniciar sesion', 'password', 'verificacion',
-        'producto', 'vender', 'comprar', 'publicar', 'stock', 'precio', 'imagenes',
-        'favoritos', 'lista de deseos',
-        'reseñas', 'calificar', 'valoracion', 'moderacion',
-        'envio', 'entrega', 'pago', 'transaccion',
-        'chat', 'mensajes', 'contacto', 'comunicacion',
-        'seguridad', '2fa', 'autenticacion',
-        'devoluciones', 'garantia', 'soporte'
-    ];
-
     public static function index(Router $router) {
         // --- Esta parte es pública y se ejecuta para todos ---
         $categoriasFaq = CategoriaFaq::all();
@@ -52,28 +41,43 @@ class FaqsController {
                 $alertas = $preguntaUsuario->validar();
 
                 if (empty($alertas)) {
-                    $palabrasClaveEncontradas = self::etiquetarPalabrasClave($preguntaUsuario->pregunta);
-                    $preguntaUsuario->palabras_clave = json_encode($palabrasClaveEncontradas);
+                    // Verificar si ya existe una pregunta similar del mismo usuario
+                    $preguntaExistente = PreguntaUsuario::whereArray([
+                        'pregunta' => $preguntaUsuario->pregunta,
+                        'usuarioId' => $preguntaUsuario->usuarioId
+                    ]);
 
-                    $preguntasSimilares = PreguntaUsuario::buscarPreguntasSimilares($preguntaUsuario->pregunta);
-                    
-                    if (!empty($preguntasSimilares)) {
-                        $preguntaExistente = array_shift($preguntasSimilares);
-                        $preguntaExistente->frecuencia = $preguntaExistente->frecuencia + 1;
+                    if ($preguntaExistente) {
+                        // Si ya existe, notificar al usuario
+                        Faq::setAlerta('error', 'Ya has enviado esta pregunta anteriormente. Nuestro equipo la revisará pronto.');
+                    } else {
 
-                        $umbralFrecuencia = 3; // Reduced for testing. Adjust as needed.
-                        if ($preguntaExistente->frecuencia >= $umbralFrecuencia && $preguntaExistente->marcada_frecuente == 0) {
-                            $preguntaExistente->marcada_frecuente = 1;
-                            $preguntaExistente->estado_revision = 'pendiente'; // Set initial review status
-                            self::notificarSoporteNuevaFaq($preguntaExistente);
-                            Faq::setAlerta('exito', 'Hemos recibido tu pregunta. ¡Parece que es una pregunta frecuente y la añadiremos pronto a nuestras FAQs!');
+                        $palabrasClaveEncontradas = self::etiquetarPalabrasClave($preguntaUsuario->pregunta);
+                        $preguntaUsuario->palabras_clave = json_encode($palabrasClaveEncontradas);
+
+                        $preguntasSimilares = PreguntaUsuario::buscarPreguntasSimilares($preguntaUsuario->pregunta);
+                        
+                        if (!empty($preguntasSimilares)) {
+                            $preguntaExistente = array_shift($preguntasSimilares);
+                            $preguntaExistente->frecuencia = $preguntaExistente->frecuencia + 1;
+
+                            $umbralFrecuencia = 3; // Reduced for testing. Adjust as needed.
+                            if ($preguntaExistente->frecuencia >= $umbralFrecuencia && $preguntaExistente->marcada_frecuente == 0) {
+                                $preguntaExistente->marcada_frecuente = 1;
+                                $preguntaExistente->estado_revision = 'pendiente'; // Set initial review status
+                                self::notificarSoporteNuevaFaq($preguntaExistente);
+                                Faq::setAlerta('exito', 'Hemos recibido tu pregunta. ¡Parece que es una pregunta frecuente y la añadiremos pronto a nuestras FAQs!');
+                            } else {
+                                Faq::setAlerta('exito', 'Hemos recibido tu pregunta. Te contactaremos pronto con una respuesta.');
+                            }
+                            $preguntaExistente->guardar();
                         } else {
+                            $preguntaUsuario->guardar();
                             Faq::setAlerta('exito', 'Hemos recibido tu pregunta. Te contactaremos pronto con una respuesta.');
                         }
-                        $preguntaExistente->guardar();
-                    } else {
-                        $preguntaUsuario->guardar();
-                        Faq::setAlerta('exito', 'Hemos recibido tu pregunta. Te contactaremos pronto con una respuesta.');
+
+                        // Limpiar el objeto para que el formulario aparezca vacío
+                        $preguntaUsuario = new PreguntaUsuario();
                     }
                 }
             }
@@ -90,11 +94,19 @@ class FaqsController {
     }
 
     private static function etiquetarPalabrasClave($pregunta) {
-        $preguntaNormalizada = mb_strtolower($pregunta, 'UTF-8');
+        // Lista de palabras clave para el etiquetado 
+        $palabrasClave = PalabraClave::all();
+
+        if (empty($palabra)) {
+            return [];
+        }
+        
+        $preguntaNormalizada = strtolower(preg_replace('/[^\p{L}\p{N}\s]/u', '', $pregunta));
         $encontradas = [];
-        foreach (self::$palabrasClavePredefinidas as $palabra) {
-            if (str_contains($preguntaNormalizada, $palabra)) {
-                $encontradas[] = $palabra;
+        
+        foreach ($palabrasClave as $palabra) {
+            if (str_contains($preguntaNormalizada, $palabra->palabra)) {
+                $encontradas[] = $palabra->palabra;
             }
         }
         return array_unique($encontradas);

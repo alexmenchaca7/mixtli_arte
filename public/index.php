@@ -17,6 +17,7 @@ use Controllers\SeguridadController;
 use Controllers\CategoriasController;
 use Controllers\MarketplaceController;
 use Controllers\AdminSoporteController;
+use Controllers\PalabraClaveController;
 use Controllers\ValoracionesController;
 use Controllers\AdminReportesController;
 use Controllers\DashboardAdminController;
@@ -196,6 +197,13 @@ $router->post('/admin/faqs/eliminar', [FaqsController::class, 'adminEliminar']);
 $router->get('/admin/faqs/frequent-questions', [FaqsController::class, 'adminFrequentQuestions']); // To view frequent questions
 $router->post('/admin/faqs/mark-frequent-reviewed', [FaqsController::class, 'adminMarkFrequentQuestionReviewed']); // To mark as reviewed/discarded
 $router->post('/admin/faqs/convert-frequent', [FaqsController::class, 'adminConvertFrequentToFaq']); // To convert to a formal FAQ
+
+$router->get('/admin/palabras-clave', [PalabraClaveController::class, 'index']);
+$router->get('/admin/palabras-clave/crear', [PalabraClaveController::class, 'crear']);
+$router->post('/admin/palabras-clave/crear', [PalabraClaveController::class, 'crear']);
+$router->get('/admin/palabras-clave/editar', [PalabraClaveController::class, 'editar']);
+$router->post('/admin/palabras-clave/editar', [PalabraClaveController::class, 'editar']);
+$router->post('/admin/palabras-clave/eliminar', [PalabraClaveController::class, 'eliminar']);
 
 $router->get('/admin/soporte', [AdminSoporteController::class, 'index']);
 $router->get('/admin/soporte/ver', [AdminSoporteController::class, 'ver']);
