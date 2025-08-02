@@ -117,7 +117,7 @@
                                 <div class="icono-badge-container">
                                     <i class="fa-regular fa-comment icon-desktop"></i>
                                     <span class="link-text-mobile">Mensajes</span>
-                                    <span class="notification-badge" style="display: none;"></span>
+                                    <span class="message-badge" style="display: none;"></span>
                                 </div>
                             </a>
                             <a href="/favoritos">
@@ -125,8 +125,11 @@
                                 <span class="link-text-mobile">Favoritos</span>
                             </a>
                             <a href="/notificaciones">
-                                <i class="fa-regular fa-bell icon-desktop"></i>
-                                <span class="link-text-mobile">Notificaciones</span>
+                                <div class="icono-badge-container">
+                                    <i class="fa-regular fa-bell icon-desktop"></i>
+                                    <span class="link-text-mobile">Notificaciones</span>
+                                    <span class="notification-badge" style="display: none;"></span>
+                                </div>
                             </a>
 
                             <?php

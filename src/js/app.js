@@ -313,20 +313,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-    // --- CONTADOR DE MENSAJES NO LEÍDOS ---
-    const badges = document.querySelectorAll('.notification-badge');
+    /**
+     * Función genérica para crear un sistema de polling para contadores de no leídos.
+     * @param {string} badgeSelector - El selector CSS para los badges a actualizar (ej. '.message-badge').
+     * @param {string} endpoint - La URL del API para obtener el contador (ej. '/mensajes/unread-count').
+     */
+    const setupUnreadPolling = (badgeSelector, endpoint) => {
+        const badges = document.querySelectorAll(badgeSelector);
 
-    if (badges.length > 0) {
+        if (badges.length === 0) {
+            return; // No hacer nada si no hay badges de este tipo en la página
+        }
+
         const fetchUnreadCount = async () => {
             // No hacer la petición si la pestaña no está visible
             if (document.hidden) {
                 return;
             }
             try {
-                const response = await fetch('/mensajes/unread-count');
+                const response = await fetch(endpoint);
                 if (!response.ok) {
-                    // Si la sesión expira o hay un error, detenemos el polling
-                    if(response.status === 401 || response.status === 403) {
+                    // Si la sesión expira o hay un error, detenemos el polling para este endpoint
+                    if (response.status === 401 || response.status === 403) {
                         clearInterval(pollingInterval);
                     }
                     return;
@@ -334,12 +342,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
                 updateBadges(data.unread_count);
             } catch (error) {
-                console.error('Error al obtener el contador de no leídos:', error);
+                console.error(`Error al obtener el contador de ${endpoint}:`, error);
             }
         };
 
         const updateBadges = (count) => {
-            // Itera sobre cada badge encontrado y lo actualiza
             badges.forEach(badge => {
                 if (count > 0) {
                     badge.textContent = count > 9 ? '9+' : count;
@@ -353,5 +360,74 @@ document.addEventListener("DOMContentLoaded", () => {
         // Iniciar polling
         fetchUnreadCount(); // Llamada inicial
         const pollingInterval = setInterval(fetchUnreadCount, 15000); // Consultar cada 15 segundos
+    };
+
+    // --- INICIALIZAR POLLING PARA CADA TIPO ---
+    // 1. Para Mensajes
+    setupUnreadPolling('.message-badge', '/mensajes/unread-count');
+
+    // 2. Para Notificaciones
+    setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+
+
+    // --- INTERACTIVIDAD EN LA PÁGINA DE NOTIFICACIONES ---
+    const notificacionesContenedor = document.querySelector('.notificaciones-contenedor');
+    if (notificacionesContenedor) {
+        notificacionesContenedor.addEventListener('click', async (e) => {
+            const botonMarcar = e.target.closest('.accion--marcar-leida');
+            const botonEliminar = e.target.closest('.accion--eliminar');
+            const item = e.target.closest('.notificacion-item');
+
+            if (!item) return;
+            const notificacionId = item.dataset.id;
+
+            // Acción para marcar como leída
+            if (botonMarcar) {
+                const formData = new FormData();
+                formData.append('id', notificacionId);
+
+                try {
+                    const response = await fetch('/notificaciones/marcar-leida', { method: 'POST', body: formData });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        item.classList.remove('no-leida');
+                        botonMarcar.remove(); // Quitar el botón de "marcar como leído"
+                        // Opcional: Actualizar el contador del badge inmediatamente
+                        setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+                    }
+                } catch (error) {
+                    console.error('Error al marcar como leída:', error);
+                }
+            }
+
+            // Acción para eliminar
+            if (botonEliminar) {
+                // Usamos la librería SweetAlert2 para una mejor UX, si la tienes. Si no, un confirm() simple.
+                // Swal.fire({ ... }) o if (confirm('...'))
+                if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
+                    const formData = new FormData();
+                    formData.append('id', notificacionId);
+
+                    try {
+                        const response = await fetch('/notificaciones/eliminar', { method: 'POST', body: formData });
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // Animación de salida y eliminación del DOM
+                            item.style.transition = 'opacity 0.3s ease';
+                            item.style.opacity = '0';
+                            setTimeout(() => {
+                                item.remove();
+                                // Opcional: Actualizar el contador del badge inmediatamente
+                                setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+                            }, 300);
+                        }
+                    } catch (error) {
+                        console.error('Error al eliminar:', error);
+                    }
+                }
+            }
+        });
     }
 });

@@ -21,6 +21,7 @@ use Controllers\PalabraClaveController;
 use Controllers\ValoracionesController;
 use Controllers\AdminReportesController;
 use Controllers\DashboardAdminController;
+use Controllers\NotificacionesController;
 use Controllers\AdminValoracionesController;
 use Controllers\DashboardVendedorController;
 use Controllers\HistorialInteraccionController;
@@ -91,6 +92,11 @@ $router->post('/follow/toggle', [FollowController::class, 'toggle']);
 $router->get('/perfil/exportar-datos', [DatosController::class, 'exportarDatos']);
 $router->post('/perfil/solicitar-eliminacion', [DatosController::class, 'solicitarEliminacion']);
 $router->get('/perfil/confirmar-eliminacion', [DatosController::class, 'confirmarEliminacion']);
+
+$router->get('/notificaciones', [NotificacionesController::class, 'index']);
+$router->get('/notificaciones/unread-count', [NotificacionesController::class, 'obtenerNoLeidas']);
+$router->post('/notificaciones/marcar-leida', [NotificacionesController::class, 'marcarLeida']);
+$router->post('/notificaciones/eliminar', [NotificacionesController::class, 'eliminar']);
 
 
 

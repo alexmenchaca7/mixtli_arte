@@ -15,13 +15,21 @@
         </a>
 
         <a href="/vendedor/mensajes" class="dashboard__enlace <?php echo pagina_actual('/mensajes') ? 'dashboard__enlace--actual' : ''; ?>">
-        <div class="icono-badge-container">    
-            <i class="fa-solid fa-comments dashboard__icono"></i>
-            <span class="notification-badge" style="display: none;"></span>
-        </div>
+            <div class="icono-badge-container">    
+                <i class="fa-solid fa-comments dashboard__icono"></i>
+                <span class="message-badge" style="display: none;"></span>
+            </div>
             <span class="dashboard__menu-texto">
                 Mensajes
             </span>  
+        </a>
+
+        <a href="/notificaciones" class="dashboard__enlace <?php echo pagina_actual('/notificaciones') ? 'dashboard__enlace--actual' : ''; ?>">
+            <div class="icono-badge-container">
+                <i class="fa-solid fa-bell dashboard__icono"></i>
+                <span class="notification-badge" style="display: none;"></span>
+            </div>
+            <span class="dashboard__menu-texto">Notificaciones</span>
         </a>
 
         <a href="/vendedor/valoraciones" class="dashboard__enlace <?php echo pagina_actual('/valoraciones') ? 'dashboard__enlace--actual' : ''; ?>">
