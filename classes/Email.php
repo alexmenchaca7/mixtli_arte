@@ -211,23 +211,39 @@ class Email {
         return true;
     }
 
-    public function enviarNotificacionNuevoProducto($nombreVendedor, $nombreProducto, $urlProducto) {
+    public function enviarNotificacionNuevoProducto($nombreVendedor, $nombreProducto, $precioProducto, $urlImagen, $urlProducto) {
         $mail = $this->configurarEmailBasico();
         $mail->Subject = '¡Nuevo Producto de un Artesano que Sigues!';
 
+        // Formatear el precio
+        $precioFormateado = number_format($precioProducto, 2);
+
         $contenido = '<html>';
-        $contenido .= "<body>";
-        $contenido .= "<h1>Hola " . htmlspecialchars($this->nombre) . ",</h1>";
+        $contenido .= '<body style="font-family: Arial, sans-serif; color: #333;">';
+        $contenido .= '<div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">';
+        $contenido .= '<h1 style="color: #EE4BBA; text-align: center;">¡Novedad en MixtliArte!</h1>';
+        $contenido .= "<h2>Hola " . htmlspecialchars($this->nombre) . ",</h2>";
         $contenido .= "<p>El artesano <strong>" . htmlspecialchars($nombreVendedor) . "</strong>, a quien sigues, ha publicado un nuevo producto que podría interesarte:</p>";
-        $contenido .= "<h2>" . htmlspecialchars($nombreProducto) . "</h2>";
-        $contenido .= "<p>Puedes verlo aquí: <a href='" . $_ENV['HOST'] . $urlProducto . "'>Ver Producto</a></p>";
-        $contenido .= "<p>¡Gracias por ser parte de la comunidad MixtliArte!</p>";
+        
+        // Contenedor del producto
+        $contenido .= '<div style="border: 1px solid #eee; border-radius: 8px; padding: 15px; text-align: center;">';
+        $contenido .= '<a href="' . $_ENV['HOST'] . $urlProducto . '" style="text-decoration: none; color: inherit;">';
+        $contenido .= '<img src="' . $urlImagen . '" alt="' . htmlspecialchars($nombreProducto) . '" style="max-width: 100%; height: auto; border-radius: 8px;">';
+        $contenido .= "<h2 style='font-size: 20px; margin: 10px 0;'>" . htmlspecialchars($nombreProducto) . "</h2>";
+        $contenido .= '</a>';
+        $contenido .= '<p style="font-size: 24px; font-weight: bold; color: #333; margin: 10px 0;">$' . $precioFormateado . ' MXN</p>';
+        $contenido .= '<a href="' . $_ENV['HOST'] . $urlProducto . '" style="display: inline-block; background-color: #EE4BBA; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Producto</a>';
+        $contenido .= '</div>';
+
+        $contenido .= "<p style='margin-top: 20px;'>¡Gracias por ser parte de la comunidad MixtliArte!</p>";
+        $contenido .= '</div>';
         $contenido .= "</body>";
         $contenido .= '</html>';
         $mail->Body = $contenido;
 
         $mail->send();
     }
+
 
 
     public function enviarConfirmacionSoporteUsuario($numeroCaso, $asuntoConsulta) {

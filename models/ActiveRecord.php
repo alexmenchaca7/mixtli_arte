@@ -91,7 +91,7 @@ class ActiveRecord {
             // Verificamos si el valor es null o vacío y lo reemplazamos por null
             if ($value === NULL || $value === '') {
                 $sanitizado[$key] = NULL;  // Reemplazamos con NULL
-            } elseif ($key === 'palabras_clave' || $key === 'categorias' || $key === 'metadata') {
+            } elseif ($key === 'preferencias_notificaciones' || $key === 'palabras_clave' || $key === 'categorias' || $key === 'metadata') {
                 // For JSON columns like 'palabras_clave', do NOT escape the string.
                 // The JSON string should be inserted as is. MySQL will validate it.
                 $sanitizado[$key] = $value; //
@@ -263,7 +263,7 @@ class ActiveRecord {
         $filas = [];
 
         // Definir qué columnas son JSON
-        $json_columns = ['palabras_clave', 'categorias', 'metadata'];
+        $json_columns = ['preferencias_notificaciones', 'palabras_clave', 'categorias', 'metadata'];
 
         // Reemplazar los valores NULL por la palabra 'NULL' en la consulta
         foreach ($atributos as $key => $value) {

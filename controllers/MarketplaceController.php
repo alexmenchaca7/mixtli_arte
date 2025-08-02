@@ -895,6 +895,14 @@ class MarketplaceController {
     
             // Sincronizar usuario y otros datos
             $usuario->sincronizar($_POST);
+
+            // Procesar preferencias de notificación
+            $prefsData = $_POST['prefs'] ?? [];
+            $preferenciasParaGuardar = [
+                'notificaciones_email' => isset($prefsData['notificaciones_email']),
+                'notificaciones_plataforma' => isset($prefsData['notificaciones_plataforma'])
+            ];
+            $usuario->preferencias_notificaciones = json_encode($preferenciasParaGuardar);
     
             // Si no se subió una nueva imagen ni se marcó para eliminar, mantener la anterior
             if (empty($_FILES['imagen']['tmp_name']) && !isset($_POST['eliminar_imagen'])) {

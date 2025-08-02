@@ -78,6 +78,15 @@ class DashboardVendedorController {
 
             // Sincronizar con los datos del POST
             $vendedor->sincronizar($_POST);
+            
+            // Procesar preferencias de notificación
+            $prefsData = $_POST['prefs'] ?? [];
+            $preferenciasParaGuardar = [
+                'notificaciones_email' => isset($prefsData['notificaciones_email']),
+                'notificaciones_plataforma' => isset($prefsData['notificaciones_plataforma'])
+            ];
+            $vendedor->preferencias_notificaciones = json_encode($preferenciasParaGuardar);
+
             $alertas = $vendedor->validar_cuenta_dashboard();
 
             // Validar direcciones

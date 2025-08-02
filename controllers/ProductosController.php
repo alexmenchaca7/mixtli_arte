@@ -13,6 +13,7 @@ use Model\Producto;
 use Model\Categoria;
 use Model\Valoracion;
 use Classes\Paginacion;
+use Model\Notificacion;
 use Model\ImagenProducto;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -207,21 +208,40 @@ class ProductosController {
                         $vendedor = Usuario::find($producto->usuarioId);
                         $urlProducto = "/marketplace/producto?id={$producto->id}";
 
+                        // Obtener la imagen principal del producto
+                        $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+                        $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
+
                         foreach ($seguidores as $follow) {
                             $seguidor = Usuario::find($follow->seguidorId);
                             if ($seguidor) {
-                                // Create on-site notification
-                                $notificacion = new \Model\Notificacion([
-                                    'usuarioId' => $seguidor->id,
-                                    'tipo' => 'nuevo_producto',
-                                    'mensaje' => "Tu artesano seguido, {$vendedor->nombre}, ha publicado un nuevo producto: {$producto->nombre}.",
-                                    'url' => $urlProducto
-                                ]);
-                                $notificacion->guardar();
+                                // Verificar preferencias
+                                $prefsSeguidor = json_decode($seguidor->preferencias_notificaciones ?? '{}', true);
+                                $quiereNotifPlataforma = $prefsSeguidor['notificaciones_plataforma'] ?? true; // Por defecto activado
+                                $quiereNotifEmail = $prefsSeguidor['notificaciones_email'] ?? true; // Por defecto activado
 
-                                // Send email notification
-                                $email = new Email($seguidor->email, $seguidor->nombre, '');
-                                $email->enviarNotificacionNuevoProducto($vendedor->nombre, $producto->nombre, $urlProducto);
+                                // Crear notificación en la plataforma si el usuario lo desea
+                                if ($quiereNotifPlataforma) {
+                                    $notificacion = new Notificacion([
+                                        'usuarioId' => $seguidor->id,
+                                        'tipo' => 'nuevo_producto',
+                                        'mensaje' => "Tu artesano seguido, {$vendedor->nombre} {$vendedor->apellido}, ha publicado un nuevo producto: {$producto->nombre}.",
+                                        'url' => $urlProducto
+                                    ]);
+                                    $notificacion->guardar();
+                                }
+
+                                // Enviar notificación por email si el usuario lo desea
+                                if ($quiereNotifEmail) {
+                                    $email = new Email($seguidor->email, $seguidor->nombre, '');
+                                    $email->enviarNotificacionNuevoProducto(
+                                        $vendedor->nombre . ' ' . $vendedor->apellido, 
+                                        $producto->nombre, 
+                                        $producto->precio,
+                                        $urlImagen,
+                                        $urlProducto
+                                    );
+                                }
                             }
                         }
                     }
@@ -277,10 +297,13 @@ class ProductosController {
             // Reglas de negocio
             if ($producto->tipo_original === 'unico') {
                 $producto->stock = ($producto->estado === 'agotado') ? 0 : 1;
-            }
-
-            if ((int)$producto->stock === 0 && $producto->tipo_original !== 'unico') {
-                $producto->estado = 'agotado';
+            } else { // Solo aplicar esta lógica si NO es un artículo único
+                if ((int)$producto->stock === 0) {
+                    $producto->estado = 'agotado';
+                } elseif ((int)$producto->stock > 0 && $producto_estado_actual === 'agotado') {
+                    // Si hay stock y antes estaba agotado, lo volvemos a poner disponible
+                    $producto->estado = 'disponible';
+                }
             }
 
             $alertas = $producto->validar();

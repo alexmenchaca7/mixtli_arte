@@ -96,7 +96,29 @@
                 </div>
             </fieldset>
 
-            <input type="submit" class="formulario__submit" value="Guardar Cambios">
+            <fieldset class="formulario__fieldset">
+                <legend class="formulario__legend">Preferencias de Notificación</legend>
+                <p>Elige cómo quieres recibir las notificaciones de la plataforma.</p>
+                
+                <?php $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true); ?>
+
+                <div class="formulario__campo">
+                    <label class="formulario__label">Nuevos Productos</label>
+                    
+                    <div class="formulario__opciones-notificacion"> 
+                        <label>
+                            <input type="checkbox" name="prefs[notificaciones_email]" value="1" <?php echo ($prefs['notificaciones_email'] ?? true) ? 'checked' : ''; ?>>
+                            Por Correo Electrónico
+                        </label>
+                        <label>
+                            <input type="checkbox" name="prefs[notificaciones_plataforma]" value="1" <?php echo ($prefs['notificaciones_plataforma'] ?? true) ? 'checked' : ''; ?>>
+                            Dentro de la Plataforma
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <input type="submit" class="formulario__submit mt-2" value="Guardar Cambios">
         </form>
 
         <fieldset class="formulario__fieldset">

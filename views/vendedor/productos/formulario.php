@@ -283,14 +283,14 @@
 
         function actualizarEstadoPorStock() {
             const stockValue = parseInt(stockInput.value, 10);
-            
-            // Solo aplica si el producto no es 'unico'
-            if (originalState !== 'unico') {
+            const tipoOriginal = estadoSelect.dataset.tipoOriginal;
+
+            // Solo aplica a productos que no son de tipo 'unico'
+            if (tipoOriginal !== 'unico') {
                 if (stockValue === 0) {
-                    // Si el stock es 0, selecciona 'agotado'
                     estadoSelect.value = 'agotado';
-                } else if (estadoSelect.value === 'agotado' && stockValue > 0) {
-                    // Si estaba agotado y se añade stock, pasa a 'disponible'
+                } else if (stockValue > 0 && estadoSelect.value === 'agotado') {
+                    // Si se añade stock a un producto que estaba agotado
                     estadoSelect.value = 'disponible';
                 }
             }

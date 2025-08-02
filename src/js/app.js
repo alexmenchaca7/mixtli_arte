@@ -1,4 +1,39 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // --- FUNCIÓN REUTILIZABLE PARA NOTIFICACIONES ---
+    function mostrarNotificacion(message, type = 'info') {
+        const existingAlert = document.querySelector('.alert-notification');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-notification';
+        alertDiv.innerHTML = message;
+
+        // Asignar color según el tipo de notificación
+        switch (type) {
+            case 'success':
+                alertDiv.style.backgroundColor = '#4CAF50'; // Verde
+                break;
+            case 'error':
+                alertDiv.style.backgroundColor = '#f44336'; // Rojo
+                break;
+            case 'info':
+            default:
+                alertDiv.style.backgroundColor = '#2196F3'; // Azul
+                break;
+        }
+
+        document.body.appendChild(alertDiv);
+
+        // Configura la desaparición
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => alertDiv.remove(), 300); // Espera a que la transición termine
+        }, 3000);
+    }
+
+
     // Variables para el Modal de Categorías
     const categoriasBtn = document.getElementById("categorias-btn");
     const categoriasModal = document.getElementById("categorias-modal");
@@ -142,19 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     ? `<i class="fas fa-check-circle"></i> Agregado a favoritos` 
                     : `<i class="fas fa-trash-alt"></i> Eliminado de favoritos`;
 
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert-notification';
-                alertDiv.innerHTML = message;
-                alertDiv.style.backgroundColor = data.action === 'added' 
-                    ? '#4CAF50' 
-                    : '#f44336';
-
-                document.body.appendChild(alertDiv);
-
-                setTimeout(() => {
-                    alertDiv.style.opacity = '0';
-                    setTimeout(() => alertDiv.remove(), 300);
-                }, 2500);
+                mostrarNotificacion(message, data.action === 'added' ? 'success' : 'error');
 
             } catch (error) {
                 console.error('Error:', error);
@@ -188,17 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     
                     // Mostrar notificación
-                    const alertDiv = document.createElement('div');
-                    alertDiv.className = 'alert-notification';
-                    alertDiv.innerHTML = '<i class="fas fa-check-circle"></i> No volveremos a mostrarte este producto.';
-                    alertDiv.style.backgroundColor = '#2196F3'; // Un color azul para la notificación
-                    document.body.appendChild(alertDiv);
-
-                    setTimeout(() => {
-                        alertDiv.style.opacity = '0';
-                        setTimeout(() => alertDiv.remove(), 300);
-                    }, 3000);
-
+                    mostrarNotificacion('<i class="fas fa-check-circle"></i> No volveremos a mostrarte este producto.', 'info');
                 } else {
                     alert('Error: ' + data.error);
                 }
@@ -514,20 +527,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.disponible) {
                         window.location.href = url; // Producto OK, redirigir
                     } else {
-                        // Usamos SweetAlert2 para una mejor experiencia. Puedes cambiarlo por un alert() simple.
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Aviso',
-                            text: data.mensaje || 'Este producto ya no está disponible.',
-                        });
+                        mostrarNotificacion(data.mensaje, 'error');
                     }
                 } catch (error) {
                     console.error('Error al verificar el estado del producto:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No se pudo verificar el producto. Por favor, inténtalo de nuevo más tarde.',
-                    });
                 }
             }
 

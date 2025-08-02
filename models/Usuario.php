@@ -7,7 +7,31 @@ use DateTime;
 class Usuario extends ActiveRecord {
     
     // Arreglo de columnas para identificar que forma van a tener los datos
-    protected static $columnasDB = ['id', 'nombre', 'apellido', 'email', 'pass', 'telefono', 'fecha_nacimiento', 'sexo', 'rol', 'verificado', 'token', 'creado', 'imagen', 'biografia', 'last_active', 'preferencias_entrega', 'violaciones_count', 'bloqueado_hasta', 'bloqueado_permanentemente', 'token_eliminacion', 'token_eliminacion_expira'];
+    protected static $columnasDB = [
+        'id', 
+        'nombre', 
+        'apellido', 
+        'email', 
+        'pass', 
+        'telefono', 
+        'fecha_nacimiento', 
+        'sexo', 
+        'rol', 
+        'verificado', 
+        'token', 
+        'creado', 
+        'imagen', 
+        'biografia', 
+        'last_active', 
+        'preferencias_entrega', 
+        'violaciones_count', 
+        'bloqueado_hasta', 
+        'bloqueado_permanentemente', 
+        'token_eliminacion', 
+        'token_eliminacion_expira', 
+        'preferencias_notificaciones'
+    ];
+
     protected static $tabla = 'usuarios';
 
     // Propiedad con las columnas a buscar
@@ -36,6 +60,7 @@ class Usuario extends ActiveRecord {
     public $bloqueado_permanentemente;
     public $token_eliminacion;
     public $token_eliminacion_expira;
+    public $preferencias_notificaciones;
     public $promedio_valoraciones;
     public $total_valoraciones;
 
@@ -67,6 +92,7 @@ class Usuario extends ActiveRecord {
         $this->bloqueado_permanentemente = $args['bloqueado_permanentemente'] ?? 0;
         $this->token_eliminacion = $args['token_eliminacion'] ?? null;
         $this->token_eliminacion_expira = $args['token_eliminacion_expira'] ?? null;
+        $this->preferencias_notificaciones = $args['preferencias_notificaciones'] ?? null;
         $this->promedio_valoraciones = $args['promedio_valoraciones'] ?? null;
         $this->total_valoraciones = $args['total_valoraciones'] ?? null;
     }
