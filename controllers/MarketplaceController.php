@@ -1151,4 +1151,34 @@ class MarketplaceController {
             echo json_encode(['success' => false, 'error' => 'Error del servidor: No se pudo eliminar el registro de la base de datos.']);
         }
     }
+
+    public static function verificarEstadoProducto() {
+        header('Content-Type: application/json');
+        if (!is_auth()) {
+            http_response_code(401);
+            echo json_encode(['disponible' => false, 'mensaje' => 'No autenticado.']);
+            return;
+        }
+    
+        $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['disponible' => false, 'mensaje' => 'Producto no válido.']);
+            return;
+        }
+    
+        $producto = Producto::find($id);
+    
+        if (!$producto) {
+            echo json_encode(['disponible' => false, 'mensaje' => 'Este producto ya no existe.']);
+            return;
+        }
+    
+        if ($producto->estado === 'agotado') {
+            echo json_encode(['disponible' => false, 'mensaje' => 'Este producto se encuentra agotado.']);
+            return;
+        }
+    
+        echo json_encode(['disponible' => true]);
+    }
 }

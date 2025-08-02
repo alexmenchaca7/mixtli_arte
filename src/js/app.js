@@ -313,6 +313,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+    
+    
+    // --- LOGICA PARA LAS NOTIFICACIONES ---
+    
     /**
      * Función genérica para crear un sistema de polling para contadores de no leídos.
      * @param {string} badgeSelector - El selector CSS para los badges a actualizar (ej. '.message-badge').
@@ -320,20 +324,15 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     const setupUnreadPolling = (badgeSelector, endpoint) => {
         const badges = document.querySelectorAll(badgeSelector);
+        if (badges.length === 0) return;
 
-        if (badges.length === 0) {
-            return; // No hacer nada si no hay badges de este tipo en la página
-        }
+        let pollingInterval;
 
         const fetchUnreadCount = async () => {
-            // No hacer la petición si la pestaña no está visible
-            if (document.hidden) {
-                return;
-            }
+            if (document.hidden) return;
             try {
                 const response = await fetch(endpoint);
                 if (!response.ok) {
-                    // Si la sesión expira o hay un error, detenemos el polling para este endpoint
                     if (response.status === 401 || response.status === 403) {
                         clearInterval(pollingInterval);
                     }
@@ -342,7 +341,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
                 updateBadges(data.unread_count);
             } catch (error) {
-                console.error(`Error al obtener el contador de ${endpoint}:`, error);
+                console.error(`Error de polling en ${endpoint}:`, error);
+                clearInterval(pollingInterval); // Detener en caso de error de red
             }
         };
 
@@ -357,57 +357,168 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         };
 
-        // Iniciar polling
-        fetchUnreadCount(); // Llamada inicial
-        const pollingInterval = setInterval(fetchUnreadCount, 15000); // Consultar cada 15 segundos
+        fetchUnreadCount();
+        pollingInterval = setInterval(fetchUnreadCount, 15000);
     };
 
-    // --- INICIALIZAR POLLING PARA CADA TIPO ---
-    // 1. Para Mensajes
+    // Inicializar polling para los badges de mensajes y notificaciones
     setupUnreadPolling('.message-badge', '/mensajes/unread-count');
-
-    // 2. Para Notificaciones
     setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
 
-
-    // --- INTERACTIVIDAD EN LA PÁGINA DE NOTIFICACIONES ---
+    const botonMarcarTodas = document.getElementById('marcar-todas-leidas');
     const notificacionesContenedor = document.querySelector('.notificaciones-contenedor');
+
+    // Si no estamos en la página de notificaciones, no hacer nada más.
+    if (!notificacionesContenedor) return;
+
+    // Revisa si existen notificaciones no leídas en el DOM y ajusta la visibilidad del botón "Marcar todas como leídas".
+    const checkUnreadButtonVisibility = () => {
+        if (!botonMarcarTodas) return;
+        const unreadItemsCount = document.querySelectorAll('.notificacion-item.no-leida').length;
+        botonMarcarTodas.style.display = unreadItemsCount > 0 ? 'inline-flex' : 'none';
+    };
+
+    // Manejo del botón "Marcar todas como leídas"
+    if (botonMarcarTodas) {
+        // Guardamos el contenido original del botón una sola vez, fuera del listener.
+        const originalButtonHTML = botonMarcarTodas.innerHTML;
+
+        botonMarcarTodas.addEventListener('click', async () => {
+            try {
+                botonMarcarTodas.disabled = true;
+                botonMarcarTodas.textContent = 'Marcando...';
+
+                const response = await fetch('/notificaciones/marcar-todas-leidas', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.querySelectorAll('.notificacion-item.no-leida').forEach(item => {
+                        item.classList.remove('no-leida');
+                        const boton = item.querySelector('.accion--marcar-leida');
+                        if (boton) {
+                            boton.className = 'accion--marcar-no-leida';
+                            boton.title = 'Marcar como no leída';
+                            boton.innerHTML = '<i class="fa-solid fa-envelope"></i>';
+                        }
+                    });
+                    // Actualizamos el contador global de inmediato.
+                    setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+                }
+            } catch (error) {
+                console.error('Error al marcar todas como leídas:', error);
+                // Aquí podrías mostrar una alerta al usuario si la operación falla.
+            } finally {
+                // 1. Restauramos el estado visual original del botón.
+                botonMarcarTodas.disabled = false;
+                botonMarcarTodas.innerHTML = originalButtonHTML;
+
+                // 2. Ahora, comprobamos si debe estar visible.
+                // Si la operación tuvo éxito, el contador de '.no-leida' será 0 y la función lo ocultará.
+                // Si la operación falló, el contador será > 0 y lo dejará visible (ya con el texto correcto).
+                checkUnreadButtonVisibility();
+            }
+        });
+    }
+
+
+    // Interactividad en la pagina de notificaciones
     if (notificacionesContenedor) {
         notificacionesContenedor.addEventListener('click', async (e) => {
-            const botonMarcar = e.target.closest('.accion--marcar-leida');
-            const botonEliminar = e.target.closest('.accion--eliminar');
             const item = e.target.closest('.notificacion-item');
-
             if (!item) return;
+
             const notificacionId = item.dataset.id;
+            const formData = new FormData();
+            formData.append('id', notificacionId);
+            
+            // Delegación de eventos
+            const enlaceNotificacion = e.target.closest('.notificacion-item__enlace');
+            const botonMarcarLeida = e.target.closest('.accion--marcar-leida');
+            const botonMarcarNoLeida = e.target.closest('.accion--marcar-no-leida');
+            const botonEliminar = e.target.closest('.accion--eliminar');
 
-            // Acción para marcar como leída
-            if (botonMarcar) {
-                const formData = new FormData();
-                formData.append('id', notificacionId);
+            // Prevenir acción en botones al hacer clic en el enlace
+            if (enlaceNotificacion && (botonMarcarLeida || botonMarcarNoLeida || botonEliminar)) {
+                 e.preventDefault();
+            }
 
+            // Lógica para verificar producto antes de redirigir
+            if (enlaceNotificacion && !botonMarcarLeida && !botonEliminar) {
+                e.preventDefault(); // Prevenimos la redirección para verificar primero
+                const url = enlaceNotificacion.href;
+                const urlParams = new URLSearchParams(new URL(url).search);
+                const productoId = urlParams.get('id');
+
+                // Si la notificación no es de un producto (no tiene ID), redirigir directamente.
+                if (!productoId) {
+                    window.location.href = url;
+                    return;
+                }
+                
                 try {
-                    const response = await fetch('/notificaciones/marcar-leida', { method: 'POST', body: formData });
+                    const response = await fetch(`/api/producto/estado?id=${productoId}`);
                     const data = await response.json();
 
-                    if (data.success) {
-                        item.classList.remove('no-leida');
-                        botonMarcar.remove(); // Quitar el botón de "marcar como leído"
-                        // Opcional: Actualizar el contador del badge inmediatamente
-                        setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+                    if (data.disponible) {
+                        window.location.href = url; // Producto OK, redirigir
+                    } else {
+                        // Usamos SweetAlert2 para una mejor experiencia. Puedes cambiarlo por un alert() simple.
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Aviso',
+                            text: data.mensaje || 'Este producto ya no está disponible.',
+                        });
                     }
                 } catch (error) {
-                    console.error('Error al marcar como leída:', error);
+                    console.error('Error al verificar el estado del producto:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo verificar el producto. Por favor, inténtalo de nuevo más tarde.',
+                    });
+                }
+            }
+
+            // Acción para marcar como leída
+            if (botonMarcarLeida) {
+                e.preventDefault();
+                const response = await fetch('/notificaciones/marcar-leida', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.success) {
+                    item.classList.remove('no-leida');
+                    botonMarcarLeida.className = 'accion--marcar-no-leida';
+                    botonMarcarLeida.title = 'Marcar como no leída';
+                    botonMarcarLeida.innerHTML = '<i class="fa-solid fa-envelope"></i>';
+                    
+                    setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+                    checkUnreadButtonVisibility(); // Revisa si el botón "Marcar Todas" debe ocultarse.
+                }
+            }
+
+            // Acción para marcar como no leida
+            if (botonMarcarNoLeida) {
+                e.preventDefault();
+                const response = await fetch('/notificaciones/marcar-no-leida', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                if (data.success) {
+                    item.classList.add('no-leida');
+                    botonMarcarNoLeida.className = 'accion--marcar-leida';
+                    botonMarcarNoLeida.title = 'Marcar como leída';
+                    botonMarcarNoLeida.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    
+                    setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+                    checkUnreadButtonVisibility(); // Revisa si el botón "Marcar Todas" debe aparecer.
                 }
             }
 
             // Acción para eliminar
             if (botonEliminar) {
-                // Usamos la librería SweetAlert2 para una mejor UX, si la tienes. Si no, un confirm() simple.
-                // Swal.fire({ ... }) o if (confirm('...'))
+                e.preventDefault();
                 if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
                     const formData = new FormData();
-                    formData.append('id', notificacionId);
+                    formData.append('id', item.dataset.id);
 
                     try {
                         const response = await fetch('/notificaciones/eliminar', { method: 'POST', body: formData });
@@ -418,9 +529,12 @@ document.addEventListener("DOMContentLoaded", () => {
                             item.style.transition = 'opacity 0.3s ease';
                             item.style.opacity = '0';
                             setTimeout(() => {
-                                item.remove();
-                                // Opcional: Actualizar el contador del badge inmediatamente
+                                item.remove(); // Se elimina el elemento del DOM
+
+                                // Después de eliminar, se actualiza el contador y se revisa la visibilidad del botón.
                                 setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+                                checkUnreadButtonVisibility();
+
                             }, 300);
                         }
                     } catch (error) {

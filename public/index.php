@@ -96,6 +96,8 @@ $router->get('/perfil/confirmar-eliminacion', [DatosController::class, 'confirma
 $router->get('/notificaciones', [NotificacionesController::class, 'index']);
 $router->get('/notificaciones/unread-count', [NotificacionesController::class, 'obtenerNoLeidas']);
 $router->post('/notificaciones/marcar-leida', [NotificacionesController::class, 'marcarLeida']);
+$router->post('/notificaciones/marcar-no-leida', [NotificacionesController::class, 'marcarNoLeida']);
+$router->post('/notificaciones/marcar-todas-leidas', [NotificacionesController::class, 'marcarTodasLeidas']);
 $router->post('/notificaciones/eliminar', [NotificacionesController::class, 'eliminar']);
 
 
@@ -134,6 +136,7 @@ $router->get('/mensajes/lista-conversaciones', [MensajesController::class, 'obte
 $router->get('/mensajes/unread-count', [MensajesController::class, 'getUnreadCount']);
 $router->post('/mensajes/marcar-vendido', [MensajesController::class, 'marcarVendido']);
 $router->post('/api/heartbeat', [AuthController::class, 'heartbeat']);
+$router->get('/api/producto/estado', [MarketplaceController::class, 'verificarEstadoProducto']);
 
 $router->post('/valoraciones/guardar', [ValoracionesController::class, 'guardar']);
 $router->post('/valoraciones/reportar', [ValoracionesController::class, 'reportar']);

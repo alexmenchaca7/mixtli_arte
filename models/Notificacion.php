@@ -50,6 +50,21 @@ class Notificacion extends ActiveRecord {
         return self::$conexion->query($query);
     }
 
+    // Marca una notificación específica como NO leída
+    public static function marcarComoNoLeida($id, $usuarioId) {
+        $id = self::$conexion->escape_string($id);
+        $usuarioId = self::$conexion->escape_string($usuarioId);
+        $query = "UPDATE " . static::$tabla . " SET leida = 0 WHERE id = '{$id}' AND usuarioId = '{$usuarioId}' LIMIT 1";
+        return self::$conexion->query($query);
+    }
+
+    // Marca todas las notificaciones de un usuario como leídas
+    public static function marcarTodasComoLeidas($usuarioId) {
+        $usuarioId = self::$conexion->escape_string($usuarioId);
+        $query = "UPDATE " . static::$tabla . " SET leida = 1 WHERE usuarioId = '{$usuarioId}' AND leida = 0";
+        return self::$conexion->query($query);
+    }
+
     // Elimina una notificación específica
     public static function eliminarPorId($id, $usuarioId) {
         $id = self::$conexion->escape_string($id);
