@@ -8,7 +8,7 @@
         <button type="button" class="dashboard__mobile-menu">
             <div class="icono-badge-container">   
                 <i class="fa-solid fa-bars"></i>
-                <span class="notification-badge" style="display: none;"></span>
+                <span class="hamburger-badge" style="display: none;"></span>
             </div>
         </button>
         

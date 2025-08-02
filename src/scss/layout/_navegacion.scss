@@ -131,6 +131,7 @@
 
         .icono_perfil {
             height: 3.5rem;
+            border-radius: 50%;
         }
 
         button {
@@ -217,7 +218,8 @@
 
 // Badge de notificación
 .message-badge,
-.notification-badge {
+.notification-badge,
+.hamburger-badge {
     position: absolute;
     top: -5px;       
     right: -15px;    

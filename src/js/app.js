@@ -358,12 +358,64 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         fetchUnreadCount();
-        pollingInterval = setInterval(fetchUnreadCount, 15000);
+        pollingInterval = setInterval(fetchUnreadCount, 3000);
     };
 
-    // Inicializar polling para los badges de mensajes y notificaciones
-    setupUnreadPolling('.message-badge', '/mensajes/unread-count');
-    setupUnreadPolling('.notification-badge', '/notificaciones/unread-count');
+    // Función para combinar los contadores de mensajes y notificaciones para el menú hamburguesa
+    const setupCombinedNotificationPolling = () => {
+        // Seleccionamos los badges específicos del menú móvil y del dashboard de vendedor
+        const combinedBadges = document.querySelectorAll('.mobile-menu .hamburger-badge, .dashboard__mobile-menu .hamburger-badge');
+        if (combinedBadges.length === 0) return;
+
+        let pollingInterval;
+
+        const fetchCombinedCount = async () => {
+            if (document.hidden) return;
+            try {
+                // Hacemos las dos peticiones en paralelo
+                const [messagesRes, notificationsRes] = await Promise.all([
+                    fetch('/mensajes/unread-count'),
+                    fetch('/notificaciones/unread-count')
+                ]);
+
+                // Verificamos si alguna de las respuestas indica un problema de autenticación
+                if (!messagesRes.ok || !notificationsRes.ok) {
+                    if (messagesRes.status === 401 || messagesRes.status === 403 || notificationsRes.status === 401 || notificationsRes.status === 403) {
+                        clearInterval(pollingInterval);
+                    }
+                    return;
+                }
+
+                const messagesData = await messagesRes.json();
+                const notificationsData = await notificationsRes.json();
+
+                // Sumamos los contadores
+                const totalCount = (messagesData.unread_count || 0) + (notificationsData.unread_count || 0);
+                
+                // Actualizamos los badges del menú hamburguesa
+                combinedBadges.forEach(badge => {
+                    if (totalCount > 0) {
+                        badge.textContent = totalCount > 9 ? '9+' : totalCount;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error en el polling combinado:', error);
+                clearInterval(pollingInterval);
+            }
+        };
+
+        fetchCombinedCount(); // Primera llamada inmediata
+        pollingInterval = setInterval(fetchCombinedCount, 3000); // Polling cada 3 segundos
+    };
+
+    // Inicializar polling para los badges de mensajes, notificaciones y menu hamburguesa
+    setupUnreadPolling('.dashboard__enlace .message-badge, .navegacion-principal .message-badge', '/mensajes/unread-count');
+    setupUnreadPolling('.dashboard__enlace .notification-badge, .navegacion-principal .notification-badge', '/notificaciones/unread-count');
+    setupCombinedNotificationPolling();
 
     const botonMarcarTodas = document.getElementById('marcar-todas-leidas');
     const notificacionesContenedor = document.querySelector('.notificaciones-contenedor');
