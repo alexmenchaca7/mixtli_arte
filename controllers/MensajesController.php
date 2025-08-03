@@ -6,9 +6,11 @@ use MVC\Router;
 use Classes\Email;
 use Model\Mensaje;
 use Model\Usuario;
+use Model\Favorito;
 use Model\Producto;
 use Model\Valoracion;
 use Model\Notificacion;
+use Model\ImagenProducto;
 use Model\HistorialInteraccion;
 
 class MensajesController {
@@ -314,6 +316,9 @@ class MensajesController {
             echo json_encode(['success' => false, 'error' => 'Este producto ya fue marcado como vendido a este comprador.']);
             exit();
         }
+
+        // Guardamos el stock ANTES de modificarlo para la comparación
+        $stock_anterior = (int)$producto->stock;
     
         if ($producto->estado === 'unico') {
             $producto->estado = 'agotado';
@@ -335,6 +340,63 @@ class MensajesController {
             echo json_encode(['success' => false, 'error' => 'Error al actualizar el producto.']);
             exit();
         }
+
+
+        // ELIMINAR PRODUCTO DE FAVORITOS DEL COMPRADOR
+        $favoritosEncontrados = Favorito::whereArray(['usuarioId' => $compradorId, 'productoId' => $productoId]);
+    
+        if (!empty($favoritosEncontrados)) {
+            // Extraemos el primer (y único) objeto del array.
+            $favoritoAEliminar = array_shift($favoritosEncontrados);
+            
+            // Ahora sí, eliminamos el objeto.
+            $favoritoAEliminar->eliminar();
+        }
+
+
+        // LÓGICA DE NOTIFICACIÓN POR BAJO STOCK
+        $stock_nuevo = (int)$producto->stock;
+        $umbral_stock_bajo = 3; 
+
+        if ($stock_nuevo < $stock_anterior && $stock_nuevo > 0 && $stock_nuevo <= $umbral_stock_bajo) {
+            
+            $favoritos = Favorito::whereField('productoId', $producto->id);
+
+            if (!empty($favoritos)) {
+                $idsUsuarios = array_column($favoritos, 'usuarioId');
+                $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
+
+                $urlProducto = "/marketplace/producto?id={$producto->id}";
+                $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+                $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
+
+                foreach ($usuariosParaNotificar as $usuario) {
+                    $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
+
+                    // Notificación dentro de la plataforma
+                    if ($prefs['notif_stock_bajo_sistema'] ?? true) {
+                        $notificacion = new Notificacion([
+                            'usuarioId' => $usuario->id,
+                            'tipo' => 'stock_bajo',
+                            'mensaje' => "¡Quedan pocas unidades de '{$producto->nombre}'!",
+                            'url' => $urlProducto
+                        ]);
+                        $notificacion->guardar();
+                    }
+
+                    // Notificación por correo electrónico
+                    if ($prefs['notif_stock_bajo_email'] ?? true) {
+                        $email = new Email($usuario->email, $usuario->nombre, '');
+                        $email->enviarNotificacionStockBajo(
+                            $producto->nombre,
+                            $producto->stock,
+                            $urlImagen,
+                            $urlProducto
+                        );
+                    }
+                }
+            }
+        }
     
         // Buyer rates seller
         $valoracionComprador = new Valoracion([
@@ -342,7 +404,7 @@ class MensajesController {
             'calificadoId' => $vendedorId,
             'productoId' => $productoId,
             'tipo' => 'comprador',
-            'sale_completed_at' => date('Y-m-d H:i:s') // Set timestamp here
+            'sale_completed_at' => date('Y-m-d H:i:s')
         ]);
         $valoracionComprador->guardar();
         
@@ -352,7 +414,7 @@ class MensajesController {
             'calificadoId' => $compradorId,
             'productoId' => $productoId,
             'tipo' => 'vendedor',
-            'sale_completed_at' => date('Y-m-d H:i:s') // Set timestamp here
+            'sale_completed_at' => date('Y-m-d H:i:s')
         ]);
         $valoracionVendedor->guardar();
 
