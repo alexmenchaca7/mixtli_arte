@@ -418,10 +418,28 @@ class ProductosController {
                                 $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
                                 
                                 if ($prefs['notif_producto_no_disponible_sistema'] ?? true) {
-                                    $notificacion = new Notificacion([
-                                        'usuarioId' => $usuario->id, 'tipo' => 'producto_agotado',
+                                    // Creamos un array con el mensaje y los productos sugeridos
+                                    $datosNotificacion = [
                                         'mensaje' => "¡'{$producto->nombre}' se ha agotado! Pero tenemos otras sugerencias para ti.",
-                                        'url' => '/favoritos'
+                                        'sugerencias' => []
+                                    ];
+
+                                    foreach ($productosSugeridos as $sugerencia) {
+                                        $datosNotificacion['sugerencias'][] = [
+                                            'id' => $sugerencia->id,
+                                            'nombre' => $sugerencia->nombre,
+                                            'urlImagen' => $sugerencia->urlImagen,
+                                            'urlProducto' => $sugerencia->urlProducto,
+                                            'precio' => $sugerencia->precio
+                                        ];
+                                    }
+
+                                    // Convertimos el array a JSON y lo guardamos en el campo 'mensaje'
+                                    $notificacion = new Notificacion([
+                                        'usuarioId' => $usuario->id,
+                                        'tipo' => 'producto_agotado',
+                                        'mensaje' => json_encode($datosNotificacion, JSON_UNESCAPED_UNICODE),
+                                        'url' => '/favoritos' // O la URL que prefieras
                                     ]);
                                     $notificacion->guardar();
                                 }
@@ -546,10 +564,28 @@ class ProductosController {
                     $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
 
                     if ($prefs['notif_producto_no_disponible_sistema'] ?? true) {
-                        $notificacion = new Notificacion([
-                            'usuarioId' => $usuario->id, 'tipo' => 'producto_eliminado',
+                        // Creamos un array con el mensaje y los productos sugeridos
+                        $datosNotificacion = [
                             'mensaje' => "El producto '{$producto->nombre}' fue retirado. ¡Echa un vistazo a estas alternativas!",
-                            'url' => '/marketplace'
+                            'sugerencias' => []
+                        ];
+
+                        foreach ($productosSugeridos as $sugerencia) {
+                            $datosNotificacion['sugerencias'][] = [
+                                'id' => $sugerencia->id,
+                                'nombre' => $sugerencia->nombre,
+                                'urlImagen' => $sugerencia->urlImagen,
+                                'urlProducto' => $sugerencia->urlProducto,
+                                'precio' => $sugerencia->precio
+                            ];
+                        }
+
+                        // Convertimos el array a JSON y lo guardamos en el campo 'mensaje'
+                        $notificacion = new Notificacion([
+                            'usuarioId' => $usuario->id,
+                            'tipo' => 'producto_retirado',
+                            'mensaje' => json_encode($datosNotificacion, JSON_UNESCAPED_UNICODE),
+                            'url' => '/favoritos' 
                         ]);
                         $notificacion->guardar();
                     }

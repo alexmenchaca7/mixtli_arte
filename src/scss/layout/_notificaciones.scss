@@ -1,12 +1,18 @@
 @use '../base/variables' as v;
+@use '../base/mixins' as m;
 
 .notificaciones-header {
     max-width: 80rem;
     margin: 2rem auto;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
     gap: 2rem;
+
+    @include m.tablet {
+        flex-direction: row;
+        justify-content: space-between;
+    }
 }
 
 .notificaciones-titulo {
@@ -21,7 +27,7 @@
 
 .notificacion-item {
     display: flex;
-    align-items: stretch;
+    flex-direction: column;
     background-color: #fff;
     border: 1px solid #e0e0e0;
     border-radius: .8rem;
@@ -34,33 +40,52 @@
         font-weight: v.$bold;
     }
 
+    &__principal {
+        display: flex;
+        align-items: stretch;
+    }
+
     &__enlace {
         flex-grow: 1;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         text-decoration: none;
         color: inherit;
-        padding: 1.5rem;
+        padding: 1rem;
+
+        @include m.telefono {
+            padding: 1.5rem;
+        }
     }
 
     &__icono {
         font-size: 2rem;
         color: v.$primario;
         margin-right: 1.5rem;
+        margin-top: 0.3rem;
     }
 
     &__contenido {
+        flex: 1;
         p { margin: 0; }
     }
 
     &__mensaje {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         margin-bottom: .5rem;
+
+        @include m.telefono {
+            font-size: 1.5rem;
+        }
     }
 
     &__fecha {
-        font-size: 1.2rem;
+        font-size: 1rem;
         color: v.$gris;
+
+        @include m.telefono {
+            font-size: 1.2rem;
+        }
     }
     
     &__acciones {
@@ -86,5 +111,55 @@
         .accion--marcar-leida:hover { color: v.$success; }
         .accion--eliminar:hover { color: v.$rojo; }
         .accion--marcar-no-leida:hover { color: v.$primario; }
+    }
+
+    // --- ESTILOS PARA EL CONTENEDOR DE SUGERENCIAS ---
+    &__sugerencias-wrapper {
+        padding: 1rem 1.5rem 1.5rem; // Menos espacio arriba
+        border-top: 1px solid #e0e0e0;
+    }
+
+    &__sugerencias {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    // Cada tarjeta de sugerencia individual
+    &__sugerencia {
+        text-decoration: none;
+        color: v.$gris-oscuro;
+        display: block;
+        width: 8.5rem; // Ancho fijo para cada sugerencia
+        transition: transform 0.2s ease;
+        text-align: center;
+
+        &:hover {
+            transform: translateY(-3px);
+        }
+
+        // Imagen de la sugerencia
+        &-imagen {
+            width: 100%;
+            height: 8.5rem; // Para que sea cuadrada
+            object-fit: cover;
+            border-radius: .8rem;
+            margin-bottom: .8rem;
+            border: 1px solid #e0e0e0;
+        }
+
+        // Nombre del producto sugerido
+        &-nombre {
+            font-size: 1.2rem;
+            font-weight: v.$regular; // O v.$regular si lo tienes definido
+            line-height: 1.3;
+            color: v.$gris;
+            
+            // --- Lógica para cortar el texto ---
+            white-space: nowrap;      // Evita que el texto salte a otra línea
+            overflow: hidden;         // Oculta el texto que se desborda
+            text-overflow: ellipsis;  // Añade "..." al final
+            display: block;           // Necesario para que overflow funcione
+        }
     }
 }

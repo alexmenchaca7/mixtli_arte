@@ -44,5 +44,10 @@
     h1 {
         color: v.$blanco;
         text-transform: uppercase;
+        font-size: 4rem;
+
+        @include m.telefono {
+            font-size: 4.8rem;
+        }
     }
 }
