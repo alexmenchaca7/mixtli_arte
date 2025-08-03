@@ -282,7 +282,7 @@ class Email {
     }
 
 
-    public function enviarNotificacionProductoNoDisponible($productoAgotado, $productosSugeridos, $asunto) {
+    public function enviarNotificacionProductoNoDisponible($productoAgotado, $productosSugeridos, $asunto, $urlImagen, $urlProducto) {
         $mail = $this->configurarEmailBasico();
         $mail->Subject = $asunto;
 
@@ -297,9 +297,6 @@ class Email {
             $contenido .= '<table style="width: 100%; border-collapse: collapse;"><tr>';
 
             foreach ($productosSugeridos as $sugerencia) {
-                $urlProducto = $_ENV['HOST'] . "/marketplace/producto?id={$sugerencia->id}";
-                $urlImagen = $sugerencia->imagen_url ? $_ENV['HOST'] . '/img/productos/' . $sugerencia->imagen_url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
-                
                 $contenido .= '<td style="padding: 10px; text-align: center; width: 33%;">';
                 $contenido .= '<a href="' . $urlProducto . '" style="text-decoration: none; color: #333;">';
                 $contenido .= '<img src="' . $urlImagen . '" alt="' . htmlspecialchars($sugerencia->nombre) . '" style="max-width: 100%; height: auto; border-radius: 5px;">';
