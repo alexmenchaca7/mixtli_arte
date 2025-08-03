@@ -589,3 +589,225 @@ Filtrando 1 productos (no interesados, comprados o favoritos).
 Total de 28 recomendaciones únicas para 'Para Ti'.
 --- FIN DEL PROCESO ---
 
+-------------------------------------------------
+Fecha: 2025-08-02 21:56:19
+Usuario ID: 39
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+2, 6
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 39) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 2, 6
+Se obtuvieron 28 productos de las categorías recomendadas.
+Filtrando 2 productos (no interesados, comprados o favoritos).
+Total de 27 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-08-02 21:58:01
+Usuario ID: 39
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+2, 6
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 39) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 2, 6
+Se obtuvieron 28 productos de las categorías recomendadas.
+Filtrando 2 productos (no interesados, comprados o favoritos).
+Total de 27 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-08-02 22:15:33
+Usuario ID: 39
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+2, 6
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 39) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 2, 6
+Se obtuvieron 27 productos de las categorías recomendadas.
+Filtrando 2 productos (no interesados, comprados o favoritos).
+Total de 27 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-08-02 22:28:54
+Usuario ID: 39
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+2, 6
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 39) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 2, 6
+Se obtuvieron 27 productos de las categorías recomendadas.
+Filtrando 2 productos (no interesados, comprados o favoritos).
+Total de 27 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-08-02 22:30:11
+Usuario ID: 39
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+2, 6
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 39) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 2, 6
+Se obtuvieron 27 productos de las categorías recomendadas.
+Filtrando 2 productos (no interesados, comprados o favoritos).
+Total de 27 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+
+-------------------------------------------------
+Fecha: 2025-08-02 22:44:52
+Usuario ID: 39
+
+Fórmula de Pesos y Penalizaciones:
+ - Penalización 'No me interesa': -1000
+ - Compra: 15
+ - Preferencia Explícita: 10
+ - Favorito: 8
+ - Clic en Autocompletado: 5
+ - Búsqueda: 3
+ - Clic: 1
+ - Tiempo en Página: 1 punto por cada 20s (máx 5)
+
+Cálculo Detallado de Intereses por Categoría (Ordenado por Peso):
+
+[Categoría: Regalos (ID: 2)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+[Categoría: Moda (ID: 6)] - Peso Total: 10
+   Desglose del cálculo:
+     - Preferencia Explícita: +10
+
+Orden Final de Categorías Recomendadas (Peso > 0):
+2, 6
+-------------------------------------------------
+
+--- INICIANDO PROCESO UNIFICADO 'PARA TI' (ID Usuario: 39) ---
+Similitud: Calculando índice de Jaccard contra otros usuarios...
+Similitud: No se encontraron usuarios suficientemente similares.
+Categorías recomendadas por interacción (ordenadas por peso): 2, 6
+Se obtuvieron 27 productos de las categorías recomendadas.
+Filtrando 2 productos (no interesados, comprados o favoritos).
+Total de 27 recomendaciones únicas para 'Para Ti'.
+--- FIN DEL PROCESO ---
+

@@ -273,6 +273,7 @@ class ProductosController {
         $producto_estado_actual = $producto->estado; 
         $alertas = [];
         $manager = new ImageManager(new Driver());
+        $seAcabaDeAgotar = false; // Flag para la notificación
 
         // Obtener categorias disponibles
         $categorias = Categoria::all();
@@ -301,7 +302,8 @@ class ProductosController {
             if ($producto->tipo_original === 'unico') {
                 $producto->stock = ($producto->estado === 'agotado') ? 0 : 1;
             } else { // Solo aplicar esta lógica si NO es un artículo único
-                if ((int)$producto->stock === 0) {
+                if ((int)$producto->stock === 0 && $producto_estado_actual === 'disponible') {
+                    $seAcabaDeAgotar = true; // El producto se acaba de agotar
                     $producto->estado = 'agotado';
                 } elseif ((int)$producto->stock > 0 && $producto_estado_actual === 'agotado') {
                     // Si hay stock y antes estaba agotado, lo volvemos a poner disponible
@@ -386,8 +388,44 @@ class ProductosController {
 
                 $resultado = $producto->guardar();
 
-                // LÓGICA DE NOTIFICACIÓN POR CAMBIO DE PRECIO
                 if ($resultado) {
+                    // LÓGICA DE NOTIFICACIÓN POR PRODUCTO AGOTADO
+                    if ($seAcabaDeAgotar) {
+                        $favoritos = Favorito::whereField('productoId', $producto->id);
+                        $idsUsuarios = array_column($favoritos, 'usuarioId');
+
+                        if (!empty($idsUsuarios)) {
+                            $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
+                            $productosSugeridos = Producto::consultarSQL("
+                                SELECT p.*, i.url as imagen_url FROM productos p
+                                LEFT JOIN (
+                                    SELECT productoId, url, ROW_NUMBER() OVER(PARTITION BY productoId ORDER BY id) as rn
+                                    FROM imagenes_producto
+                                ) i ON p.id = i.productoId AND i.rn = 1
+                                WHERE p.categoriaId = {$producto->categoriaId} AND p.id != {$producto->id} AND p.estado = 'disponible' LIMIT 3
+                            ");
+
+                            foreach ($usuariosParaNotificar as $usuario) {
+                                $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
+                                
+                                if ($prefs['notif_producto_no_disponible_sistema'] ?? true) {
+                                    $notificacion = new Notificacion([
+                                        'usuarioId' => $usuario->id, 'tipo' => 'producto_agotado',
+                                        'mensaje' => "¡'{$producto->nombre}' se ha agotado! Pero tenemos otras sugerencias para ti.",
+                                        'url' => '/favoritos'
+                                    ]);
+                                    $notificacion->guardar();
+                                }
+
+                                if ($prefs['notif_producto_no_disponible_email'] ?? true) {
+                                    $email = new Email($usuario->email, $usuario->nombre, '');
+                                    $email->enviarNotificacionProductoNoDisponible($producto, $productosSugeridos, "Un producto de tu lista de deseos se ha agotado");
+                                }
+                            }
+                        }
+                    }
+
+                    // LÓGICA DE NOTIFICACIÓN POR CAMBIO DE PRECIO
                     $precio_nuevo = (float)$producto->precio;
                     if ($precio_anterior !== $precio_nuevo) {
 
@@ -467,9 +505,42 @@ class ProductosController {
                 header('Location: /vendedor/productos');
                 exit;
             }
+
+            // --- INICIO: LÓGICA DE NOTIFICACIÓN ANTES DE ELIMINAR ---
+            $favoritos = Favorito::whereField('productoId', $producto->id);
+            $idsUsuarios = array_column($favoritos, 'usuarioId');
+
+            if (!empty($idsUsuarios)) {
+                $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
+                $productosSugeridos = Producto::consultarSQL("
+                    SELECT p.*, i.url as imagen_url FROM productos p
+                    LEFT JOIN (
+                        SELECT productoId, url, ROW_NUMBER() OVER(PARTITION BY productoId ORDER BY id) as rn
+                        FROM imagenes_producto
+                    ) i ON p.id = i.productoId AND i.rn = 1
+                    WHERE p.categoriaId = {$producto->categoriaId} AND p.id != {$producto->id} AND p.estado = 'disponible' LIMIT 3
+                ");
+
+                foreach ($usuariosParaNotificar as $usuario) {
+                    $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
+
+                    if ($prefs['notif_producto_no_disponible_sistema'] ?? true) {
+                        $notificacion = new Notificacion([
+                            'usuarioId' => $usuario->id, 'tipo' => 'producto_eliminado',
+                            'mensaje' => "El producto '{$producto->nombre}' fue retirado. ¡Echa un vistazo a estas alternativas!",
+                            'url' => '/marketplace'
+                        ]);
+                        $notificacion->guardar();
+                    }
+
+                    if ($prefs['notif_producto_no_disponible_email'] ?? true) {
+                        $email = new Email($usuario->email, $usuario->nombre, '');
+                        $email->enviarNotificacionProductoNoDisponible($producto, $productosSugeridos, "Un producto de tu lista de deseos ya no está disponible");
+                    }
+                }
+            }
             
             // --- INICIO DE ELIMINACIÓN EN CASCADA ---
-
             // 1. Eliminar imágenes del producto (físicas y de la BD)
             $imagenes = ImagenProducto::whereField('productoId', $producto->id);
             foreach($imagenes as $imagen) {

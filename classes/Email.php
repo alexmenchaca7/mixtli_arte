@@ -282,6 +282,44 @@ class Email {
     }
 
 
+    public function enviarNotificacionProductoNoDisponible($productoAgotado, $productosSugeridos, $asunto) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = $asunto;
+
+        $contenido = '<html><body style="font-family: Arial, sans-serif; color: #333;">';
+        $contenido .= '<div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">';
+        $contenido .= '<h1 style="color: #EE4BBA; text-align: center;">¡Oh, no!</h1>';
+        $contenido .= "<h2>Hola " . htmlspecialchars($this->nombre) . ",</h2>";
+        $contenido .= "<p>Te informamos que el producto <strong>" . htmlspecialchars($productoAgotado->nombre) . "</strong>, de tu lista de deseos, ya no está disponible.</p>";
+
+        if (!empty($productosSugeridos)) {
+            $contenido .= "<h3 style='color: #333; border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;'>Pero no te preocupes, ¡quizás te interesen estos productos!</h3>";
+            $contenido .= '<table style="width: 100%; border-collapse: collapse;"><tr>';
+
+            foreach ($productosSugeridos as $sugerencia) {
+                $urlProducto = $_ENV['HOST'] . "/marketplace/producto?id={$sugerencia->id}";
+                $urlImagen = $sugerencia->imagen_url ? $_ENV['HOST'] . '/img/productos/' . $sugerencia->imagen_url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
+                
+                $contenido .= '<td style="padding: 10px; text-align: center; width: 33%;">';
+                $contenido .= '<a href="' . $urlProducto . '" style="text-decoration: none; color: #333;">';
+                $contenido .= '<img src="' . $urlImagen . '" alt="' . htmlspecialchars($sugerencia->nombre) . '" style="max-width: 100%; height: auto; border-radius: 5px;">';
+                $contenido .= '<p style="margin: 5px 0; font-size: 14px;">' . htmlspecialchars($sugerencia->nombre) . '</p>';
+                $contenido .= '<p style="margin: 5px 0; font-weight: bold; color: #EE4BBA;">$' . number_format($sugerencia->precio, 2) . ' MXN</p>';
+                $contenido .= '</a>';
+                $contenido .= '</td>';
+            }
+
+            $contenido .= '</tr></table>';
+        }
+
+        $contenido .= "<p style='margin-top: 20px;'>Puedes gestionar tus preferencias de notificación en tu perfil.</p>";
+        $contenido .= '</div></body></html>';
+
+        $mail->Body = $contenido;
+        $mail->send();
+    }
+
+
     public function enviarConfirmacionSoporteUsuario($numeroCaso, $asuntoConsulta) {
         $mail = $this->configurarEmailBasico();
         $mail->Subject = 'Confirmación de Recepción de Consulta - MixtliArte (Caso #' . $numeroCaso . ')';
