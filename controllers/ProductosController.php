@@ -394,12 +394,6 @@ class ProductosController {
                         $favoritos = Favorito::whereField('productoId', $producto->id);
                         $idsUsuarios = array_column($favoritos, 'usuarioId');
 
-                        $urlProducto = "/marketplace/producto?id={$producto->id}";
-
-                        // Obtener la imagen principal del producto
-                        $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
-                        $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
-
                         if (!empty($idsUsuarios)) {
                             $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
                             $productosSugeridos = Producto::consultarSQL("
@@ -410,6 +404,15 @@ class ProductosController {
                                 ) i ON p.id = i.productoId AND i.rn = 1
                                 WHERE p.categoriaId = {$producto->categoriaId} AND p.id != {$producto->id} AND p.estado = 'disponible' LIMIT 3
                             ");
+
+                            // Preparamos las URLs para cada producto sugerido desde el controlador.
+                            foreach ($productosSugeridos as $sugerencia) {
+                                $sugerencia->urlProducto = $_ENV['HOST'] . "/marketplace/producto?id={$sugerencia->id}";
+
+                                // Se obtiene la imagen principal usando el método específico.
+                                $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($sugerencia->id);
+                                $sugerencia->urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
+                            }
 
                             foreach ($usuariosParaNotificar as $usuario) {
                                 $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
@@ -427,9 +430,7 @@ class ProductosController {
                                     $email = new Email($usuario->email, $usuario->nombre, '');
                                     $email->enviarNotificacionProductoNoDisponible(
                                         $producto, $productosSugeridos, 
-                                        "Un producto de tu lista de deseos se ha agotado",
-                                        $urlImagen,
-                                        $urlProducto
+                                        "Un producto de tu lista de deseos se ha agotado"
                                     );
                                 }
                             }
@@ -521,12 +522,6 @@ class ProductosController {
             $favoritos = Favorito::whereField('productoId', $producto->id);
             $idsUsuarios = array_column($favoritos, 'usuarioId');
 
-            $urlProducto = "/marketplace/producto?id={$producto->id}";
-
-            // Obtener la imagen principal del producto
-            $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
-            $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
-
             if (!empty($idsUsuarios)) {
                 $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
                 $productosSugeridos = Producto::consultarSQL("
@@ -537,6 +532,15 @@ class ProductosController {
                     ) i ON p.id = i.productoId AND i.rn = 1
                     WHERE p.categoriaId = {$producto->categoriaId} AND p.id != {$producto->id} AND p.estado = 'disponible' LIMIT 3
                 ");
+
+                // Preparamos las URLs para cada producto sugerido desde el controlador.
+                foreach ($productosSugeridos as $sugerencia) {
+                    $sugerencia->urlProducto = $_ENV['HOST'] . "/marketplace/producto?id={$sugerencia->id}";
+
+                    // Se obtiene la imagen principal usando el método específico.
+                    $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($sugerencia->id);
+                    $sugerencia->urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
+                }
 
                 foreach ($usuariosParaNotificar as $usuario) {
                     $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
@@ -554,9 +558,7 @@ class ProductosController {
                         $email = new Email($usuario->email, $usuario->nombre, '');
                         $email->enviarNotificacionProductoNoDisponible(
                             $producto, $productosSugeridos, 
-                            "Un producto de tu lista de deseos ya no está disponible",
-                            $urlImagen,
-                            $urlProducto
+                            "Un producto de tu lista de deseos ya no está disponible"
                         );
                     }
                 }

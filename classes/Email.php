@@ -282,7 +282,7 @@ class Email {
     }
 
 
-    public function enviarNotificacionProductoNoDisponible($productoAgotado, $productosSugeridos, $asunto, $urlImagen, $urlProducto) {
+    public function enviarNotificacionProductoNoDisponible($productoAgotado, $productosSugeridos, $asunto) {
         $mail = $this->configurarEmailBasico();
         $mail->Subject = $asunto;
 
@@ -298,8 +298,8 @@ class Email {
 
             foreach ($productosSugeridos as $sugerencia) {
                 $contenido .= '<td style="padding: 10px; text-align: center; width: 33%;">';
-                $contenido .= '<a href="' . $urlProducto . '" style="text-decoration: none; color: #333;">';
-                $contenido .= '<img src="' . $urlImagen . '" alt="' . htmlspecialchars($sugerencia->nombre) . '" style="max-width: 100%; height: auto; border-radius: 5px;">';
+                $contenido .= '<a href="' . $sugerencia->urlProducto . '" style="text-decoration: none; color: #333;">';
+                $contenido .= '<img src="' . $sugerencia->urlImagen . '" alt="' . htmlspecialchars($sugerencia->nombre) . '" style="max-width: 100%; height: auto; border-radius: 5px;">';
                 $contenido .= '<p style="margin: 5px 0; font-size: 14px;">' . htmlspecialchars($sugerencia->nombre) . '</p>';
                 $contenido .= '<p style="margin: 5px 0; font-weight: bold; color: #EE4BBA;">$' . number_format($sugerencia->precio, 2) . ' MXN</p>';
                 $contenido .= '</a>';
