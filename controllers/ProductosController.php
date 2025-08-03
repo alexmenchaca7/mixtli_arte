@@ -277,10 +277,13 @@ class ProductosController {
         // Obtener categorias disponibles
         $categorias = Categoria::all();
 
-        if (!$producto || $producto->usuarioId !== $_SESSION['id']) { // Validate ownership
+        if (!$producto || $producto->usuarioId !== $_SESSION['id']) { 
             header('Location: /vendedor/productos');
             exit();
         }
+
+        // Guardamos el precio antes de cualquier modificación
+        $precio_anterior = (float)$producto->precio;
 
         // Obtener imágenes existentes
         $imagenes_existentes = ImagenProducto::whereField('productoId', $producto->id);
@@ -381,7 +384,53 @@ class ProductosController {
                     }
                 }
 
-                $producto->guardar();
+                $resultado = $producto->guardar();
+
+                // LÓGICA DE NOTIFICACIÓN POR CAMBIO DE PRECIO
+                if ($resultado) {
+                    $precio_nuevo = (float)$producto->precio;
+                    if ($precio_anterior !== $precio_nuevo) {
+
+                        // 1. Encontrar usuarios que tienen el producto en favoritos
+                        $favoritos = Favorito::whereField('productoId', $producto->id);
+                        $idsUsuarios = array_column($favoritos, 'usuarioId');
+
+                        if (!empty($idsUsuarios)) {
+                            // 2. Obtener los usuarios para checar sus preferencias
+                            $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
+
+                            foreach ($usuariosParaNotificar as $usuario) {
+                                $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
+                                $mensajeNotificacion = "¡Cambio de precio en '{$producto->nombre}'! Antes: $" . number_format($precio_anterior, 2) . ", Ahora: $" . number_format($precio_nuevo, 2) . ".";
+                                $urlProducto = "/marketplace/producto?id={$producto->id}";
+
+                                // 3. Notificación interna
+                                if ($prefs['notif_precio_modificado_sistema'] ?? true) {
+                                    $notificacion = new Notificacion([
+                                        'usuarioId' => $usuario->id,
+                                        'tipo' => 'cambio_precio',
+                                        'mensaje' => $mensajeNotificacion,
+                                        'url' => $urlProducto
+                                    ]);
+                                    $notificacion->guardar();
+                                }
+
+                                // 4. Notificación por correo
+                                if ($prefs['notif_precio_modificado_email'] ?? true) {
+                                    $email = new Email($usuario->email, $usuario->nombre, '');
+                                    $email->enviarNotificacionCambioPrecio(
+                                        $producto->nombre,
+                                        $precio_anterior,
+                                        $precio_nuevo,
+                                        ImagenProducto::obtenerPrincipalPorProductoId($producto->id),
+                                        $urlProducto
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+
                 Usuario::setAlerta('exito', 'Producto Actualizado Correctamente');
                 header('Location: /vendedor/productos');
                 exit();
