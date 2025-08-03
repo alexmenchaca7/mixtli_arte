@@ -241,6 +241,10 @@ class DashboardVendedorController {
                     $desgloseEstrellas[$valoracion->estrellas]++;
                 }
             }
+            if (!empty($valoracion->comentario)) {
+                $valoracionesConComentario[] = $valoracion;
+            }
+
             // Cargar datos del producto y calificador para el contexto
             $valoracion->calificador = Usuario::find($valoracion->calificadorId);
             $valoracion->producto = Producto::find($valoracion->productoId);
@@ -252,6 +256,7 @@ class DashboardVendedorController {
         $router->render('vendedor/perfil/valoraciones', [
             'titulo' => 'Mis Calificaciones Recibidas',
             'valoraciones' => $valoraciones,
+            'valoracionesConComentario' => $valoracionesConComentario,
             'promedioEstrellas' => $promedioEstrellas,
             'totalCalificaciones' => $totalCalificaciones,
             'desgloseEstrellas' => $desgloseEstrellas,
