@@ -904,7 +904,9 @@ class MarketplaceController {
                 'notif_precio_modificado_email' => isset($prefsData['notif_precio_modificado_email']),
                 'notif_precio_modificado_sistema' => isset($prefsData['notif_precio_modificado_sistema']),
                 'notif_producto_no_disponible_email' => isset($prefsData['notif_producto_no_disponible_email']),
-                'notif_producto_no_disponible_sistema' => isset($prefsData['notif_producto_no_disponible_sistema'])
+                'notif_producto_no_disponible_sistema' => isset($prefsData['notif_producto_no_disponible_sistema']),
+                'notif_stock_bajo_email' => isset($prefsData['notif_stock_bajo_email']),
+                'notif_stock_bajo_sistema' => isset($prefsData['notif_stock_bajo_sistema'])
             ];
             $usuario->preferencias_notificaciones = json_encode($preferenciasParaGuardar);
     

@@ -389,6 +389,52 @@ class ProductosController {
                 $resultado = $producto->guardar();
 
                 if ($resultado) {
+                    // LÓGICA DE NOTIFICACIÓN POR STOCK BAJO
+                    $stock_anterior = (int)($_POST['stock_anterior'] ?? $producto->stock);
+                    $stock_nuevo = (int)$producto->stock;
+                    $umbral_stock_bajo = 3; // Define el umbral para "stock bajo"
+
+                    $urlProducto = "/marketplace/producto?id={$producto->id}";
+
+                    // Obtener la imagen principal del producto
+                    $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+                    $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
+
+                    if ($stock_nuevo < $stock_anterior && $stock_nuevo > 0 && $stock_nuevo <= $umbral_stock_bajo) {
+                        $favoritos = Favorito::whereField('productoId', $producto->id);
+                        if (!empty($favoritos)) {
+                            $idsUsuarios = array_column($favoritos, 'usuarioId');
+                            $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
+
+                            foreach ($usuariosParaNotificar as $usuario) {
+                                $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true);
+
+                                // Notificación en la plataforma
+                                if ($prefs['notif_stock_bajo_sistema'] ?? true) {
+                                    $notificacion = new Notificacion([
+                                        'usuarioId' => $usuario->id,
+                                        'tipo' => 'stock_bajo',
+                                        'mensaje' => "¡Quedan pocas unidades de '{$producto->nombre}'!",
+                                        'url' => "/marketplace/producto?id={$producto->id}"
+                                    ]);
+                                    $notificacion->guardar();
+                                }
+
+                                // Notificación por correo electrónico
+                                if ($prefs['notif_stock_bajo_email'] ?? true) {
+                                    $email = new Email($usuario->email, $usuario->nombre, '');
+                                    $email->enviarNotificacionStockBajo(
+                                        $producto->nombre,
+                                        $producto->stock,
+                                        $urlImagen,
+                                        $urlProducto
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+
                     // LÓGICA DE NOTIFICACIÓN POR PRODUCTO AGOTADO
                     if ($seAcabaDeAgotar) {
                         $favoritos = Favorito::whereField('productoId', $producto->id);
@@ -396,6 +442,8 @@ class ProductosController {
 
                         if (!empty($idsUsuarios)) {
                             $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
+
+                            // Obtenemos productos sugeridos de la misma categoría
                             $productosSugeridos = Producto::consultarSQL("
                                 SELECT p.*, i.url as imagen_url FROM productos p
                                 LEFT JOIN (
@@ -455,6 +503,7 @@ class ProductosController {
                         }
                     }
 
+                    
                     // LÓGICA DE NOTIFICACIÓN POR CAMBIO DE PRECIO
                     $precio_nuevo = (float)$producto->precio;
                     if ($precio_anterior !== $precio_nuevo) {
@@ -462,6 +511,12 @@ class ProductosController {
                         // 1. Encontrar usuarios que tienen el producto en favoritos
                         $favoritos = Favorito::whereField('productoId', $producto->id);
                         $idsUsuarios = array_column($favoritos, 'usuarioId');
+
+                        $urlProducto = "/marketplace/producto?id={$producto->id}";
+
+                        // Obtener la imagen principal del producto
+                        $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+                        $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
 
                         if (!empty($idsUsuarios)) {
                             // 2. Obtener los usuarios para checar sus preferencias
@@ -490,7 +545,7 @@ class ProductosController {
                                         $producto->nombre,
                                         $precio_anterior,
                                         $precio_nuevo,
-                                        ImagenProducto::obtenerPrincipalPorProductoId($producto->id),
+                                        $urlImagen,
                                         $urlProducto
                                     );
                                 }
@@ -542,6 +597,8 @@ class ProductosController {
 
             if (!empty($idsUsuarios)) {
                 $usuariosParaNotificar = Usuario::consultarSQL("SELECT * FROM usuarios WHERE id IN (" . implode(',', $idsUsuarios) . ")");
+
+                // Obtenemos productos sugeridos de la misma categoría
                 $productosSugeridos = Producto::consultarSQL("
                     SELECT p.*, i.url as imagen_url FROM productos p
                     LEFT JOIN (

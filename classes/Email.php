@@ -244,14 +244,13 @@ class Email {
         $mail->send();
     }
 
-    public function enviarNotificacionCambioPrecio($nombreProducto, $precioAnterior, $precioNuevo, $imagenPrincipal, $urlProducto) {
+    public function enviarNotificacionCambioPrecio($nombreProducto, $precioAnterior, $precioNuevo, $urlImagen, $urlProducto) {
         $mail = $this->configurarEmailBasico();
         $mail->Subject = '¡Un producto de tu lista de deseos cambió de precio!';
 
         // Formatear precios
         $precioAnteriorF = number_format($precioAnterior, 2);
         $precioNuevoF = number_format($precioNuevo, 2);
-        $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
 
         $tipoCambio = $precioNuevo < $precioAnterior ? "¡Bajó de precio!" : "Actualización de precio";
 
@@ -313,6 +312,35 @@ class Email {
         $contenido .= '</div></body></html>';
 
         $mail->Body = $contenido;
+        $mail->send();
+    }
+
+    public function enviarNotificacionStockBajo($nombreProducto, $stockActual, $urlImagen, $urlProducto) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = '¡Un producto de tu lista de deseos se está agotando!';
+
+        $contenido = '<html>';
+        $contenido .= '<body style="font-family: Arial, sans-serif; color: #333;">';
+        $contenido .= '<div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">';
+        $contenido .= '<h1 style="color: #EE4BBA; text-align: center;">¡Date prisa! Quedan pocas unidades</h1>';
+        $contenido .= "<h2>Hola " . htmlspecialchars($this->nombre) . ",</h2>";
+        $contenido .= "<p>Te informamos que el producto <strong>" . htmlspecialchars($nombreProducto) . "</strong>, que guardaste en tu lista de deseos, está a punto de agotarse.</p>";
+
+        $contenido .= '<div style="border: 1px solid #eee; border-radius: 8px; padding: 15px; text-align: center;">';
+        $contenido .= '<a href="' . $_ENV['HOST'] . $urlProducto . '" style="text-decoration: none; color: inherit;">';
+        $contenido .= '<img src="' . $urlImagen . '" alt="' . htmlspecialchars($nombreProducto) . '" style="max-width: 100%; height: auto; border-radius: 8px;">';
+        $contenido .= "<h3 style='font-size: 20px; margin: 10px 0;'>" . htmlspecialchars($nombreProducto) . "</h3>";
+        $contenido .= '</a>';
+        $contenido .= '<p style="font-size: 24px; font-weight: bold; color: #D32F2F; margin: 10px 0;">¡Solo quedan ' . $stockActual . ' unidades!</p>';
+        $contenido .= '<a href="' . $_ENV['HOST'] . $urlProducto . '" style="display: inline-block; background-color: #EE4BBA; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar Ahora</a>';
+        $contenido .= '</div>';
+
+        $contenido .= "<p style='margin-top: 20px;'>¡No dejes que se te escape!</p>";
+        $contenido .= '</div>';
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
         $mail->send();
     }
 

@@ -143,6 +143,20 @@
                         </label>
                     </div>
                 </div>
+
+                <div class="formulario__campo">
+                    <label class="formulario__label">Producto con Pocas Unidades en mi Lista de Deseos</label>
+                    <div class="formulario__opciones-notificacion">
+                        <label>
+                            <input type="checkbox" name="prefs[notif_stock_bajo_email]" value="1" <?php echo ($prefs['notif_stock_bajo_email'] ?? true) ? 'checked' : ''; ?>>
+                            Por Correo Electrónico
+                        </label>
+                        <label>
+                            <input type="checkbox" name="prefs[notif_stock_bajo_sistema]" value="1" <?php echo ($prefs['notif_stock_bajo_sistema'] ?? true) ? 'checked' : ''; ?>>
+                            Dentro de la Plataforma
+                        </label>
+                    </div>
+                </div>
             </fieldset>
 
             <input type="submit" class="formulario__submit mt-2" value="Guardar Cambios">

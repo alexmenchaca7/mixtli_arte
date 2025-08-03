@@ -83,6 +83,7 @@
 
     <div class="formulario__campo">
         <label for="stock" class="formulario__label">Stock</label>
+        <input type="hidden" name="stock_anterior" value="<?php echo $producto->stock ?? 0; ?>">
         <input 
             type="number"
             class="formulario__input"
