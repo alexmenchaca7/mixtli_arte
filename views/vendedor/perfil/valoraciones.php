@@ -1,18 +1,6 @@
 <h2 class="dashboard__heading"><?php echo $titulo; ?></h2>
 
 <div class="dashboard__contenedor">
-    <?php
-        // Filtrar las valoraciones para mantener solo las que tienen un comentario
-        $valoracionesConComentario = [];
-        if (!empty($valoracionesRecibidas)) {
-            foreach ($valoracionesRecibidas as $valoracion) {
-                if (!empty($valoracion->comentario)) {
-                    $valoracionesConComentario[] = $valoracion;
-                }
-            }
-        }
-    ?>
-
     <div class="valoraciones-estadisticas" style="margin-bottom: 2rem; border: 1px solid #e0e0e0; padding: 1.5rem; border-radius: .8rem; background-color: #f9f9f9;">
         <h4>Resumen de Tus Calificaciones</h4>
         <p style="font-size: 1.6rem; margin: 0 0 1rem 0;">
