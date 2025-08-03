@@ -105,9 +105,9 @@
                                     el <?php echo date('d/m/Y', strtotime($valoracion->creado)); ?>
                                 </span>
                             </div>
-                            <?php if($valoracion->comentario): ?>
-                                <p class="valoracion-item__comentario">"<?php echo htmlspecialchars($valoracion->comentario); ?>"</p>
-                            <?php endif; ?>
+
+                            <p class="valoracion-item__comentario">"<?php echo htmlspecialchars($valoracion->comentario); ?>"</p>
+                            
                             <div class="valoracion-item__footer">
                                 <span>De: <strong><?php echo htmlspecialchars($valoracion->calificador->nombre); ?></strong></span>
                                 <button class="reportar-btn" data-valoracion-id="<?= $valoracion->id ?>">

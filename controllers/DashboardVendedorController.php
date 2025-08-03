@@ -237,6 +237,8 @@ class DashboardVendedorController {
             if ($valoracion->estrellas !== null) {
                 $totalCalificaciones++;
                 $totalEstrellas += $valoracion->estrellas;
+
+                // Contar para el desglose
                 if (isset($desgloseEstrellas[$valoracion->estrellas])) {
                     $desgloseEstrellas[$valoracion->estrellas]++;
                 }
@@ -259,8 +261,7 @@ class DashboardVendedorController {
             'valoracionesConComentario' => $valoracionesConComentario,
             'promedioEstrellas' => $promedioEstrellas,
             'totalCalificaciones' => $totalCalificaciones,
-            'desgloseEstrellas' => $desgloseEstrellas,
-            'valoracionesConComentario' => $valoracionesConComentario,       
+            'desgloseEstrellas' => $desgloseEstrellas,     
             'puntos_fuertes' => $puntos_fuertes   
         ], 'vendedor-layout');
     }

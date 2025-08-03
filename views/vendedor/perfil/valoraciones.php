@@ -43,8 +43,8 @@
 
     <div class="valoraciones-listado">
         <h4 style="margin-top: 4rem;">Detalle de Calificaciones Recibidas</h4>
-        
-        <?php if (!empty($valoracionesConComentario)): ?>
+
+        <?php if(!empty($valoracionesConComentario)): ?>
             <?php foreach($valoracionesConComentario as $valoracion): ?>
                 <div class="valoracion-item">
                     <div class="valoracion-item__header">
@@ -66,7 +66,7 @@
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
-            <p class="t-align-center">Aún no has recibido ninguna calificación con comentario.</p>
+            <p>Aún no has recibido ninguna calificación con comentario.</p>
         <?php endif; ?>
     </div>
 </div>
