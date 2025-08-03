@@ -103,16 +103,18 @@
                                 <ul id="sugerencias-mobile" class="sugerencias"></ul>
                             </div>
 
+                            <a href="/marketplace">Para Ti</a>
+
                             <div class="dropdown">
                                 <button class="dropdown__boton">Explorar <i class="fa-solid fa-chevron-down"></i></button>
                                 <div class="dropdown__contenido">
+                                    <a id="categorias-btn">Categorías</button>
                                     <a href="/mas-vendido">Lo más vendido</a>
                                     <a href="/novedades">Novedades</a>
                                     <a href="/artesanos-destacados">Artesanos destacados</a>
                                 </div>
                             </div>
-                            <button id="categorias-btn" class="categorias-btn">Categorías</button>
-                            <a href="/marketplace">Para Ti</a>
+                            
                             <a href="/mensajes">
                                 <div class="icono-badge-container">
                                     <i class="fa-regular fa-comment icon-desktop"></i>

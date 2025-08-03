@@ -382,7 +382,7 @@
     &__boton {
         // Hereda estilos de los otros enlaces de la barra
         font-weight: v.$bold;
-        font-size: 2rem;
+        font-size: 1.8rem;
         background: none;
         border: none;
         color: v.$negro;
@@ -396,6 +396,8 @@
         padding: 1.2rem 0;
 
         @include m.desktop {
+            font-size: 2rem;
+            padding: 0;
             width: auto; // En desktop, el ancho se ajusta al contenido
         }
 
@@ -432,6 +434,7 @@
             display: block;
             font-size: 1.6rem; // Tamaño de fuente más estándar para menú
             font-weight: 400;
+            cursor: pointer;
 
             &:hover {
                 background-color: #f1f1f1;
