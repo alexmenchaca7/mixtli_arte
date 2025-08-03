@@ -899,8 +899,8 @@ class MarketplaceController {
             // Procesar preferencias de notificación
             $prefsData = $_POST['prefs'] ?? [];
             $preferenciasParaGuardar = [
-                'notificaciones_email' => isset($prefsData['notificaciones_email']),
-                'notificaciones_plataforma' => isset($prefsData['notificaciones_plataforma'])
+                'notif_producto_nuevo_email' => isset($prefsData['notif_producto_nuevo_email']),
+                'notif_producto_nuevo_sistema' => isset($prefsData['notif_producto_nuevo_sistema'])
             ];
             $usuario->preferencias_notificaciones = json_encode($preferenciasParaGuardar);
     

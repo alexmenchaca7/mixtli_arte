@@ -217,8 +217,8 @@ class ProductosController {
                             if ($seguidor) {
                                 // Verificar preferencias
                                 $prefsSeguidor = json_decode($seguidor->preferencias_notificaciones ?? '{}', true);
-                                $quiereNotifPlataforma = $prefsSeguidor['notificaciones_plataforma'] ?? true; // Por defecto activado
-                                $quiereNotifEmail = $prefsSeguidor['notificaciones_email'] ?? true; // Por defecto activado
+                                $quiereNotifPlataforma = $prefsSeguidor['notif_producto_nuevo_sistema'] ?? true; // Por defecto activado
+                                $quiereNotifEmail = $prefsSeguidor['notif_producto_nuevo_email'] ?? true; // Por defecto activado
 
                                 // Crear notificación en la plataforma si el usuario lo desea
                                 if ($quiereNotifPlataforma) {
