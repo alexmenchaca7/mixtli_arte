@@ -18,6 +18,32 @@
     }
 }
 
+/* Estilos para la nueva estructura de la página de favoritos */
+.favoritos {
+    &__seccion {
+        margin-bottom: 4rem;
+    }
+    
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+
+        h2 {
+            margin: 0;
+        }
+    }
+    
+    &__contador {
+        font-size: 1.6rem;
+        color: v.$gris;
+        margin: 0;
+    }
+}
+
 .producto {
     background-color: v.$blanco;
     border-radius: 0.8rem;
@@ -153,29 +179,38 @@
 
 .producto.agotado {
     position: relative;
-    .producto__agotado-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2;
-        span {
-            background-color: var(--negro);
-            color: var(--blanco);
-            padding: 0.5rem 1.5rem;
-            font-weight: bold;
-            font-size: 1.8rem;
-            border-radius: 5px;
-        }
+    
+    // Atenuamos el contenido visualmente, pero no bloqueamos los clics.
+    .producto__imagen-contenedor,
+    .producto-info {
+        opacity: 0.65;
     }
-    a, .producto-info { // Opcional: bajar la opacidad del contenido
-        opacity: 0.6;
+
+    // El enlace de la imagen no será clickeable para evitar confusiones.
+    .producto__enlace-imagen {
+        pointer-events: none;
     }
+    
+    // El botón de favorito debe permanecer completamente usable.
+    .favorito-btn {
+        opacity: 1;
+        pointer-events: auto; // Asegura que sea clickeable
+    }
+}
+
+// Estilo para la nueva etiqueta de "Agotado"
+.producto__agotado-tag {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background-color: rgba(v.$negro, 0.8);
+    color: v.$blanco;
+    padding: 0.5rem 1rem;
+    font-size: 1.2rem;
+    font-weight: v.$bold;
+    border-radius: 5px;
+    z-index: 1;
+    pointer-events: none; // La etiqueta no debe ser clickeable
 }
 
 .contenedor-artesanos {

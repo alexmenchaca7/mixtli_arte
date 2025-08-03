@@ -24,8 +24,19 @@ class FavoritosController {
         // Obtener productos favoritos
         $query = "SELECT p.* FROM favoritos f
                   INNER JOIN productos p ON f.productoId = p.id
-                  WHERE f.usuarioId = '$usuarioId' AND p.estado != 'agotado'";
+                  WHERE f.usuarioId = '$usuarioId'";
         $productos = Producto::consultarSQL($query);
+
+        // Separar productos en disponibles y agotados
+        $productosDisponibles = [];
+        $productosAgotados = [];
+        foreach($productos as $producto) {
+            if ($producto->estado === 'agotado') {
+                $productosAgotados[] = $producto;
+            } else {
+                $productosDisponibles[] = $producto;
+            }
+        }
 
         // Obtener imágenes principales
         foreach($productos as $producto) {
@@ -38,7 +49,8 @@ class FavoritosController {
 
         $router->render('marketplace/favoritos', [
             'titulo' => 'Favoritos',
-            'productos' => $productos,
+            'productosDisponibles' => $productosDisponibles,
+            'productosAgotados' => $productosAgotados,
             'favoritosIds' => $favoritosIds,
             'categorias' => $categorias
         ]);
@@ -75,6 +87,14 @@ class FavoritosController {
             $resultado = $favorito->eliminar();
             $accion = 'removed';
         } else {
+            // Verificar el límite de la lista de deseos antes de agregar
+            $totalFavoritos = Favorito::totalArray(['usuarioId' => $usuarioId]);
+            if ($totalFavoritos >= 20) {
+                http_response_code(403); // Forbidden
+                echo json_encode(['error' => 'Tu lista de deseos está llena. No puedes agregar más de 20 productos.']);
+                exit;
+            }
+
             $favorito = new Favorito([
                 'usuarioId' => $usuarioId,
                 'productoId' => $productoId,

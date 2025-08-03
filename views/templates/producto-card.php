@@ -1,11 +1,6 @@
 <div class="producto <?php echo ($producto->estado === 'agotado') ? 'agotado' : ''; ?>" data-producto-card-id="<?php echo $producto->id; ?>">
-    <?php if ($producto->estado === 'agotado'): ?>
-        <div class="producto__agotado-overlay">
-            <span>Agotado</span>
-        </div>
-    <?php endif; ?>
 
-    <a href="/marketplace/producto?id=<?php echo $producto->id; ?>">
+    <a href="/marketplace/producto?id=<?php echo $producto->id; ?>" class="producto__enlace-imagen">
         <div class="producto__imagen-contenedor">
             <picture>
                 <?php if (!empty($producto->imagen_principal)): ?>
@@ -39,11 +34,18 @@
             <p>$<?php echo number_format($producto->precio, 2); ?> MXN</p>
             
             <div class="producto__acciones">
-                <?php if($producto->estado !== 'agotado'): ?>
+                <?php
+                // Determina si el producto está en la lista de favoritos.
+                $esFavorito = isset($favoritosIds) && in_array($producto->id, $favoritosIds);
+                ?>
+
+                <?php if ($producto->estado !== 'agotado' || $esFavorito): ?>
                     <button class="favorito-btn" data-producto-id="<?php echo $producto->id; ?>" title="Me gusta">
-                        <i class="fa-heart <?php echo (isset($favoritosIds) && in_array($producto->id, $favoritosIds)) ? 'fa-solid' : 'fa-regular'; ?>"></i>
+                        <i class="fa-heart <?php echo $esFavorito ? 'fa-solid' : 'fa-regular'; ?>"></i>
                     </button>
-                    
+                <?php endif; ?>
+                
+                <?php if($producto->estado !== 'agotado'): ?>
                     <button class="no-interesa-btn" data-producto-id="<?php echo $producto->id; ?>" title="No me interesa">
                         <i class="fa-regular fa-thumbs-down"></i>
                     </button>
@@ -51,4 +53,10 @@
             </div>
         </div>
     </div>
+    
+    <?php if ($producto->estado === 'agotado'): ?>
+        <div class="producto__agotado-tag">
+            <span>Agotado</span>
+        </div>
+    <?php endif; ?>
 </div>
