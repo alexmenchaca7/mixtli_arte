@@ -80,6 +80,14 @@ class ActiveRecord {
         return $atributos;
     }
 
+    // Método público para sanitizar strings de forma segura
+    public static function sanear($string) {
+        if (self::$conexion) {
+            return self::$conexion->escape_string($string);
+        }
+        return ''; // O manejar el error como prefieras
+    }
+
     // Sanitizar los datos antes de guardarlos en la BD
     public function sanitizarAtributos() {
         $atributos = $this->atributos();

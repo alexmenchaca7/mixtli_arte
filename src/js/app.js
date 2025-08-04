@@ -83,7 +83,37 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /** CONTADORES ANIMADOS **/
+
+    // --- LÓGICA PARA EL MODAL DE FILTROS AVANZADOS ---
+    const filtroBtn = document.getElementById('filtro-btn');
+    const filtroModal = document.getElementById('filtro-modal');
+    const cerrarModalBtn = document.getElementById('cerrar-modal-btn');
+
+    if(filtroBtn && filtroModal && cerrarModalBtn) {
+        
+        // Abrir modal
+        filtroBtn.addEventListener('click', () => {
+            filtroModal.classList.add('mostrar');
+            document.body.style.overflow = 'hidden'; // Evita el scroll de fondo
+        });
+
+        // Cerrar modal con el botón X
+        cerrarModalBtn.addEventListener('click', () => {
+            filtroModal.classList.remove('mostrar');
+            document.body.style.overflow = ''; // Restaura el scroll
+        });
+
+        // Cerrar modal al hacer clic fuera del contenido
+        filtroModal.addEventListener('click', (e) => {
+            if (e.target === filtroModal) {
+                filtroModal.classList.remove('mostrar');
+                document.body.style.overflow = '';
+            }
+        });
+    }
+
+
+    //--- CONTADORES ANIMADOS ---
     const contadores = document.querySelectorAll(".contador");
     const duracion = 500;
 

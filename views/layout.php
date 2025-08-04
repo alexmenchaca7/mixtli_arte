@@ -70,6 +70,9 @@
                                 <button type="submit">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </button>
+                                <button type="button" id="filtro-btn" class="busqueda__btn-filtro" title="Filtros avanzados">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
                             </form>
                             <ul id="sugerencias" class="sugerencias"></ul>
                         </div>
@@ -244,6 +247,43 @@
                 </div>
             </div>
         </footer>
+    </div>
+
+    <div id="filtro-modal" class="filtro-modal">
+        <div class="filtro-modal__contenido">
+            <div class="filtro-modal__header">
+                <h2>Filtros Avanzados</h2>
+                <button id="cerrar-modal-btn" class="filtro-modal__cerrar">&times;</button>
+            </div>
+            <form action="/marketplace" method="GET" class="filtro-modal__form">
+                
+                <div class="formulario__campo">
+                    <label for="precio_min" class="formulario__label">Rango de Precios</label>
+                    <div class="formulario__grupo-precio">
+                        <input type="number" name="precio_min" placeholder="Mínimo" class="formulario__input" min="0">
+                        <span>-</span>
+                        <input type="number" name="precio_max" placeholder="Máximo" class="formulario__input" min="0">
+                    </div>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="categoria" class="formulario__label">Categoría</label>
+                    <select name="categoria" class="formulario__input">
+                        <option value="">-- Todas --</option>
+                        <?php foreach($categorias as $categoria): ?>
+                            <option value="<?php echo $categoria->id; ?>"><?php echo htmlspecialchars($categoria->nombre); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="formulario__campo">
+                    <label for="ubicacion" class="formulario__label">Ubicación (Ciudad, Estado o Colonia)</label>
+                    <input type="text" name="ubicacion" placeholder="Ej: Guadalajara" class="formulario__input">
+                </div>
+
+                <input type="submit" value="Aplicar Filtros" class="formulario__submit">
+            </form>
+        </div>
     </div>
 
     <div id="modal-valoracion" class="modal-valoracion" style="display: none;">

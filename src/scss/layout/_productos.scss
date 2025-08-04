@@ -44,6 +44,43 @@
     }
 }
 
+/* --- INICIO: Estilos para Filtros Activos --- */
+.filtros-activos {
+    background-color: color.adjust(v.$primario, $lightness: 45%); // Un fondo muy claro usando tu color primario
+    padding: 1.5rem 2rem;
+    margin: 2rem 0 3rem 0; // Espacio arriba y abajo
+    border-left: 5px solid v.$primario; // Un acento de color distintivo
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 8px rgba(v.$negro, 0.05);
+
+    p {
+        margin: 0;
+        color: v.$gris-oscuro;
+        font-size: 1.5rem;
+        line-height: 1.6;
+
+        strong {
+            color: v.$primario; // Resalta el título
+            font-weight: v.$bold;
+            margin-right: 1rem;
+        }
+    }
+
+    a {
+        color: v.$primario; // Un color que invite a la acción
+        font-weight: v.$bold;
+        text-decoration: none;
+        border-bottom: 2px solid transparent;
+        transition: color 0.3s ease, border-color 0.3s ease;
+        margin-left: 1rem;
+
+        &:hover {
+            color: color.adjust(v.$primario, $lightness: -10%);
+            border-bottom-color: color.adjust(v.$primario, $lightness: -10%); // Efecto hover sutil
+        }
+    }
+}
+
 .producto {
     background-color: v.$blanco;
     border-radius: 0.8rem;

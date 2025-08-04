@@ -20,6 +20,7 @@ use Model\HistorialInteraccion;
 use Model\ProductoNoInteresado;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Model\ActiveRecord;
 
 // --- FUNCIÓN HELPER PARA LA VISTA ---
 function obtenerDireccion($direcciones, $tipo, $campo) {
@@ -38,8 +39,13 @@ class MarketplaceController {
             exit();
         }
 
+        // Recuperar todos los parámetros de búsqueda y filtros
         $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
         $categoriaId = filter_var($_GET['categoria'] ?? null, FILTER_VALIDATE_INT);
+        $precioMin = filter_var($_GET['precio_min'] ?? null, FILTER_VALIDATE_FLOAT);
+        $precioMax = filter_var($_GET['precio_max'] ?? null, FILTER_VALIDATE_FLOAT);
+        $ubicacion = trim(s($_GET['ubicacion'] ?? ''));
+
         $titulo = 'Para Ti';
         $usuarioId = $_SESSION['id'];
 
@@ -66,51 +72,95 @@ class MarketplaceController {
             $condiciones[] = "id NOT IN ($idsStringNoInteresados)";
         }
 
-        // Lógica de búsqueda
-        if (!empty($busqueda)) {
-            // Buscar productos que coincidan directamente con el término
-            $condicionesProducto = Producto::buscar($busqueda);
-            
-            // Buscar vendedores que coincidan con el término
-            $usuarios = Usuario::whereArray([
-                'nombre LIKE' => "%{$busqueda}%",
-            ]);
-            $usuarioIds = $usuarios ? array_column($usuarios, 'id') : [];
-            
-            // Buscar categorías que coincidan con el término
-            $categorias = Categoria::whereArray([
-                'nombre LIKE' => "%{$busqueda}%",
-            ]);
-            $categoriaIds = $categorias ? array_column($categorias, 'id') : [];
-            
-            // Construir condiciones complejas
-            $condicionesComplejas = [];
-            if (!empty($condicionesProducto)) {
-                $condicionesComplejas[] = "(" . implode(' OR ', $condicionesProducto) . ")";
+        // LÓGICA DE FILTROS AVANZADOS
+        $filtrosActivos = !empty($busqueda) || $categoriaId || $precioMin || $precioMax || !empty($ubicacion);
+
+        if ($filtrosActivos) {
+            $titulo = 'Resultados de Búsqueda';
+
+            // Filtro por término de búsqueda (lógica existente)
+            if (!empty($busqueda)) {
+                // Buscar productos que coincidan directamente con el término
+                $condicionesProducto = Producto::buscar($busqueda);
+                
+                // Buscar vendedores que coincidan con el término
+                $usuarios = Usuario::whereArray([
+                    'nombre LIKE' => "%{$busqueda}%",
+                ]);
+                $usuarioIds = $usuarios ? array_column($usuarios, 'id') : [];
+                
+                // Buscar categorías que coincidan con el término
+                $categorias = Categoria::whereArray([
+                    'nombre LIKE' => "%{$busqueda}%",
+                ]);
+                $categoriaIds = $categorias ? array_column($categorias, 'id') : [];
+                
+                // Construir condiciones complejas
+                $condicionesComplejas = [];
+                if (!empty($condicionesProducto)) {
+                    $condicionesComplejas[] = "(" . implode(' OR ', $condicionesProducto) . ")";
+                }
+                
+                if (!empty($usuarioIds)) {
+                    $usuarioIdsStr = implode(',', $usuarioIds);
+                    $condicionesComplejas[] = "usuarioId IN ($usuarioIdsStr)";
+                }
+                
+                if (!empty($categoriaIds)) {
+                    $categoriaIdsStr = implode(',', $categoriaIds);
+                    $condicionesComplejas[] = "categoriaId IN ($categoriaIdsStr)";
+                }
+                
+                if (!empty($condicionesComplejas)) {
+                    $condiciones[] = "(" . implode(' OR ', $condicionesComplejas) . ")";
+                }
+                
+                $titulo = "Resultados para: '{$busqueda}'";
             }
-            
-            if (!empty($usuarioIds)) {
-                $usuarioIdsStr = implode(',', $usuarioIds);
-                $condicionesComplejas[] = "usuarioId IN ($usuarioIdsStr)";
+
+            // Filtro por categoría
+            if ($categoriaId) {
+                // Si no hay búsqueda pero sí categoría seleccionada
+                $condiciones[] = "categoriaId = '$categoriaId'";
+                $categoria = Categoria::find($categoriaId);
+                $titulo = $categoria ? $categoria->nombre : $titulo;
             }
-            
-            if (!empty($categoriaIds)) {
-                $categoriaIdsStr = implode(',', $categoriaIds);
-                $condicionesComplejas[] = "categoriaId IN ($categoriaIdsStr)";
+
+            // Filtro por rango de precios
+            if ($precioMin) {
+                $condiciones[] = "precio >= {$precioMin}";
             }
-            
-            if (!empty($condicionesComplejas)) {
-                $condiciones[] = "(" . implode(' OR ', $condicionesComplejas) . ")";
+            if ($precioMax) {
+                $condiciones[] = "precio <= {$precioMax}";
             }
-            
-            $titulo = "Resultados para: '{$busqueda}'";
-        } elseif ($categoriaId) {
-            // Si no hay búsqueda pero sí categoría seleccionada
-            $condiciones[] = "categoriaId = '$categoriaId'";
-            $categoria = Categoria::find($categoriaId);
-            $titulo = $categoria ? $categoria->nombre : $titulo;
+
+            // Filtro por ubicación geográfica
+            if (!empty($ubicacion)) {
+                // Sanitizamos la ubicación para la consulta LIKE
+                $ubicacionSaneada = ActiveRecord::sanear(strtolower($ubicacion));
+
+                // Buscamos los IDs de los vendedores que coincidan con la ubicación (insensible a mayúsculas)
+                $queryVendedores = "SELECT DISTINCT usuarioId as id FROM direcciones WHERE tipo = 'comercial' AND ";
+                $queryVendedores .= "(LOWER(ciudad) LIKE '%{$ubicacionSaneada}%' OR LOWER(estado) LIKE '%{$ubicacionSaneada}%' OR LOWER(colonia) LIKE '%{$ubicacionSaneada}%')";
+
+                // Ejecutamos la consulta para obtener los vendedores
+                $vendedores = Usuario::consultarSQL($queryVendedores);
+
+                // Extraemos los IDs solo si se encontraron vendedores
+                $vendedorIds = !empty($vendedores) ? array_column($vendedores, 'id') : [];
+                
+                // Verificamos si realmente obtuvimos IDs antes de construir la condición
+                if (!empty($vendedorIds)) {
+                    $idsString = implode(',', $vendedorIds);
+                    $condiciones[] = "usuarioId IN ({$idsString})";
+                } else {
+                    // Si no se encontraron vendedores, forzamos a que no haya productos.
+                    $condiciones[] = "usuarioId IN (0)"; 
+                }
+            }
+
+        // --- LÓGICA DE PERSONALIZACIÓN Y RECOMENDACIÓN ---
         } else {
-            // --- LÓGICA DE PERSONALIZACIÓN Y RECOMENDACIÓN ---
             $logFilePath = __DIR__ . '/../recomendaciones.log';
             if (!is_dir(dirname($logFilePath))) {
                 mkdir(dirname($logFilePath), 0775, true);
@@ -344,7 +394,15 @@ class MarketplaceController {
 
         // Obtener información del vendedor
         $vendedor = Usuario::find($producto->usuarioId);
-        $vendedor->direccion = Direccion::where('usuarioId', $vendedor->id);
+
+        // Buscamos específicamente la dirección de tipo 'comercial'
+        $direccionComercialArray = Direccion::whereArray([
+            'usuarioId' => $vendedor->id,
+            'tipo'      => 'comercial'
+        ]);
+
+        // Asignamos la dirección al vendedor solo si se encontró.
+        $vendedor->direccion = $direccionComercialArray ? array_shift($direccionComercialArray) : null;
 
         // Obtener valoraciones del vendedor
         $valoracionesVendedor = Valoracion::whereArray([
