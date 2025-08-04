@@ -236,6 +236,9 @@
                     <a href="/contacto">Contacto</a>
                     <a href="/terminos-condiciones">Términos de servicio</a>
                     <a href="/politica-privacidad">Política de privacidad</a>
+                    <?php if(is_auth()): ?>
+                        <a href="/manual-usuario?tipo=comprador">Manual de Usuario</a>
+                    <?php endif; ?>
                 </div>
         
                 <!-- Sección de suscripción -->

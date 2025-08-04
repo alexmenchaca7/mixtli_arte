@@ -32,17 +32,50 @@ class DatosController {
         }
 
         $usuarioId = $_SESSION['id'];
+
+        // 1. Obtener todos los productos del usuario
+        $productosDelUsuario = Producto::whereField('usuarioId', $usuarioId);
+
+        // 2. Extraer los IDs de esos productos
+        $productoIds = array_map(fn($p) => $p->id, $productosDelUsuario);
+
+        // 3. Obtener todas las imágenes que pertenecen a esos IDs de productos
+        $imagenes = [];
+        if (!empty($productoIds)) {
+            // Usamos el método `whereArray` para buscar por múltiples IDs
+            // Asumiendo que `whereArray` puede manejar una cláusula IN, o creamos una consulta
+            // Si `whereArray` no soporta 'IN', usaremos una consulta SQL directa
+            $idsParaQuery = implode(',', array_map('intval', $productoIds));
+            $query = "SELECT * FROM " . ImagenProducto::getTablaNombre() . " WHERE productoId IN ($idsParaQuery)";
+            $imagenes = ImagenProducto::consultarSQL($query);
+        }
+
+        // 4. Obtener preferencias del usuario
+        $preferencias = PreferenciaUsuario::where('usuarioId', $usuarioId);
         
         // Recopilar todos los datos del usuario
         $datosUsuario = [
             'perfil' => Usuario::find($usuarioId)->toArray(),
             'direcciones' => array_map(fn($d) => $d->toArray(), Direccion::whereField('usuarioId', $usuarioId)),
-            'productos' => array_map(fn($p) => $p->toArray(), Producto::whereField('usuarioId', $usuarioId)),
+            'productos_creados' => array_map(fn($p) => $p->toArray(), $productosDelUsuario),
+            'imagenes_de_productos' => array_map(fn($i) => $i->toArray(), $imagenes),
             'valoraciones_emitidas' => array_map(fn($v) => $v->toArray(), Valoracion::whereField('calificadorId', $usuarioId)),
             'valoraciones_recibidas' => array_map(fn($v) => $v->toArray(), Valoracion::whereField('calificadoId', $usuarioId)),
+            'reportes_de_productos_emitidos' => array_map(fn($r) => $r->toArray(), ReporteProducto::whereField('usuarioId', $usuarioId)),
+            'reportes_de_valoraciones_emitidos' => array_map(fn($r) => $r->toArray(), ReporteValoracion::whereField('reportadorId', $usuarioId)),
             'favoritos' => array_map(fn($f) => $f->toArray(), Favorito::whereField('usuarioId', $usuarioId)),
-            'preferencias' => PreferenciaUsuario::where('usuarioId', $usuarioId)->toArray(),
-            'historial_interacciones' => array_map(fn($h) => $h->toArray(), HistorialInteraccion::whereField('usuarioId', $usuarioId))
+            'seguidores' => array_map(fn($f) => $f->toArray(), Follow::whereField('seguidoId', $usuarioId)),
+            'siguiendo' => array_map(fn($f) => $f->toArray(), Follow::whereField('seguidorId', $usuarioId)),
+            'preferencias' => $preferencias ? $preferencias->toArray() : [],
+            'historial_interacciones' => array_map(fn($h) => $h->toArray(), HistorialInteraccion::whereField('usuarioId', $usuarioId)),
+            'preguntas_realizadas' => array_map(fn($p) => $p->toArray(), PreguntaUsuario::whereField('usuarioId', $usuarioId)),
+            'mensajes_enviados' => array_map(fn($m) => $m->toArray(), Mensaje::whereField('remitenteId', $usuarioId)),
+            'mensajes_recibidos' => array_map(fn($m) => $m->toArray(), Mensaje::whereField('destinatarioId', $usuarioId)),
+            'notificaciones' => array_map(fn($n) => $n->toArray(), Notificacion::whereField('usuarioId', $usuarioId)),
+            'productos_no_interesados' => array_map(fn($p) => $p->toArray(), ProductoNoInteresado::whereField('usuarioId', $usuarioId)),
+            'violaciones_registradas' => array_map(fn($v) => $v->toArray(), UsuarioViolacion::whereField('usuario_id', $usuarioId)),
+            'ajustes_de_sanciones' => array_map(fn($a) => $a->toArray(), AdminAjusteSancion::whereField('usuario_id', $usuarioId)),
+            'historial_de_autenticacion' => array_map(fn($a) => $a->toArray(), Autenticacion::whereField('usuarioId', $usuarioId)),
         ];
 
         // Forzar la descarga del archivo JSON

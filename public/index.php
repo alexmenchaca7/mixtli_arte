@@ -7,6 +7,7 @@ use Controllers\AuthController;
 use Controllers\FaqsController;
 use Controllers\DatosController;
 use Controllers\FollowController;
+use Controllers\ManualController;
 use Controllers\PaginasController;
 use Controllers\MensajesController;
 use Controllers\UsuariosController;
@@ -83,6 +84,7 @@ $router->get('/bloqueado/permanente', [PaginasController::class, 'bloqueoPermane
 
 $router->get('/politica-privacidad', [PoliticasController::class, 'privacidad']);
 $router->get('/terminos-condiciones', [PoliticasController::class, 'terminos']);
+$router->get('/manual-usuario', [ManualController::class, 'index']);
 
 
 
