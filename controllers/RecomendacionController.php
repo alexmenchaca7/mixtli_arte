@@ -264,7 +264,9 @@ class RecomendacionController {
     public static function obtenerRecomendacionesPorSimilitud(int $usuarioId, string &$log): array {
         $idsProductosUsuarioActual = [];
         // Solo consideramos interacciones fuertes para la similitud
-        $interacciones = HistorialInteraccion::consultarSQL("SELECT productoId FROM historial_interacciones WHERE usuarioId = {$usuarioId} AND (tipo = 'favorito' OR tipo = 'compra') AND productoId IS NOT NULL");
+        $interacciones = HistorialInteraccion::consultarSQL(
+            "SELECT productoId FROM historial_interacciones WHERE usuarioId = {$usuarioId} AND (tipo IN ('favorito', 'compra', 'clic')) AND productoId IS NOT NULL"
+        );
         
         if (!empty($interacciones)) {
             $idsProductosUsuarioActual = array_unique(array_column($interacciones, 'productoId'));
@@ -317,7 +319,7 @@ class RecomendacionController {
     // Encuentra usuarios con gustos similares basados en el índice de Jaccard.
     private static function encontrarUsuariosSimilares(int $idUsuarioActual, array $idsProductosUsuarioActual, string &$log): array {
         $interaccionesOtrosUsuarios = HistorialInteraccion::consultarSQL(
-            "SELECT usuarioId, productoId FROM historial_interacciones WHERE usuarioId != {$idUsuarioActual} AND (tipo = 'favorito' OR tipo = 'compra') AND productoId IS NOT NULL"
+            "SELECT usuarioId, productoId FROM historial_interacciones WHERE usuarioId != {$idUsuarioActual} AND (tipo IN ('favorito', 'compra', 'clic')) AND productoId IS NOT NULL"
         );
 
         $mapaUsuarioProducto = [];
