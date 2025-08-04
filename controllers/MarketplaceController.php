@@ -1082,7 +1082,12 @@ class MarketplaceController {
             $usuario->sincronizar($_POST);
             $alertas = $usuario->validarNuevoPassword();
 
-            if(empty($alertas)) {
+            if(!empty($alertas['error'])) {
+                // Usamos la función setAlerta para cada error
+                foreach($alertas['error'] as $error) {
+                    Usuario::setAlerta('error', $error);
+                }
+            } else {
                 if($usuario->comprobar_password()) {
                     $usuario->pass = $usuario->password_nuevo;
                     $usuario->hashPassword();
