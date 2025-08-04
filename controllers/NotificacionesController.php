@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use MVC\Router;
+use Classes\Paginacion;
 use Model\Notificacion;
 
 class NotificacionesController {
@@ -14,11 +15,29 @@ class NotificacionesController {
         }
 
         $usuarioId = $_SESSION['id'];
+
+        $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
+        if(!$pagina_actual || $pagina_actual < 1) {
+            header('Location: /notificaciones?page=1');
+            exit();
+        }
+        $registros_por_pagina = 10; // 10 notificaciones por página
+
+        $condiciones = ["usuarioId = '{$usuarioId}'"];
+        $total = Notificacion::totalCondiciones($condiciones);
+        $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total);
+
+        if ($paginacion->total_paginas() < $pagina_actual && $pagina_actual > 1) {
+            header('Location: /notificaciones?page=1');
+            exit();
+        }
         
-        // Obtener todas las notificaciones del usuario, las más recientes primero
+        // Obtener las notificaciones paginadas
         $notificaciones = Notificacion::metodoSQL([
-            'condiciones' => ["usuarioId = '{$usuarioId}'"],
-            'orden' => 'creado DESC'
+            'condiciones' => $condiciones,
+            'orden' => 'creado DESC',
+            'limite' => $registros_por_pagina,
+            'offset' => $paginacion->offset()
         ]);
 
         // Contar las no leídas para la vista
@@ -34,6 +53,7 @@ class NotificacionesController {
             'titulo' => 'Mis Notificaciones',
             'notificaciones' => $notificaciones,
             'noLeidasCount' => $noLeidasCount,
+            'paginacion' => $paginacion->paginacion()
         ], $layout);
     }
 

@@ -59,4 +59,6 @@
             <p class="t-align-center">No tienes notificaciones.</p>
         <?php endif; ?>
     </div>
+
+    <?php echo $paginacion; ?>
 </main>
