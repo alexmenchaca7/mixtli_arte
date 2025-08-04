@@ -18,10 +18,10 @@
                         <?php foreach ($faqsEnCategoria as $faq): ?>
                             <details class="faq-item">
                                 <summary class="faq-question">
-                                    <?= $faq->pregunta ?>
+                                    <?= htmlspecialchars($faq->pregunta) ?>
                                 </summary>
                                 <div class="faq-answer">
-                                    <p><?= $faq->respuesta ?></p> </div>
+                                    <p><?= htmlspecialchars($faq->respuesta) ?></p> </div>
                             </details>
                         <?php endforeach; ?>
                     </div>

@@ -112,7 +112,7 @@
     <!-- Descripción del producto -->
     <div class="formulario__campo">
         <label for="descripcion" class="formulario__label">Descripcion</label>
-        <textarea class="formulario__input" name="descripcion" id="descripcion" rows="4"><?php echo $producto->descripcion ?? ''; ?></textarea>
+        <textarea class="formulario__input" name="descripcion" id="descripcion" rows="4"><?= htmlspecialchars($producto->descripcion ?? ''); ?></textarea>
     </div>
 </fieldset>
 
