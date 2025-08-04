@@ -341,7 +341,6 @@ class MensajesController {
             exit();
         }
 
-
         // ELIMINAR PRODUCTO DE FAVORITOS DEL COMPRADOR
         $favoritosEncontrados = Favorito::whereArray(['usuarioId' => $compradorId, 'productoId' => $productoId]);
     
@@ -397,6 +396,47 @@ class MensajesController {
                 }
             }
         }
+
+        // NOTIFICAR AL VENDEDOR DE STOCK CRÍTICO
+        $stock_nuevo_venta = (int)$producto->stock;
+        $umbral_critico_vendedor = 3;
+
+        // Comprobamos si el stock llega EXACTAMENTE al umbral crítico a causa de esta venta
+        if ($stock_nuevo_venta === $umbral_critico_vendedor) {
+            $vendedor = Usuario::find($producto->usuarioId);
+            if ($vendedor) {
+                $prefsVendedor = json_decode($vendedor->preferencias_notificaciones ?? '{}', true);
+
+                $urlProductoVendedor = "/vendedor/productos/editar?id={$producto->id}";
+                $mensajeNotificacion = "¡Stock crítico! A tu producto '{$producto->nombre}' solo le quedan {$stock_nuevo_venta} unidades.";
+
+                // Notificación en la plataforma
+                if ($prefsVendedor['notif_stock_critico_sistema'] ?? true) {
+                    $notificacion = new Notificacion([
+                        'usuarioId' => $vendedor->id,
+                        'tipo' => 'stock_critico',
+                        'mensaje' => $mensajeNotificacion,
+                        'url' => $urlProductoVendedor
+                    ]);
+                    $notificacion->guardar();
+                }
+
+                // Notificación por correo electrónico
+                if ($prefsVendedor['notif_stock_critico_email'] ?? true) {
+                    $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
+                    $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
+
+                    $email = new Email($vendedor->email, $vendedor->nombre, '');
+                    $email->enviarNotificacionStockCriticoVendedor(
+                        $producto->nombre,
+                        $stock_nuevo_venta,
+                        $urlImagen,
+                        $urlProductoVendedor
+                    );
+                }
+            }
+        }
+        
     
         // Buyer rates seller
         $valoracionComprador = new Valoracion([

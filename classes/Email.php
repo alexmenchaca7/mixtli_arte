@@ -381,6 +381,35 @@ class Email {
         $mail->send();
     }
 
+    public function enviarNotificacionStockCriticoVendedor($nombreProducto, $stockActual, $urlImagen, $urlProducto) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = '¡Alerta de Stock Crítico en tu Producto!';
+
+        $contenido = '<html>';
+        $contenido .= '<body style="font-family: Arial, sans-serif; color: #333;">';
+        $contenido .= '<div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">';
+        $contenido .= '<h1 style="color: #D32F2F; text-align: center;">¡Atención! Stock Crítico</h1>';
+        $contenido .= "<h2>Hola " . htmlspecialchars($this->nombre) . ",</h2>";
+        $contenido .= "<p>Te informamos que el stock de tu producto <strong>" . htmlspecialchars($nombreProducto) . "</strong> ha alcanzado el nivel crítico.</p>";
+
+        $contenido .= '<div style="border: 1px solid #eee; border-radius: 8px; padding: 15px; text-align: center;">';
+        $contenido .= '<a href="' . $_ENV['HOST'] . $urlProducto . '" style="text-decoration: none; color: inherit;">';
+        $contenido .= '<img src="' . $urlImagen . '" alt="' . htmlspecialchars($nombreProducto) . '" style="max-width: 100%; height: auto; border-radius: 8px;">';
+        $contenido .= "<h3 style=\'font-size: 20px; margin: 10px 0;\'>" . htmlspecialchars($nombreProducto) . "</h3>";
+        $contenido .= '</a>';
+        $contenido .= '<p style="font-size: 24px; font-weight: bold; color: #D32F2F; margin: 10px 0;">¡Solo quedan ' . $stockActual . ' unidades!</p>';
+        $contenido .= '<a href="' . $_ENV['HOST'] . $urlProducto . '" style="display: inline-block; background-color: #EE4BBA; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Gestionar Producto</a>';
+        $contenido .= '</div>';
+
+        $contenido .= "<p style='margin-top: 20px;'>Considera reabastecer tu inventario para no perder ventas.</p>";
+        $contenido .= '</div>';
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+        $mail->Body = $contenido;
+
+        $mail->send();
+    }
+
 
     public function enviarConfirmacionSoporteUsuario($numeroCaso, $asuntoConsulta) {
         $mail = $this->configurarEmailBasico();

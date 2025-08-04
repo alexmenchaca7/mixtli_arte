@@ -302,15 +302,14 @@
             <?php $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true); ?>
 
             <div class="formulario__campo">
-                <label class="formulario__label">Nuevos Productos</label>
-                
-                <div class="formulario__opciones-notificacion"> 
+                <label class="formulario__label">Alertas de Stock Crítico (3 unidades)</label>
+                <div class="formulario__opciones-notificacion">
                     <label>
-                        <input type="checkbox" name="prefs[notif_producto_nuevo_email]" value="1" <?php echo ($prefs['notif_producto_nuevo_email'] ?? true) ? 'checked' : ''; ?>>
+                        <input type="checkbox" name="prefs[notif_stock_critico_email]" value="1" <?php echo ($prefs['notif_stock_critico_email'] ?? true) ? 'checked' : ''; ?>>
                         Por Correo Electrónico
                     </label>
                     <label>
-                        <input type="checkbox" name="prefs[notif_producto_nuevo_sistema]" value="1" <?php echo ($prefs['notif_producto_nuevo_sistema'] ?? true) ? 'checked' : ''; ?>>
+                        <input type="checkbox" name="prefs[notif_stock_critico_sistema]" value="1" <?php echo ($prefs['notif_stock_critico_sistema'] ?? true) ? 'checked' : ''; ?>>
                         Dentro de la Plataforma
                     </label>
                 </div>
