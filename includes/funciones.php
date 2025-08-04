@@ -40,26 +40,24 @@ function s($html) : string {
 }
 
 /**
- * Formatea un texto:
- * 1. Elimina los saltos de línea literales (\r\n) del principio.
+ * Formatea un texto para mostrarlo en HTML de forma segura.
+ * 1. Elimina las barras invertidas extra (ej: '\\n' -> '\n').
  * 2. Sanea el texto para seguridad con htmlspecialchars.
- * 3. Reemplaza los saltos de línea literales restantes por <br>.
+ * 3. Convierte los saltos de línea reales (\n) en etiquetas <br>.
  */
 function formatear_texto($texto) : string {
     if (is_null($texto)) {
         return '';
     }
 
-    // Paso 1: Eliminar secuencias \r\n o \n del principio del texto.
-    $pattern = '/^(\\\r\\\n|\r\n|\\\n|\n)+/';
-    $texto_trim = preg_replace($pattern, '', $texto);
+    // Paso 1: Elimina las barras invertidas extra. Clave para datos antiguos.
+    $texto_sin_slashes = stripslashes($texto);
 
-    // Paso 2: Sanear el resultado para seguridad
-    $texto_safe = htmlspecialchars($texto_trim, ENT_QUOTES, 'UTF-8');
+    // Paso 2: Sanear para seguridad (previene XSS)
+    $texto_safe = htmlspecialchars($texto_sin_slashes, ENT_QUOTES, 'UTF-8');
 
-    // Paso 3: Reemplazar las secuencias de nueva línea restantes por <br>
-    // Se buscan tanto '\r\n' como el 'rn' que pudiera quedar de un stripslashes
-    $texto_final = str_replace(['\r\n', 'rn'], '<br>', $texto_safe);
+    // Paso 3: Convertir saltos de línea a <br> para visualización en HTML
+    $texto_final = nl2br($texto_safe);
 
     return $texto_final;
 }

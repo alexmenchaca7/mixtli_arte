@@ -278,12 +278,11 @@ class ActiveRecord {
             if ($value === null) {
                 $filas[] = 'NULL';
             } elseif (in_array($key, $json_columns)) {
-                // Para columnas JSON, no escapar y no añadir comillas extra.
-                // Se asume que el valor ya es un string JSON válido.
+                // Para columnas JSON, escapamos el valor aquí
                 $filas[] = "'" . self::$conexion->escape_string($value) . "'";
             } else {
-                // Para otros valores, escapar y añadir comillas.
-                $filas[] = "'" . self::$conexion->escape_string($value) . "'";
+                // Para otros valores, usamos el valor que YA FUE escapado
+                $filas[] = "'" . $value . "'";
             }
         }
 
@@ -308,21 +307,27 @@ class ActiveRecord {
         // Sanitizar los datos
         $atributos = $this->sanitizarAtributos();
 
-        // Iterar para ir agregando cada campo de la BD
         $valores = [];
+
+        // Definir qué columnas son JSON
+        $json_columns = ['preferencias_notificaciones', 'palabras_clave', 'categorias', 'metadata'];
+
         foreach($atributos as $key => $value) {
-            // CAMBIO CRÍTICO: Asegurarse de que NULL se pase como NULL en SQL
+            // Asegurarse de que NULL se pase como NULL en SQL
             if ($value === NULL) {
                 $valores[] = "$key = NULL";
-            } else {
+            } elseif (in_array($key, $json_columns)) {
+                // Para JSON: escapamos el valor aquí (primera y única vez).
                 $valores[] = "$key = '" . self::$conexion->escape_string($value) . "'";
+            } else {
+                // Para otros valores, usamos el valor que YA FUE escapado.
+                $valores[] = "$key = '" . $value . "'";
             }
         }
 
         // Consulta SQL
         $filas =  join(', ', $valores); // Crear un string a partir de las llaves y valores del arreglo
         $id_sanitizado = self::$conexion->escape_string($this->id); // Escapar el id para evitar inyección SQL
-
         $query = "UPDATE " . static::$tabla . " SET $filas WHERE id = $id_sanitizado LIMIT 1";
 
         // Actualizar BD
