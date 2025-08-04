@@ -16,7 +16,8 @@
                 <thead class="table__thead">
                     <tr>
                         <th scope="col" class="table__th">Usuario</th>
-                        <th scope="col" class="table__th">Sanciones Actuales</th>
+                        <th scope="col" class="table__th">Correo</th>
+                        <th scope="col" class="table__th">Sanciones</th>
                         <th scope="col" class="table__th">Estado</th>
                         <th scope="col" class="table__th">Ajustar Sanciones</th>
                     </tr>
@@ -24,7 +25,8 @@
                 <tbody class="table__tbody">
                     <?php foreach($usuarios as $usuario): ?>
                         <tr class="table__tr">
-                            <td class="table__td"><?php echo htmlspecialchars($usuario->nombre . ' ' . $usuaio->apellido); ?></td>
+                            <td class="table__td"><?php echo htmlspecialchars($usuario->nombre . ' ' . $usuario->apellido); ?></td>
+                            <td class="table__td"><?php echo htmlspecialchars($usuario->email); ?></td>
                             <td class="table__td"><?php echo htmlspecialchars($usuario->violaciones_count); ?></td>
                             <td class="table__td">
                                 <?php

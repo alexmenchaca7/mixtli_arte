@@ -15,6 +15,7 @@
                     <tr>
                         <th scope="col" class="table__th">Fecha de Ajuste</th>
                         <th scope="col" class="table__th">Usuario</th>
+                        <th scope="col" class="table__th">Correo</th>
                         <th scope="col" class="table__th">Sanción Anterior</th>
                         <th scope="col" class="table__th">Sanción Nueva</th>
                         <th scope="col" class="table__th">Comentario del Ajuste</th>
@@ -26,6 +27,7 @@
                         <tr class="table__tr">
                             <td class="table__td"><?php echo date('d/m/Y H:i', strtotime($ajuste->fecha_ajuste)); ?></td>
                             <td class="table__td"><?php echo htmlspecialchars($ajuste->usuario_nombre . ' ' . $ajuste->usuario_apellido); ?></td>
+                            <td class="table__td"><?php echo htmlspecialchars($ajuste->usuario_email); ?></td>
                             <td class="table__td"><?php echo htmlspecialchars($ajuste->sancion_anterior); ?></td>
                             <td class="table__td"><?php echo htmlspecialchars($ajuste->sancion_nueva); ?></td>
                             <td class="table__td"><?php echo htmlspecialchars($ajuste->comentario); ?></td>

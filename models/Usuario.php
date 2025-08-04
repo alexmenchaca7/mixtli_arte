@@ -3,6 +3,7 @@
 namespace Model;
 
 use DateTime;
+use Classes\Email;
 
 class Usuario extends ActiveRecord {
     
@@ -326,7 +327,59 @@ class Usuario extends ActiveRecord {
 
         // Guardar los cambios en el usuario
         $this->guardar();
+
+        // Crear notificación en el sistema
+        $this->crearNotificacionViolacion($motivo);
+
+        // Enviar notificación por email
+        $email = new Email($this->email, $this->nombre, $this->token ?? '');
+        $email->enviarNotificacionViolacion($motivo, $this->violaciones_count);
     }
+
+    // Crear notificación de violación
+    public function crearNotificacionViolacion($motivo) {
+        $mensaje = "Has recibido una advertencia por la siguiente razón: " . $motivo . ".";
+        
+        // Lógica de mensajes específicos según el número de violaciones
+        switch ($this->violaciones_count) {
+            case 1:
+            case 2:
+                // Advertencia para violaciones 1 y 2
+                $mensaje .= " **Advertencia:** al acumular 3 violaciones, tu cuenta será bloqueada temporalmente.";
+                break;
+            case 3:
+                // Notificación de bloqueo temporal
+                $mensaje .= " **Tu cuenta ha sido bloqueada temporalmente** por una semana.";
+                break;
+            case 4:
+                // Advertencia final antes del bloqueo permanente
+                $mensaje .= " **Advertencia final:** con 5 violaciones, tu cuenta será bloqueada permanentemente.";
+                break;
+            case 5:
+                // Notificación de bloqueo permanente
+                $mensaje .= " **Tu cuenta ha sido bloqueada permanentemente.**";
+                break;
+        }
+        
+        // Definir la URL para la notificación
+        $url = '';
+        if ($this->rol === 'vendedor') {
+            $url = '/vendedor/perfil';
+        } elseif ($this->rol === 'comprador') {
+            $url = '/comprador/perfil';
+        }
+        
+        // Crear y guardar la notificación
+        $notificacion = new Notificacion([
+            'usuarioId' => $this->id,
+            'tipo' => 'violacion',
+            'mensaje' => $mensaje,
+            'url' => $url
+        ]);
+    
+        $notificacion->guardar();
+    }
+
 
     // VERIFICAR SI LA CUENTA ESTÁ BLOQUEADA
     public function estaBloqueado() {

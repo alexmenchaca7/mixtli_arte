@@ -461,6 +461,48 @@ class Email {
         return true;
     }
 
+    public function enviarNotificacionViolacion($motivo, $violacionesCount) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Advertencia sobre tu cuenta en MixtliArte';
+    
+        $mensaje = "Has recibido una advertencia por la siguiente razón: " . htmlspecialchars($motivo) . ".";
+        $mensaje .= " Llevas " . $violacionesCount . " violación(es) acumulada(s).";
+    
+        $advertencia = "";
+        switch ($violacionesCount) {
+            case 1:
+            case 2:
+                $advertencia = "<strong>Advertencia:</strong> al acumular 3 violaciones, tu cuenta será bloqueada temporalmente.";
+                break;
+            case 3:
+                $advertencia = "<strong>Tu cuenta ha sido bloqueada temporalmente</strong> por una semana.";
+                break;
+            case 4:
+                $advertencia = "<strong>Advertencia final:</strong> con 5 violaciones, tu cuenta será bloqueada permanentemente.";
+                break;
+            case 5:
+                $advertencia = "<strong>Tu cuenta ha sido bloqueada permanentemente.</strong>";
+                break;
+        }
+    
+        $contenido = '<html>';
+        $contenido .= '<body style="font-family: Arial, sans-serif; color: #333;">';
+        $contenido .= '<div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">';
+        $contenido .= '<h1 style="color: #D32F2F; text-align: center;">Aviso Importante de MixtliArte</h1>';
+        $contenido .= "<h2>Hola " . htmlspecialchars($this->nombre) . ",</h2>";
+        $contenido .= "<p>" . $mensaje . "</p>";
+        $contenido .= "<p style='background-color: #FFF9C4; padding: 15px; border-radius: 8px; border-left: 5px solid #FBC02D;'>" . $advertencia . "</p>";
+        $contenido .= "<p>Para más detalles o si crees que esto es un error, por favor, contacta a nuestro equipo de soporte.</p>";
+        $contenido .= "<p>Gracias,<br>El equipo de MixtliArte</p>";
+        $contenido .= '</div>';
+        $contenido .= "</body>";
+        $contenido .= '</html>';
+    
+        $mail->Body = $contenido;
+    
+        $mail->send();
+    }
+
     public function enviarRespuestaSoporte($usuarioEmail, $numeroCaso, $asuntoOriginal, $respuestaMensaje, $nombreAdminRemitente) {
         $mail = $this->configurarEmailBasico();
         $mail->clearAddresses(); // Limpiar direcciones previas

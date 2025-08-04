@@ -11,6 +11,7 @@
                         <th scope="col" class="table__th">Fecha</th> 
                         <th scope="col" class="table__th">Comentario</th>
                         <th scope="col" class="table__th">Autor</th>
+                        <th scope="col" class="table__th">Correo del Autor</th>
                         <th scope="col" class="table__th">Producto</th>
                         <th scope="col" class="table__th">Reportador</th>
                         <th scope="col" class="table__th">Motivo</th>
@@ -25,6 +26,7 @@
                         <tr class="table__tr">
                             <td class="table__td"><?php echo htmlspecialchars($reporte->creado); ?></td> <td class="table__td" style="white-space: normal;"><?php echo htmlspecialchars($reporte->valoracion->comentario ?? 'N/A'); ?></td>
                             <td class="table__td"><?php echo htmlspecialchars($reporte->autorComentario->nombre . ' ' . $reporte->autorComentario->apellido ?? 'N/A'); ?></td>
+                            <td class="table__td"><?php echo htmlspecialchars($reporte->autorComentario->email ?? 'N/A'); ?></td>
                             <td class="table__td">
                                 <?php if(isset($reporte->producto)): ?>
                                     <a href="/marketplace/producto?id=<?php echo $reporte->producto->id; ?>" target="_blank" class="table__accion table__accion--editar">

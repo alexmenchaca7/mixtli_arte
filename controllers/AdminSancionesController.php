@@ -118,6 +118,7 @@ class AdminSancionesController {
                 ajustes.fecha_ajuste, 
                 usuario.nombre AS usuario_nombre, 
                 usuario.apellido AS usuario_apellido,
+                usuario.email AS usuario_email,
                 admin.nombre AS admin_nombre,
                 admin.apellido AS admin_apellido
             FROM admin_ajustes_sanciones AS ajustes

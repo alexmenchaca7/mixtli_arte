@@ -77,7 +77,8 @@ function validar_redireccionar(string $url) {
 } 
 
 function pagina_actual($path) : bool {
-    return str_contains($_SERVER['PATH_INFO'], $path) ? true : false;
+    // Comprueba si la URL actual TERMINA con el path proporcionado
+    return str_ends_with($_SERVER['PATH_INFO'] ?? '/', $path);
 }
 
 function is_auth($required_role = null) : bool {

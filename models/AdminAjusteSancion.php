@@ -15,6 +15,7 @@ class AdminAjusteSancion extends ActiveRecord {
     public $fecha_ajuste;
     public $usuario_nombre;
     public $usuario_apellido;
+    public $usuario_email;
     public $admin_nombre;
     public $admin_apellido;
 
@@ -28,6 +29,7 @@ class AdminAjusteSancion extends ActiveRecord {
         $this->fecha_ajuste = $args['fecha_ajuste'] ?? date('Y-m-d H:i:s');
         $this->usuario_nombre = $args['usuario_nombre'] ?? '';
         $this->usuario_apellido = $args['usuario_apellido'] ?? '';
+        $this->usuario_email = $args['usuario_email'] ?? '';
         $this->admin_nombre = $args['admin_nombre'] ?? '';
         $this->admin_apellido = $args['admin_apellido'] ?? '';
     }
