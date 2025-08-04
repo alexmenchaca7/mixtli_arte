@@ -15,6 +15,7 @@ use Model\Valoracion;
 use Classes\Paginacion;
 use Model\Notificacion;
 use Model\ImagenProducto;
+use Model\NotificacionPendiente;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -202,49 +203,12 @@ class ProductosController {
                         }
                     }
 
-                    // Find all followers of this vendor
-                    $seguidores = Follow::whereField('seguidoId', $producto->usuarioId);
-                    if (!empty($seguidores)) {
-                        $vendedor = Usuario::find($producto->usuarioId);
-                        $urlProducto = "/marketplace/producto?id={$producto->id}";
-
-                        // Obtener la imagen principal del producto
-                        $imagenPrincipal = ImagenProducto::obtenerPrincipalPorProductoId($producto->id);
-                        $urlImagen = $imagenPrincipal ? $_ENV['HOST'] . '/img/productos/' . $imagenPrincipal->url . '.webp' : $_ENV['HOST'] . '/img/productos/placeholder.jpg';
-
-                        foreach ($seguidores as $follow) {
-                            $seguidor = Usuario::find($follow->seguidorId);
-                            if ($seguidor) {
-                                // Verificar preferencias
-                                $prefsSeguidor = json_decode($seguidor->preferencias_notificaciones ?? '{}', true);
-                                $quiereNotifPlataforma = $prefsSeguidor['notif_producto_nuevo_sistema'] ?? true; // Por defecto activado
-                                $quiereNotifEmail = $prefsSeguidor['notif_producto_nuevo_email'] ?? true; // Por defecto activado
-
-                                // Crear notificación en la plataforma si el usuario lo desea
-                                if ($quiereNotifPlataforma) {
-                                    $notificacion = new Notificacion([
-                                        'usuarioId' => $seguidor->id,
-                                        'tipo' => 'nuevo_producto',
-                                        'mensaje' => "Tu artesano seguido, {$vendedor->nombre} {$vendedor->apellido}, ha publicado un nuevo producto: {$producto->nombre}.",
-                                        'url' => $urlProducto
-                                    ]);
-                                    $notificacion->guardar();
-                                }
-
-                                // Enviar notificación por email si el usuario lo desea
-                                if ($quiereNotifEmail) {
-                                    $email = new Email($seguidor->email, $seguidor->nombre, '');
-                                    $email->enviarNotificacionNuevoProducto(
-                                        $vendedor->nombre . ' ' . $vendedor->apellido, 
-                                        $producto->nombre, 
-                                        $producto->precio,
-                                        $urlImagen,
-                                        $urlProducto
-                                    );
-                                }
-                            }
-                        }
-                    }
+                    // Registrar en la cola de notificaciones pendientes
+                    $notificacionPendiente = new NotificacionPendiente([
+                        'vendedorId' => $producto->usuarioId,
+                        'productoId' => $producto->id
+                    ]);
+                    $notificacionPendiente->guardar();
                     
                     Usuario::setAlerta('exito', 'Producto Creado Correctamente');
                     header('Location: /vendedor/productos');

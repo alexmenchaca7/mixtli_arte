@@ -244,6 +244,43 @@ class Email {
         $mail->send();
     }
 
+    public function enviarNotificacionNuevosProductosAgrupados($nombreVendedor, $cantidadProductos, $productosSugeridos, $urlPerfilVendedor) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = '¡' . htmlspecialchars($nombreVendedor) . ' tiene novedades para ti!';
+
+        $contenido = '<html><body style="font-family: Arial, sans-serif; color: #333;">';
+        $contenido .= '<div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">';
+        $contenido .= '<h1 style="color: #EE4BBA; text-align: center;">¡Nuevos Productos Disponibles!</h1>';
+        $contenido .= "<h2>Hola " . htmlspecialchars($this->nombre) . ",</h2>";
+        $contenido .= "<p>El artesano <strong>" . htmlspecialchars($nombreVendedor) . "</strong>, a quien sigues, ha publicado <strong>" . $cantidadProductos . " nuevos productos</strong> que podrían interesarte.</p>";
+        
+        // Sección de productos
+        $contenido .= "<h3 style='color: #333; border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;'>Descubre sus nuevas creaciones:</h3>";
+        
+        foreach ($productosSugeridos as $sugerencia) {
+            $contenido .= '<div style="border-bottom: 1px solid #eee; padding: 15px 0; display: flex; align-items: center;">';
+            $contenido .= '<a href="' . $_ENV['HOST'] . $sugerencia['urlProducto'] . '" style="text-decoration: none; color: inherit; display: flex; align-items: center; width: 100%;">';
+            $contenido .= '<img src="' . $sugerencia['urlImagen'] . '" alt="' . htmlspecialchars($sugerencia['nombre']) . '" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-right: 15px;">';
+            $contenido .= '<div>';
+            $contenido .= "<h4 style='margin: 0 0 5px 0;'>" . htmlspecialchars($sugerencia['nombre']) . "</h4>";
+            $contenido .= '<p style="margin: 0; font-size: 18px; font-weight: bold; color: #333;">$' . number_format($sugerencia['precio'], 2) . ' MXN</p>';
+            $contenido .= '</div>';
+            $contenido .= '</a>';
+            $contenido .= '</div>';
+        }
+
+        $contenido .= '<div style="text-align: center; margin-top: 25px;">';
+        $contenido .= '<a href="' . $_ENV['HOST'] . $urlPerfilVendedor . '" style="display: inline-block; background-color: #EE4BBA; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Todos los Productos del Artesano</a>';
+        $contenido .= '</div>';
+
+        $contenido .= "<p style='margin-top: 20px;'>¡Gracias por ser parte de la comunidad MixtliArte!</p>";
+        $contenido .= '</div></body></html>';
+
+        $mail->Body = $contenido;
+        $mail->send();
+    }
+
+
     public function enviarNotificacionCambioPrecio($nombreProducto, $precioAnterior, $precioNuevo, $urlImagen, $urlProducto) {
         $mail = $this->configurarEmailBasico();
         $mail->Subject = '¡Un producto de tu lista de deseos cambió de precio!';
