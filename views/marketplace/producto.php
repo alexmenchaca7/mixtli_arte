@@ -93,7 +93,7 @@ if ($usuarioId) {
 
             <div class="producto-descripcion">
                 <h2>Descripción</h2>
-                <p><?= htmlspecialchars($producto->descripcion); ?></p>
+                <p><?= nl2br(htmlspecialchars($producto->descripcion)); ?></p>
             </div>
 
             <?php if (!empty($vendedor->preferencias_entrega)): ?>

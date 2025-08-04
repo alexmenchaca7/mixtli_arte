@@ -28,7 +28,7 @@
         <aside class="perfil-usuario__sidebar">
             <div class="perfil-card">
                 <h3>Sobre este artesano</h3>
-                <p><?php echo htmlspecialchars($vendedor->biografia ?? 'Este vendedor aún no ha añadido una biografía.'); ?></p>
+                <p><?php echo nl2br(htmlspecialchars($vendedor->biografia ?? 'Este vendedor aún no ha añadido una biografía.')); ?></p>
             </div>
             
             <div class="perfil-card">
