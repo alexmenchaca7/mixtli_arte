@@ -6,7 +6,10 @@
         </a>
 
         <button type="button" class="dashboard__mobile-menu">
-            <i class="fa-solid fa-bars"></i>
+            <div class="icono-badge-container">   
+                <i class="fa-solid fa-bars"></i>
+                <span class="hamburger-badge" style="display: none;"></span>
+            </div>
         </button>
 
         <nav class="dashboard__nav">
