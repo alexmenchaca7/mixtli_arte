@@ -85,16 +85,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // --- LÓGICA PARA EL MODAL DE FILTROS AVANZADOS ---
-    const filtroBtn = document.getElementById('filtro-btn');
+    const filtroBtns = document.querySelectorAll('.busqueda__btn-filtro');
     const filtroModal = document.getElementById('filtro-modal');
     const cerrarModalBtn = document.getElementById('cerrar-modal-btn');
 
-    if(filtroBtn && filtroModal && cerrarModalBtn) {
+    if(filtroBtns.length > 0 && filtroModal && cerrarModalBtn) {
         
         // Abrir modal
-        filtroBtn.addEventListener('click', () => {
-            filtroModal.classList.add('mostrar');
-            document.body.style.overflow = 'hidden'; // Evita el scroll de fondo
+        filtroBtns.forEach(boton => {
+            boton.addEventListener('click', () => {
+                filtroModal.classList.add('mostrar');
+                document.body.style.overflow = 'hidden'; // Evita el scroll de fondo
+            });
         });
 
         // Cerrar modal con el botón X

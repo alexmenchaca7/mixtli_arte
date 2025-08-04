@@ -70,7 +70,7 @@
                                 <button type="submit">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </button>
-                                <button type="button" id="filtro-btn" class="busqueda__btn-filtro" title="Filtros avanzados">
+                                <button type="button" class="busqueda__btn-filtro" title="Filtros avanzados">
                                     <i class="fa-solid fa-filter"></i>
                                 </button>
                             </form>
@@ -101,6 +101,9 @@
                                     >
                                     <button type="submit">
                                         <i class="fa-solid fa-magnifying-glass"></i>
+                                    </button>
+                                    <button type="button" class="busqueda__btn-filtro" title="Filtros avanzados">
+                                        <i class="fa-solid fa-filter"></i>
                                     </button>
                                 </form>
                                 <ul id="sugerencias-mobile" class="sugerencias"></ul>
