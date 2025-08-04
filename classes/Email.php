@@ -503,6 +503,33 @@ class Email {
         $mail->send();
     }
 
+    public function enviarNotificacionNuevoReporte($adminEmail, $adminNombre, $reporte, $producto, $vendedor, $reportador) {
+        $mail = $this->configurarEmailBasico();
+        $mail->clearAddresses(); 
+        $mail->addAddress($adminEmail, $adminNombre);
+
+        $mail->Subject = 'Nuevo Reporte de Producto Recibido (ID: ' . $producto->id . ')';
+
+        $contenido = '<html><body style="font-family: Arial, sans-serif;">';
+        $contenido .= "<h1>Hola " . htmlspecialchars($adminNombre) . ",</h1>";
+        $contenido .= "<p>Se ha recibido un nuevo reporte de producto en MixtliArte con los siguientes detalles:</p>";
+        $contenido .= "<ul style='list-style-type: none; padding: 0;'>";
+        $contenido .= "<li><strong>ID del Producto:</strong> " . htmlspecialchars($producto->id) . "</li>";
+        $contenido .= "<li><strong>Nombre del Producto:</strong> " . htmlspecialchars($producto->nombre) . "</li>";
+        $contenido .= "<li><strong>Vendedor:</strong> " . htmlspecialchars($vendedor->nombre . ' ' . $vendedor->apellido) . "</li>";
+        $contenido .= "<li><strong>Reportado por:</strong> " . htmlspecialchars($reportador->nombre . ' ' . $reportador->apellido) . "</li>";
+        $contenido .= "<li><strong>Motivo del Reporte:</strong> " . htmlspecialchars($reporte->motivo) . "</li>";
+        $contenido .= "<li><strong>Comentarios del Comprador:</strong> " . nl2br(htmlspecialchars($reporte->comentarios ?? 'N/A')) . "</li>";
+        $contenido .= "</ul>";
+        $contenido .= "<p>Puedes ver los detalles completos y tomar acción en el siguiente enlace:</p>";
+        $contenido .= "<a href='" . $_ENV['HOST'] . "/admin/reportes/ver?id=" . $reporte->id . "' style='display: inline-block; padding: 10px 15px; background-color: #EE4BBA; color: #fff; text-decoration: none; border-radius: 5px;'>Ver Reporte</a>";
+        $contenido .= "<p>Atentamente,<br>El Sistema de MixtliArte</p>";
+        $contenido .= "</body></html>";
+        $mail->Body = $contenido;
+
+        $mail->send();
+    }
+
     public function enviarRespuestaSoporte($usuarioEmail, $numeroCaso, $asuntoOriginal, $respuestaMensaje, $nombreAdminRemitente) {
         $mail = $this->configurarEmailBasico();
         $mail->clearAddresses(); // Limpiar direcciones previas

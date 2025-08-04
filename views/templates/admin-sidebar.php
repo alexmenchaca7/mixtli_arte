@@ -6,6 +6,23 @@
                 Inicio
             </span>  
         </a>
+        
+        <a href="/notificaciones" class="dashboard__enlace <?php echo pagina_actual('/notificaciones') ? 'dashboard__enlace--actual' : ''; ?>">
+            <div class="icono-badge-container">
+                <i class="fa-solid fa-bell dashboard__icono"></i>
+                <span class="notification-badge" style="display: none;"></span>
+            </div>
+            <span class="dashboard__menu-texto">
+                Notificaciones
+            </span>
+        </a>
+
+        <a href="/admin/perfil" class="dashboard__enlace <?php echo pagina_actual('/perfil') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-user dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                Perfil
+            </span>  
+        </a>
 
         <a href="/admin/categorias" class="dashboard__enlace <?php echo pagina_actual('/categorias') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-th-large dashboard__icono"></i>

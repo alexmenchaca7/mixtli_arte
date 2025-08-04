@@ -513,32 +513,46 @@ class MarketplaceController {
             }
 
             try {
-                // Obtener información adicional para el reporte
+                // 1. Obtener todos los administradores
+                $admins = Usuario::findAdmins();
                 $producto = Producto::find($reporte->productoId);
                 $vendedor = $producto ? Usuario::find($producto->usuarioId) : null;
-                $nombreVendedor = $vendedor ? $vendedor->nombre . " " . $vendedor->apellido : "Desconocido";
+                $reportador = Usuario::find($reporte->usuarioId);
 
-                // PASO 1: Verifiquemos si encontramos administradores.
-                $admins = Usuario::findAdmins();
-                if (empty($admins)) {
-                    // Si no hay admins, lo registramos en el log de errores de PHP
-                    error_log("DEBUG: No se encontraron administradores para notificar.");
-                }
-                $urlProducto = "/producto?id=" . $reporte->productoId;
+                if ($producto && $vendedor && !empty($admins)) {
+                    foreach ($admins as $admin) {
+                        // 2. Verificar las preferencias de notificación del administrador
+                        $prefs = json_decode($admin->preferencias_notificaciones ?? '{}', true);
+                        $notificarPorSistema = $prefs['notif_nuevo_reporte_sistema'] ?? true; // Activado por defecto
+                        $notificarPorEmail = $prefs['notif_nuevo_reporte_email'] ?? true;     // Activado por defecto
 
-                // PASO 2: Creamos la notificación individual por reporte
-                foreach($admins as $admin) {
-                    $notificacion = new Notificacion([
-                        'tipo' => 'reporte_producto',
-                        'descripcion' => "Un usuario reportó el producto '{$producto->nombre}' por: {$reporte->motivo}.",
-                        'mensaje' => "Nuevo reporte de producto", 
-                        'url' => $urlProducto, 
-                        'usuarioId' => $admin->id
-                    ]);
-                    // Verificamos si se guardó
-                    $guardado = $notificacion->guardar();
-                    if(!$guardado) {
-                        error_log("DEBUG: FALLO al guardar notificación individual para admin ID {$admin->id}");
+                        // Construir el mensaje
+                        $mensaje = "Nuevo reporte para el producto '".htmlspecialchars($producto->nombre)."' del vendedor ".htmlspecialchars($vendedor->nombre).". Motivo: ".htmlspecialchars($reporte->motivo);
+                        $url = "/admin/reportes/ver?id=" . $reporte->id;
+
+                        // 3. Crear notificación en el sistema si está activado
+                        if ($notificarPorSistema) {
+                            $notificacion = new Notificacion([
+                                'usuarioId' => $admin->id,
+                                'tipo' => 'reporte_producto',
+                                'mensaje' => $mensaje,
+                                'url' => $url
+                            ]);
+                            $notificacion->guardar();
+                        }
+
+                        // 4. Enviar notificación por email si está activado
+                        if ($notificarPorEmail) {
+                            $email = new Email($admin->email, $admin->nombre, '');
+                            $email->enviarNotificacionNuevoReporte(
+                                $admin->email,
+                                $admin->nombre,
+                                $reporte,
+                                $producto,
+                                $vendedor,
+                                $reportador
+                            );
+                        }
                     }
                 }
 

@@ -175,6 +175,12 @@ $router->get('/vendedor/valoraciones', [DashboardVendedorController::class, 'val
 // Dashboard del Admin (VISTA ADMINISTRADOR)
 $router->get('/admin/dashboard', [DashboardAdminController::class, 'index']);
 
+$router->get('/admin/perfil', [DashboardAdminController::class, 'perfil']);
+$router->post('/admin/perfil', [DashboardAdminController::class, 'perfil']);
+
+$router->get('/admin/cambiar-password', [DashboardAdminController::class, 'cambiarPassword']);
+$router->post('/admin/cambiar-password', [DashboardAdminController::class, 'cambiarPassword']);
+
 $router->get('/admin/usuarios', [UsuariosController::class, 'index']);
 $router->get('/admin/usuarios/crear', [UsuariosController::class, 'crear']);
 $router->post('/admin/usuarios/crear', [UsuariosController::class, 'crear']);

@@ -47,6 +47,8 @@ class NotificacionesController {
         $layout = 'layout'; // Default para comprador
         if ($_SESSION['rol'] === 'vendedor') {
             $layout = 'vendedor-layout';
+        } else if ($_SESSION['rol'] === 'admin') {
+            $layout = 'admin-layout';
         }
 
         $router->render('notificaciones/index', [
