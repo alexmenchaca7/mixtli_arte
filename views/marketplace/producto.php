@@ -93,7 +93,7 @@ if ($usuarioId) {
 
             <div class="producto-descripcion">
                 <h2>Descripción</h2>
-                <p><?= formatear_descripcion($producto->descripcion); ?></p>
+                <p><?= formatear_texto($producto->descripcion); ?></p>
             </div>
 
             <?php if (!empty($vendedor->preferencias_entrega)): ?>

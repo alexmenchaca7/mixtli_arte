@@ -18,10 +18,10 @@
                         <?php foreach ($faqsEnCategoria as $faq): ?>
                             <details class="faq-item">
                                 <summary class="faq-question">
-                                    <?= formatear_descripcion($faq->pregunta) ?>
+                                    <?= formatear_texto($faq->pregunta) ?>
                                 </summary>
                                 <div class="faq-answer">
-                                    <p><?= formatear_descripcion($faq->respuesta) ?></p> </div>
+                                    <p><?= formatear_texto($faq->respuesta) ?></p> </div>
                             </details>
                         <?php endforeach; ?>
                     </div>

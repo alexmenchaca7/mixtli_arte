@@ -40,12 +40,12 @@ function s($html) : string {
 }
 
 /**
- * Formatea un texto de descripción:
+ * Formatea un texto:
  * 1. Elimina los saltos de línea literales (\r\n) del principio.
  * 2. Sanea el texto para seguridad con htmlspecialchars.
  * 3. Reemplaza los saltos de línea literales restantes por <br>.
  */
-function formatear_descripcion($texto) : string {
+function formatear_texto($texto) : string {
     if (is_null($texto)) {
         return '';
     }
@@ -55,7 +55,7 @@ function formatear_descripcion($texto) : string {
     $texto_trim = preg_replace($pattern, '', $texto);
 
     // Paso 2: Sanear el resultado para seguridad
-    $texto_safe = s($texto_trim); // Usamos tu función s() que ya es null-safe
+    $texto_safe = htmlspecialchars($texto_trim, ENT_QUOTES, 'UTF-8');
 
     // Paso 3: Reemplazar las secuencias de nueva línea restantes por <br>
     // Se buscan tanto '\r\n' como el 'rn' que pudiera quedar de un stripslashes
