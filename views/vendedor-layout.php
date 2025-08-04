@@ -79,10 +79,10 @@
                     <label for="reporte-motivo" class="formulario__label">Motivo del Reporte</label>
                     <select name="motivo" id="reporte-motivo" class="formulario__input" required>
                         <option value="" disabled selected>-- Elige un motivo --</option>
-                        <option value="inapropiado">Contenido ofensivo o inapropiado</option>
-                        <option value="falso">Comentario falso o engañoso</option>
-                        <option value="spam">Es spam o publicidad</option>
-                        <option value="otro">Otro</option>
+                        <option value="Inapropiado">Contenido ofensivo o inapropiado</option>
+                        <option value="Falso">Comentario falso o engañoso</option>
+                        <option value="Spam">Es spam o publicidad</option>
+                        <option value="Otro">Otro</option>
                     </select>
                 </div>
                 <div class="formulario__campo">

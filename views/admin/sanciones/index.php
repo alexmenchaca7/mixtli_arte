@@ -10,25 +10,25 @@
 <?php include_once __DIR__ . '/../../templates/alertas.php'; ?>
 
 <div class="dashboard__contenedor">
-    <?php if(!empty($vendedores)): ?>
+    <?php if(!empty($usuarios)): ?>
         <div class="dashboard__contenedor-tabla">
             <table class="table">
                 <thead class="table__thead">
                     <tr>
-                        <th scope="col" class="table__th">Vendedor</th>
+                        <th scope="col" class="table__th">Usuario</th>
                         <th scope="col" class="table__th">Sanciones Actuales</th>
                         <th scope="col" class="table__th">Estado</th>
                         <th scope="col" class="table__th">Ajustar Sanciones</th>
                     </tr>
                 </thead>
                 <tbody class="table__tbody">
-                    <?php foreach($vendedores as $vendedor): ?>
+                    <?php foreach($usuarios as $usuario): ?>
                         <tr class="table__tr">
-                            <td class="table__td"><?php echo htmlspecialchars($vendedor->nombre . ' ' . $vendedor->apellido); ?></td>
-                            <td class="table__td"><?php echo htmlspecialchars($vendedor->violaciones_count); ?></td>
+                            <td class="table__td"><?php echo htmlspecialchars($usuario->email); ?></td>
+                            <td class="table__td"><?php echo htmlspecialchars($usuario->violaciones_count); ?></td>
                             <td class="table__td">
                                 <?php
-                                    $estado = $vendedor->estaBloqueado();
+                                    $estado = $usuario->estaBloqueado();
                                     if ($estado['bloqueado']) {
                                         if ($estado['tipo'] === 'permanente') {
                                             echo '<span class="texto-rojo">Bloqueado Permanentemente</span>';
@@ -42,9 +42,9 @@
                             </td>
                             <td class="table__td">
                                 <form action="/admin/sanciones/ajustar" method="POST" class="formulario-ajuste">
-                                    <input type="hidden" name="vendedor_id" value="<?php echo $vendedor->id; ?>">
+                                    <input type="hidden" name="usuario_id" value="<?php echo $usuario->id; ?>">
                                     <div class="ajuste-campos">
-                                        <input type="number" name="sancion_nueva" class="formulario__input" min="0" value="<?php echo $vendedor->violaciones_count; ?>" required>
+                                        <input type="number" name="sancion_nueva" class="formulario__input" min="0" value="<?php echo $usuario->violaciones_count; ?>" required>
                                         <input type="text" name="comentario" class="formulario__input" placeholder="Comentario del ajuste" required>
                                         <button type="submit" class="boton-rosa">Ajustar</button>
                                     </div>
@@ -57,7 +57,7 @@
         </div>
         <?php echo $paginacion; ?>
     <?php else: ?>
-        <p class="t-align-center">No hay vendedores registrados.</p>
+        <p class="t-align-center">No hay usuarios registrados.</p>
     <?php endif; ?>
 </div>
 

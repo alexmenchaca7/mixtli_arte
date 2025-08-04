@@ -8,7 +8,7 @@ use Model\Producto;
 use Classes\Paginacion;
 use Model\ImagenProducto;
 use Model\ReporteProducto;
-use Model\VendedorViolacion;
+use Model\UsuarioViolacion;
 
 class AdminReportesController {
 
@@ -124,7 +124,7 @@ class AdminReportesController {
                         if ($vendedor) {
                             // Aquí es donde se afecta el historial del vendedor
                             $motivoViolacion = "Reporte válido por: " . $reporte->motivo . " en producto '" . $producto->nombre . "'";
-                            $vendedor->registrarViolacion($motivoViolacion, $reporte->id);
+                            $vendedor->registrarViolacion($motivoViolacion, $reporte->id, 'producto');
                         }
                         $producto->eliminar(); 
                     }

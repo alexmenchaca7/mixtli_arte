@@ -31,7 +31,14 @@
         <a href="/admin/reportes" class="dashboard__enlace <?php echo pagina_actual('/reportes') ? 'dashboard__enlace--actual' : ''; ?>">
             <i class="fa-solid fa-flag dashboard__icono"></i>
             <span class="dashboard__menu-texto">
-                Reportes
+                Reportes Prod.
+            </span>
+        </a>
+
+        <a href="/admin/reportes-valoraciones" class="dashboard__enlace <?php echo pagina_actual('/reportes-valoraciones') ? 'dashboard__enlace--actual' : ''; ?>">
+            <i class="fa-solid fa-comment-slash dashboard__icono"></i>
+            <span class="dashboard__menu-texto">
+                Reportes Coment.
             </span>
         </a>
 

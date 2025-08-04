@@ -25,7 +25,7 @@
 
         <div class="formulario__campo">
             <label class="formulario__label">Mensaje:</label>
-            <p class="formulario__texto-valor mensaje-preformateado"><?php echo nl2br(htmlspecialchars($consulta->mensaje)); ?></p>
+            <p class="formulario__texto-valor"><?= nl2br(htmlspecialchars($consulta->mensaje)); ?></p>
         </div>
 
         <div class="formulario__campo">
@@ -103,12 +103,5 @@
         padding: 1rem 0;
         font-size: 1.6rem;
         color: #555;
-    }
-    .mensaje-preformateado {
-        white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
-        background-color: #f9f9f9;
-        border: 1px solid #eee;
-        padding: 1.5rem;
-        border-radius: 8px;
     }
 </style>

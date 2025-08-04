@@ -101,6 +101,12 @@
             color: v.$error;
         }
 
+        &--revisado {
+            color: v.$gris; /* Un color neutro para indicar que no es una acción */
+            font-style: italic;
+            cursor: default; /* El cursor no cambiará a manita, mostrando que no es un botón */
+        }
+
         &:hover {
             cursor: pointer;
         }

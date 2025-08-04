@@ -84,12 +84,22 @@ function is_auth($required_role = null) : bool {
     // Verifica si el usuario está autenticado
     $authenticated = isset($_SESSION['login']) && $_SESSION['login'] === true && isset($_SESSION['verificado']) && $_SESSION['verificado'] === "1";
 
-    // Si se requiere un rol específico, verifica también el rol del usuario
-    if ($required_role) {
-        return $authenticated && isset($_SESSION['rol']) && $_SESSION['rol'] === $required_role;
+    if(!$authenticated) {
+        return false;
     }
 
-    return $authenticated;
+    // Si el usuario es admin, tiene acceso a todo
+    if(isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin') {
+        return true;
+    }
+
+    // Si se requiere un rol específico y el usuario no es admin, verifica el rol
+    if ($required_role) {
+        return isset($_SESSION['rol']) && $_SESSION['rol'] === $required_role;
+    }
+
+    // Si no se requiere rol, solo basta con estar autenticado
+    return true;
 }
 
 function obtenerDireccion($direcciones, $tipo, $campo) {

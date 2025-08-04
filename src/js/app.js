@@ -306,58 +306,72 @@ document.addEventListener("DOMContentLoaded", () => {
 
     
 
-    // MODAL REPORTE DE VALORACIÓN
-    const modal = document.getElementById('modal-reporte-valoracion');
-    if (!modal) return;
+    // LÓGICA PARA REPORTAR VALORACIONES (COMENTARIOS)
+    const modalReporteValoracion = document.getElementById('modal-reporte-valoracion');
 
-    const form = document.getElementById('form-reporte-valoracion');
-    const closeBtnValoracion = modal.querySelector('.modal-reporte__cerrar');
-    const valoracionIdInput = document.getElementById('reporte-valoracion-id');
+    if (modalReporteValoracion) {
+        const formReporteValoracion = document.getElementById('form-reporte-valoracion');
+        const closeBtnReporte = modalReporteValoracion.querySelector('.modal-reporte__cerrar');
+        const valoracionIdInput = document.getElementById('reporte-valoracion-id');
 
-    document.body.addEventListener('click', function(e) {
-        if (e.target.closest('.reportar-btn')) {
-            const valoracionId = e.target.closest('.reportar-btn').dataset.valoracionId;
-            valoracionIdInput.value = valoracionId;
-            modal.style.display = 'flex';
-        }
-    });
-
-    closeBtnValoracion.onclick = () => {
-        modal.style.display = 'none';
-    };
-
-    window.onclick = (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    };
-
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const data = Object.fromEntries(formData.entries());
-
-        try {
-            const response = await fetch('/valoraciones/reportar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-            
-            alert(result.message || result.error);
-
-            if(response.ok) {
-                modal.style.display = 'none';
-                form.reset();
+        // 1. Abrir el modal al hacer clic en cualquier botón de "Reportar"
+        document.body.addEventListener('click', function(e) {
+            const reportarBtn = e.target.closest('.reportar-btn[data-valoracion-id]');
+            if (reportarBtn) {
+                const valoracionId = reportarBtn.dataset.valoracionId;
+                if (valoracionIdInput) {
+                    valoracionIdInput.value = valoracionId;
+                }
+                modalReporteValoracion.style.display = 'flex';
             }
-        } catch (error) {
-            alert('Error al conectar con el servidor. Inténtalo de nuevo.');
+        });
+
+        // 2. Cerrar el modal
+        if (closeBtnReporte) {
+            closeBtnReporte.onclick = () => {
+                modalReporteValoracion.style.display = 'none';
+            };
         }
-    });
+        window.addEventListener('click', (e) => {
+            if (e.target === modalReporteValoracion) {
+                modalReporteValoracion.style.display = 'none';
+            }
+        });
 
+        // 3. Enviar el formulario de reporte
+        if (formReporteValoracion) {
+            formReporteValoracion.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
 
+                if (!data.motivo) {
+                    alert('Por favor, selecciona un motivo para el reporte.');
+                    return;
+                }
 
+                try {
+                    const response = await fetch('/valoraciones/reportar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    
+                    // Usamos la función de notificación que ya tienes para una mejor experiencia
+                    mostrarNotificacion(result.message || result.error, response.ok ? 'success' : 'error');
+
+                    if (response.ok) {
+                        modalReporteValoracion.style.display = 'none';
+                        this.reset();
+                    }
+                } catch (error) {
+                    mostrarNotificacion('Error al conectar con el servidor. Inténtalo más tarde.', 'error');
+                }
+            });
+        }
+    }
     
     
     // --- LOGICA PARA LAS NOTIFICACIONES ---

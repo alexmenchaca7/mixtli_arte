@@ -21,7 +21,7 @@ use Model\HistorialInteraccion;
 use Model\PreguntaUsuario;
 use Model\ProductoNoInteresado;
 use Model\ReporteValoracion;
-use Model\VendedorViolacion;
+use Model\UsuarioViolacion;
 
 class DatosController {
 
@@ -118,7 +118,7 @@ class DatosController {
             Direccion::eliminarPorUsuario($usuario->id);
             Notificacion::eliminarPorUsuario($usuario->id);
             PreguntaUsuario::eliminarPorUsuario($usuario->id);
-            VendedorViolacion::eliminarPorUsuario($usuario->id);
+            UsuarioViolacion::eliminarPorUsuario($usuario->id);
             AdminAjusteSancion::eliminarPorUsuario($usuario->id);
             Autenticacion::eliminarPorUsuario($usuario->id);
             ProductoNoInteresado::eliminarPorUsuario($usuario->id);

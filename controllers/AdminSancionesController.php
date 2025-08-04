@@ -18,19 +18,20 @@ class AdminSancionesController {
         $pagina_actual = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
         $registros_por_pagina = 10;
 
-        $total = Usuario::totalCondiciones(["rol = 'vendedor'"]);
+        $condicion = "(rol = 'vendedor' OR rol = 'comprador')";
+        $total = Usuario::totalCondiciones([$condicion]);
         $paginacion = new Paginacion($pagina_actual, $registros_por_pagina, $total);
 
-        $vendedores = Usuario::metodoSQL([
-            'condiciones' => ["rol = 'vendedor'"],
+        $usuarios = Usuario::metodoSQL([
+            'condiciones' => [$condicion],
             'orden' => 'violaciones_count DESC',
             'limite' => $registros_por_pagina,
             'offset' => $paginacion->offset()
         ]);
 
         $router->render('admin/sanciones/index', [
-            'titulo' => 'Gestión de Sanciones de Vendedores',
-            'vendedores' => $vendedores,
+            'titulo' => 'Gestión de Sanciones de Usuarios',
+            'usuarios' => $usuarios,
             'paginacion' => $paginacion->paginacion(),
         ], 'admin-layout');
     }
@@ -41,30 +42,30 @@ class AdminSancionesController {
             exit();
         }
 
-        $vendedor_id = filter_var($_POST['vendedor_id'], FILTER_VALIDATE_INT);
+        $usuario_id = filter_var($_POST['usuario_id'], FILTER_VALIDATE_INT);
         $sancion_nueva = filter_var($_POST['sancion_nueva'], FILTER_VALIDATE_INT);
         $comentario = s($_POST['comentario']);
         $admin_id = $_SESSION['id'];
 
-        if (!$vendedor_id || !is_numeric($sancion_nueva) || empty($comentario)) {
+        if (!$usuario_id || !is_numeric($sancion_nueva) || empty($comentario)) {
             Usuario::setAlerta('error', 'Todos los campos son obligatorios para el ajuste.');
             header('Location: /admin/sanciones');
             exit();
         }
 
-        $vendedor = Usuario::find($vendedor_id);
-        if (!$vendedor || $vendedor->rol !== 'vendedor') {
-            Usuario::setAlerta('error', 'Usuario no válido o no es un vendedor.');
+        $usuario = Usuario::find($usuario_id);
+        if (!$usuario) {
+            Usuario::setAlerta('error', 'Usuario no válido');
             header('Location: /admin/sanciones');
             exit();
         }
 
-        $sancion_anterior = $vendedor->violaciones_count;
+        $sancion_anterior = $usuario->violaciones_count;
 
         // Registrar el ajuste
         $ajuste = new AdminAjusteSancion([
             'admin_id' => $admin_id,
-            'vendedor_id' => $vendedor_id,
+            'usuario_id' => $usuario_id,
             'sancion_anterior' => $sancion_anterior,
             'sancion_nueva' => $sancion_nueva,
             'comentario' => $comentario
@@ -79,26 +80,26 @@ class AdminSancionesController {
 
         $ajuste->guardar();
 
-        // Actualizar las sanciones del vendedor
-        $vendedor->violaciones_count = $sancion_nueva;
+        // Actualizar las sanciones del usuario
+        $usuario->violaciones_count = $sancion_nueva;
 
         // Re-evaluar estado de bloqueo
-        if ($vendedor->violaciones_count >= 10) {
-            $vendedor->bloqueado_permanentemente = 1;
-            $vendedor->bloqueado_hasta = null;
-        } elseif ($vendedor->violaciones_count >= 3) {
-            $vendedor->bloqueado_permanentemente = 0;
+        if ($usuario->violaciones_count >= 10) {
+            $usuario->bloqueado_permanentemente = 1;
+            $usuario->bloqueado_hasta = null;
+        } elseif ($usuario->violaciones_count >= 3) {
+            $usuario->bloqueado_permanentemente = 0;
             $fecha_bloqueo = new \DateTime();
             $fecha_bloqueo->modify('+1 week');
-            $vendedor->bloqueado_hasta = $fecha_bloqueo->format('Y-m-d H:i:s');
+            $usuario->bloqueado_hasta = $fecha_bloqueo->format('Y-m-d H:i:s');
         } else {
-            $vendedor->bloqueado_permanentemente = 0;
-            $vendedor->bloqueado_hasta = null;
+            $usuario->bloqueado_permanentemente = 0;
+            $usuario->bloqueado_hasta = null;
         }
 
-        $vendedor->guardar();
+        $usuario->guardar();
 
-        Usuario::setAlerta('exito', 'La sanción del vendedor ha sido ajustada correctamente.');
+        Usuario::setAlerta('exito', 'La sanción del usuario ha sido ajustada correctamente.');
         header('Location: /admin/sanciones');
         exit();
     }
@@ -115,12 +116,12 @@ class AdminSancionesController {
                 ajustes.sancion_nueva, 
                 ajustes.comentario, 
                 ajustes.fecha_ajuste, 
-                vendedor.nombre AS vendedor_nombre, 
-                vendedor.apellido AS vendedor_apellido,
+                usuario.nombre AS usuario_nombre, 
+                usuario.apellido AS usuario_apellido,
                 admin.nombre AS admin_nombre,
                 admin.apellido AS admin_apellido
             FROM admin_ajustes_sanciones AS ajustes
-            JOIN usuarios AS vendedor ON ajustes.vendedor_id = vendedor.id
+            JOIN usuarios AS usuario ON ajustes.usuario_id = usuario.id
             JOIN usuarios AS admin ON ajustes.admin_id = admin.id
             ORDER BY ajustes.fecha_ajuste DESC
         ");

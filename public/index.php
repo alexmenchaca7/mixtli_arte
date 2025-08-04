@@ -25,6 +25,7 @@ use Controllers\NotificacionesController;
 use Controllers\AdminValoracionesController;
 use Controllers\DashboardVendedorController;
 use Controllers\HistorialInteraccionController;
+use Controllers\AdminReportesValoracionesController;
 
 $router = new Router();
 
@@ -222,6 +223,8 @@ $router->post('/admin/soporte/eliminar', [AdminSoporteController::class, 'elimin
 $router->get('/admin/reportes', [AdminReportesController::class, 'index']);
 $router->post('/admin/reportes/clasificar', [AdminReportesController::class, 'clasificar']);
 $router->get('/admin/reportes/ver', [AdminReportesController::class, 'ver']);
+$router->get('/admin/reportes-valoraciones', [AdminReportesValoracionesController::class, 'index']);
+$router->post('/admin/reportes-valoraciones/resolver', [AdminReportesValoracionesController::class, 'resolver']);
 
 $router->get('/admin/sanciones', [Controllers\AdminSancionesController::class, 'index']);
 $router->post('/admin/sanciones/ajustar', [Controllers\AdminSancionesController::class, 'ajustar']);

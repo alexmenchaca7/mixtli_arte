@@ -291,14 +291,24 @@ class Usuario extends ActiveRecord {
     }    
 
     // REGISTRAR VIOLACIÓN Y APLICAR SANCIÓN
-    public function registrarViolacion($motivo, $reporteId = null) {
-        // Registrar la violación
-        $violacion = new VendedorViolacion([
-            'vendedor_id' => $this->id,
-            'reporte_id' => $reporteId,
+    public function registrarViolacion($motivo, $reporteId = null, $tipoReporte = 'producto') {
+        $datosViolacion = [
+            'usuario_id' => $this->id,
             'motivo' => $motivo,
             'fecha' => date('Y-m-d H:i:s')
-        ]);
+        ];
+
+        // Asigna el ID del reporte a la columna correcta
+        if ($reporteId) {
+            if ($tipoReporte === 'producto') {
+                $datosViolacion['reporte_producto_id'] = $reporteId;
+            } elseif ($tipoReporte === 'valoracion') {
+                $datosViolacion['reporte_valoracion_id'] = $reporteId;
+            }
+        }
+
+        // Registrar la violación
+        $violacion = new UsuarioViolacion($datosViolacion);
         $violacion->guardar();
 
         // Actualizar contador de violaciones
