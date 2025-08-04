@@ -77,7 +77,9 @@ class DashboardAdminController {
             $prefsData = $_POST['prefs'] ?? [];
             $preferenciasParaGuardar = [
                 'notif_nuevo_reporte_email' => isset($prefsData['notif_nuevo_reporte_email']),
-                'notif_nuevo_reporte_sistema' => isset($prefsData['notif_nuevo_reporte_sistema'])
+                'notif_nuevo_reporte_sistema' => isset($prefsData['notif_nuevo_reporte_sistema']),
+                'notif_resumen_diario_email' => isset($prefsData['notif_resumen_diario_email']),
+                'notif_resumen_diario_sistema' => isset($prefsData['notif_resumen_diario_sistema'])
             ];
             $admin->preferencias_notificaciones = json_encode($preferenciasParaGuardar);
 

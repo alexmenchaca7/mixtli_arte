@@ -140,6 +140,7 @@
 
         <div class="formulario__campo">
             <label class="formulario__label">Cuando se genere un nuevo reporte de publicación</label>
+            
             <div class="formulario__opciones-notificacion">
                 <label>
                     <input type="checkbox" name="prefs[notif_nuevo_reporte_email]" value="1" <?php echo ($prefs['notif_nuevo_reporte_email'] ?? true) ? 'checked' : ''; ?>>
@@ -149,6 +150,20 @@
                     <input type="checkbox" name="prefs[notif_nuevo_reporte_sistema]" value="1" <?php echo ($prefs['notif_nuevo_reporte_sistema'] ?? true) ? 'checked' : ''; ?>>
                     Dentro de la Plataforma
                 </label>
+            </div>
+
+            <div class="formulario__campo">
+                <label class="formulario__label">Resumen Diario de Reportes</label>
+                <div class="formulario__opciones-notificacion">
+                    <label>
+                        <input type="checkbox" name="prefs[notif_resumen_diario_email]" value="1" <?php echo ($prefs['notif_resumen_diario_email'] ?? true) ? 'checked' : ''; ?>>
+                        Por Correo Electrónico
+                    </label>
+                    <label>
+                        <input type="checkbox" name="prefs[notif_resumen_diario_sistema]" value="1" <?php echo ($prefs['notif_resumen_diario_sistema'] ?? true) ? 'checked' : ''; ?>>
+                        Dentro de la Plataforma
+                    </label>
+                </div>
             </div>
         </div>
 

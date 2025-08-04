@@ -530,6 +530,22 @@ class Email {
         $mail->send();
     }
 
+    public function enviarResumenDiarioReportes($resumenHtml) {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Resumen Diario de Reportes de Productos - MixtliArte';
+
+        $contenido = '<html><body style="font-family: Arial, sans-serif;">';
+        $contenido .= "<h1>Hola " . htmlspecialchars($this->nombre) . ",</h1>";
+        $contenido .= "<p>Aquí está el resumen de los reportes de productos de las últimas 24 horas:</p>";
+        $contenido .= $resumenHtml; // El contenido ya viene formateado en HTML
+        $contenido .= "<p>Puedes revisar todos los reportes en el panel de administración.</p>";
+        $contenido .= "<p>Atentamente,<br>El Sistema de MixtliArte</p>";
+        $contenido .= "</body></html>";
+        $mail->Body = $contenido;
+
+        $mail->send();
+    }
+
     public function enviarRespuestaSoporte($usuarioEmail, $numeroCaso, $asuntoOriginal, $respuestaMensaje, $nombreAdminRemitente) {
         $mail = $this->configurarEmailBasico();
         $mail->clearAddresses(); // Limpiar direcciones previas

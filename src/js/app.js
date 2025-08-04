@@ -557,26 +557,34 @@ document.addEventListener("DOMContentLoaded", () => {
             if (enlaceNotificacion && !botonMarcarLeida && !botonEliminar) {
                 e.preventDefault(); // Prevenimos la redirección para verificar primero
                 const url = enlaceNotificacion.href;
-                const urlParams = new URLSearchParams(new URL(url).search);
-                const productoId = urlParams.get('id');
-
-                // Si la notificación no es de un producto (no tiene ID), redirigir directamente.
-                if (!productoId) {
-                    window.location.href = url;
-                    return;
-                }
                 
-                try {
-                    const response = await fetch(`/api/producto/estado?id=${productoId}`);
-                    const data = await response.json();
+                // Condición para solo verificar productos del marketplace, no enlaces de admin
+                if (url.includes('/marketplace/producto?id=')) {
+                    const urlParams = new URLSearchParams(new URL(url).search);
+                    const productoId = urlParams.get('id');
 
-                    if (data.disponible) {
-                        window.location.href = url; // Producto OK, redirigir
-                    } else {
-                        mostrarNotificacion(data.mensaje, 'error');
+                    if (!productoId) {
+                        window.location.href = url;
+                        return;
                     }
-                } catch (error) {
-                    console.error('Error al verificar el estado del producto:', error);
+
+                    try {
+                        const response = await fetch(`/api/producto/estado?id=${productoId}`);
+                        const data = await response.json();
+
+                        if (data.disponible) {
+                            window.location.href = url; // Producto OK, redirigir
+                        } else {
+                            mostrarNotificacion(data.mensaje, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar el estado del producto:', error);
+                        // Si hay un error, simplemente redirigir para no bloquear al usuario
+                        window.location.href = url;
+                    }
+                } else {
+                    // Si no es un enlace de producto (como un reporte de admin), redirigir directamente
+                    window.location.href = url;
                 }
             }
 
