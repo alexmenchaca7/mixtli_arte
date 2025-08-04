@@ -65,10 +65,14 @@
                                 <p class="valoracion-item__comentario">"<?php echo htmlspecialchars($valoracion->comentario); ?>"</p>
                             <?php endif; ?>
                             <div class="valoracion-item__footer">
-                                <span>De: <strong><?php echo htmlspecialchars($valoracion->calificador->nombre); ?></strong></span>
-                                <button class="reportar-btn" data-valoracion-id="<?= $valoracion->id ?>">
-                                    <i class="fa-solid fa-flag"></i> Reportar
-                                </button>
+                                <span>De: <strong><?php echo htmlspecialchars($valoracion->calificador->nombre . ' ' . $valoracion->calificador->apellido); ?></strong></span>
+                                <?php if(isset($_SESSION['id']) && $valoracion->calificadorId == $_SESSION['id']): ?>
+                                    <span style="font-style: italic; color: #555;">(Tu valoración)</span>
+                                <?php else: ?>
+                                    <button class="reportar-btn" data-valoracion-id="<?= $valoracion->id ?>">
+                                        <i class="fa-solid fa-flag"></i> Reportar
+                                    </button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>

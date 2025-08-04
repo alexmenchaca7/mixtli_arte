@@ -24,7 +24,7 @@
                 <tbody class="table__tbody">
                     <?php foreach($usuarios as $usuario): ?>
                         <tr class="table__tr">
-                            <td class="table__td"><?php echo htmlspecialchars($usuario->email); ?></td>
+                            <td class="table__td"><?php echo htmlspecialchars($usuario->nombre . ' ' . $usuaio->apellido); ?></td>
                             <td class="table__td"><?php echo htmlspecialchars($usuario->violaciones_count); ?></td>
                             <td class="table__td">
                                 <?php
