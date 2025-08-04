@@ -1,5 +1,5 @@
 <?php
-// Script para agrupar y enviar notificaciones de nuevos productos cada 5 minutos
+// Script para agrupar y enviar notificaciones de nuevos productos cada minuto (* * * * *)
 
 define('IS_CRON_JOB', true);
 require __DIR__ . '/../includes/app.php';
