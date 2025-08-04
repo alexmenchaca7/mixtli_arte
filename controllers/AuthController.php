@@ -19,7 +19,12 @@ class AuthController {
             $usuario = new Usuario($_POST);
             $alertas = $usuario->validarLogin();
             
-            if(empty($alertas)) {
+            if(!empty($alertas['error'])) {
+                // Usamos la función setAlerta para cada error
+                foreach($alertas['error'] as $error) {
+                    Usuario::setAlerta('error', $error);
+                }
+            } else {
                 // Verificar que el usuario exista
                 $usuario = Usuario::where('email', $usuario->email);
 
@@ -176,7 +181,12 @@ class AuthController {
             
             $alertas = $usuario->validar_cuenta();
 
-            if(empty($alertas)) {
+            if(!empty($alertas['error'])) {
+                // Usamos la función setAlerta para cada error
+                foreach($alertas['error'] as $error) {
+                    Usuario::setAlerta('error', $error);
+                }
+            } else {
                 $existeUsuario = Usuario::where('email', $usuario->email);
 
                 if($existeUsuario) {
@@ -223,7 +233,12 @@ class AuthController {
             $usuario = new Usuario($_POST);
             $alertas = $usuario->validarEmail();
 
-            if(empty($alertas)) {
+            if(!empty($alertas['error'])) {
+                // Usamos la función setAlerta para cada error
+                foreach($alertas['error'] as $error) {
+                    Usuario::setAlerta('error', $error);
+                }
+            } else {
                 // Buscar el usuario
                 $usuario = Usuario::where('email', $usuario->email);
 
