@@ -361,6 +361,64 @@ class AuthController {
         ]);
     }
 
+    public static function confirmarCambioPassword(Router $router) {
+
+        $token = s($_GET['token']);
+        if(!$token) header('Location: /');
+
+        $usuario = Usuario::where('token_pass', $token);
+
+        if(empty($usuario) || new \DateTime() > new \DateTime($usuario->token_pass_expira)) {
+            Usuario::setAlerta('error', 'Token no válido o ha expirado. Por favor, solicita el cambio de nuevo.');
+        } else {
+            // La contraseña nueva se guardó en el objeto
+            if(!empty($usuario->password_nuevo_temp)) {
+                $usuario->pass = $usuario->password_nuevo_temp;
+
+                // Limpiar los campos temporales
+                $usuario->password_nuevo_temp = null;
+                $usuario->token_pass = null;
+                $usuario->token_pass_expira = null;
+
+                $resultado = $usuario->guardar();
+
+                if($resultado) {
+                    // Notificar al usuario que la contraseña se cambió
+                    $email = new Email($usuario->email, $usuario->nombre, '');
+                    $email->enviarNotificacionContraseña();
+                    
+                    Usuario::setAlerta('exito', 'Contraseña actualizada correctamente');
+                }
+            } else {
+                Usuario::setAlerta('error', 'No se pudo completar el proceso. Inténtalo de nuevo.');
+            }
+        }
+
+        // Es importante limpiar la sesión por si acaso quedó algo de la implementación anterior
+        if(isset($_SESSION['password_nuevo'])) {
+            unset($_SESSION['password_nuevo']);
+        }
+
+        // Determinamos el layout y el estado de la navegación
+        $autenticado = is_auth();
+        $inicio = !$autenticado; // Si no está autenticado, $inicio = true para el layout público
+        $layout = 'layout';      // Layout por defecto
+
+        // --- Esta parte solo se ejecuta para usuarios autenticados ---
+        if ($autenticado) {
+            // Ajustar el layout según el rol del usuario
+            if ($_SESSION['rol'] === 'vendedor') {
+                $layout = 'vendedor-layout';
+            }
+        }
+
+        // Renderizar la vista para todos, con la información y layout correctos
+        $router->render('auth/confirmar', [ 
+            'titulo' => 'Confirmación de Cambio de Contraseña',
+            'inicio' => $inicio // Pasamos la variable para que el layout sepa qué navegación mostrar
+        ], $layout);
+    }
+
     public static function establecerPassword(Router $router) {
 
         $inicio = true;

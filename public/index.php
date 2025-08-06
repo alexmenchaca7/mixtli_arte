@@ -52,9 +52,10 @@ $router->post('/reestablecer', [AuthController::class, 'reestablecer']);
 $router->get('/establecer-password', [AuthController::class, 'establecerPassword']);
 $router->post('/establecer-password', [AuthController::class, 'establecerPassword']);
 
-// Confirmación de Cuenta
+// Confirmación
 $router->get('/mensaje', [AuthController::class, 'mensaje']);
 $router->get('/confirmar-cuenta', [AuthController::class, 'confirmar']);
+$router->get('/password/confirmar-cambio', [AuthController::class, 'confirmarCambioPassword']);
 
 // Rutas de seguridad
 $router->get('/seguridad/2fa', [SeguridadController::class, 'configurar2FA']);

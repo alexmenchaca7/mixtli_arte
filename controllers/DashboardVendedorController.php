@@ -190,20 +190,25 @@ class DashboardVendedorController {
 
             if(empty($alertas)) {
                 if($usuario->comprobar_password()) {
-                    $usuario->pass = $usuario->password_nuevo;
-                    $usuario->hashPassword();
+                    // Hashear la nueva contraseña
+                    $usuario->password_nuevo_temp = password_hash($usuario->password_nuevo, PASSWORD_BCRYPT);
+
+                    // Generar token y fecha de expiración
+                    $usuario->token_pass = uniqid();
+                    $usuario->token_pass_expira = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+                    // Guardamos el token y la pass temporal en la BD
                     $resultado = $usuario->guardar();
 
                     if($resultado) {
-                        Usuario::setAlerta('exito', 'Password actualizado correctamente');
-                        
-                        // Enviar email de notificación de cambio
-                        $email = new Email($usuario->email, $usuario->nombre, ''); // El token no es necesario aquí
-                        $email->enviarNotificacionContraseña();
+                        // Enviar email de confirmación
+                        $email = new Email($usuario->email, $usuario->nombre, $usuario->token_pass);
+                        $email->enviarConfirmacionCambioPassword();
+                        Usuario::setAlerta('exito', 'Te hemos enviado un correo para confirmar el cambio de contraseña.');
                         
                     }
                 } else {
-                    Usuario::setAlerta('error', 'El password actual es incorrecto');
+                    Usuario::setAlerta('error', 'La contraseña actual es incorrecta');
                 }
             }
         }

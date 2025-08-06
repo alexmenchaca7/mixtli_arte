@@ -72,6 +72,25 @@ class Email {
         $mail->send();
     }
 
+    public function enviarConfirmacionCambioPassword() {
+        $mail = $this->configurarEmailBasico();
+        $mail->Subject = 'Confirma tu Cambio de Contraseña';
+
+        $contenido = '<html>';
+        $contenido .= "<head><style>body{font-family: Arial, sans-serif;}</style></head>";
+        $contenido .= "<body>";
+        $contenido .= "<h1>Hola " . htmlspecialchars($this->nombre) .  ":</h1>";
+        $contenido .= "<p>Has solicitado cambiar tu contraseña. Para confirmar esta acción, por favor haz clic en el siguiente enlace:</p>";
+        $contenido .= "<p>Presiona aquí: <a href='" . $_ENV['HOST'] . "/password/confirmar-cambio?token=" . $this->token . "'>Confirmar Cambio de Contraseña</a>";       
+        $contenido .= "<p>Si no solicitaste este cambio, puedes ignorar este mensaje.</p>";
+        $contenido .= "<p>Gracias,<br>El equipo de MixtliArte</p>";
+        $contenido .= "</body></html>";
+        $mail->Body = $contenido;
+
+        //Enviar el mail
+        $mail->send();
+    }
+
 
     public function enviarNotificacionContraseña() {
         $mail = $this->configurarEmailBasico();

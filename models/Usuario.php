@@ -30,7 +30,10 @@ class Usuario extends ActiveRecord {
         'bloqueado_permanentemente', 
         'token_eliminacion', 
         'token_eliminacion_expira', 
-        'preferencias_notificaciones'
+        'preferencias_notificaciones',
+        'token_pass', 
+        'token_pass_expira',
+        'password_nuevo_temp'
     ];
 
     protected static $tabla = 'usuarios';
@@ -62,6 +65,10 @@ class Usuario extends ActiveRecord {
     public $token_eliminacion;
     public $token_eliminacion_expira;
     public $preferencias_notificaciones;
+    public $token_pass; 
+    public $token_pass_expira; 
+    public $password_nuevo_temp; 
+
     public $promedio_valoraciones;
     public $total_valoraciones;
 
@@ -94,6 +101,9 @@ class Usuario extends ActiveRecord {
         $this->token_eliminacion = $args['token_eliminacion'] ?? null;
         $this->token_eliminacion_expira = $args['token_eliminacion_expira'] ?? null;
         $this->preferencias_notificaciones = $args['preferencias_notificaciones'] ?? null;
+        $this->token_pass = $args['token_pass'] ?? null;
+        $this->token_pass_expira = $args['token_pass_expira'] ?? null;
+        $this->password_nuevo_temp = $args['password_nuevo_temp'] ?? null;
         $this->promedio_valoraciones = $args['promedio_valoraciones'] ?? null;
         $this->total_valoraciones = $args['total_valoraciones'] ?? null;
     }
