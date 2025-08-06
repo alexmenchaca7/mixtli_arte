@@ -107,6 +107,9 @@ class MensajesController {
                 }
 
                 $mensajes = $conversacion['mensajes'];
+
+                $sql = "SELECT * FROM " . Valoracion::getTablaNombre() . " WHERE productoId = {$productoId} AND ((calificadorId = {$usuarioId} AND calificadoId = {$contactoId}) OR (calificadorId = {$contactoId} AND calificadoId = {$usuarioId}))";
+                $valoraciones = Valoracion::consultarSQL($sql);
             }
         }
     

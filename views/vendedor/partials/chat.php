@@ -17,9 +17,11 @@
     }
 
     if ($miCalificacion && is_null($miCalificacion->estrellas)) {
-        $fechaCreacion = new \DateTime($miCalificacion->creado);
+        $fechaVenta = new \DateTime($miCalificacion->sale_completed_at);
         $fechaActual = new \DateTime();
-        $diferencia = $fechaActual->diff($fechaCreacion);
+        $diferencia = $fechaActual->diff($fechaVenta);
+
+        // Si han pasado más de 30 días, marcas la calificación como expirada
         if ($diferencia->days > 30) {
             $ratingExpired = true;
         }

@@ -102,7 +102,7 @@
                                 <span class="valoracion-item__estrellas"><?php echo str_repeat('⭐', $valoracion->estrellas); ?></span>
                                 <span class="valoracion-item__contexto">
                                     Sobre: <strong><?php echo htmlspecialchars($valoracion->producto->nombre); ?></strong>
-                                    el <?php echo date('d/m/Y', strtotime($valoracion->creado)); ?>
+                                    el <?php echo date('d/m/Y', strtotime($valoracion->sale_completed_at)); ?>
                                 </span>
                             </div>
 

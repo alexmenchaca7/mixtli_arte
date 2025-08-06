@@ -60,7 +60,7 @@ class ValoracionesController {
             exit();
         }
 
-        $fechaVenta = new DateTime($valoracion->creado);
+        $fechaVenta = new DateTime($valoracion->sale_completed_at);
         $fechaActual = new DateTime();
         $diferencia = $fechaActual->diff($fechaVenta);
 
