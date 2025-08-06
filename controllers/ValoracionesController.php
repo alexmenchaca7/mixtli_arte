@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use DateTime;
 use MVC\Router;
 use Model\Valoracion;
 use Model\PuntoFuerte;
@@ -48,16 +49,28 @@ class ValoracionesController {
             echo json_encode(['success' => false, 'error' => 'Ya has enviado una calificación para esta transacción.']);
             exit();
         }
+        
 
-        // --- VALIDACIÓN DE LÍMITE DE TIEMPO ---
-        $fechaCreacion = new \DateTime($valoracion->creado);
-        $fechaActual = new \DateTime();
-        $diferencia = $fechaActual->diff($fechaCreacion);
+        // --- VALIDACIÓN DE LÍMITE DE TIEMPO PARA CALIFICAR (30 DIAS PRORROGA) ---
+
+        // Aseguramos que 'sale_completed_at' no sea nulo antes de usarlo.
+        if (empty($valoracion->sale_completed_at)) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['success' => false, 'error' => 'La fecha de venta no está registrada para esta transacción.']);
+            exit();
+        }
+
+        $fechaVenta = new DateTime($valoracion->creado);
+        $fechaActual = new DateTime();
+        $diferencia = $fechaActual->diff($fechaVenta);
+
+        // Comprobar si han pasado más de 30 días
         if ($diferencia->days > 30) {
             http_response_code(403); // Forbidden
             echo json_encode(['success' => false, 'error' => 'El período de 30 días para dejar una calificación ha expirado.']);
             exit();
         }
+
 
         // --- VALIDACIÓN DE COMENTARIO OBLIGATORIO ---
         if ($estrellas == 1 && empty($comentario)) {

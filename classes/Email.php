@@ -140,27 +140,32 @@ class Email {
         return true;
     }
 
-    public function enviarNotificacionCalificacion($nombreUsuario, $nombreProducto, $url) {
+    public function enviarNotificacionCalificacion($nombreUsuario, $nombreProducto, $url, $contexto = null) {
         $mail = $this->configurarEmailBasico();
-        $mail->Subject = 'Califica tu transacción';
+        $mail->Subject = $contexto === 'expira_pronto' ? 'Recordatorio: Tu oportunidad para calificar expira pronto' : 'Califica tu transacción';
         
-        $contenido = "<html>";
-        $contenido .= "<body>";
-        $contenido .= "<p><strong>Hola " . htmlspecialchars($this->nombre) . ",</strong></p>";
-        $contenido .= "<p>¡Tu transacción para el producto '" . htmlspecialchars($nombreProducto) . "' ha sido completada!</p>";
-        $contenido .= "<p>Ya puedes dejar una calificación para " . htmlspecialchars($nombreUsuario) . " sobre tu experiencia. Tu opinión es muy importante para la comunidad de Mixtli.</p>";
+        $contenido = "<html><body>";
+        $contenido .= "<h2>Hola " . htmlspecialchars($this->nombre) . ",</h2>";
+
+        if ($contexto === 'expira_pronto') {
+            $contenido .= "<p>¡Tu oportunidad para calificar está por terminar! <strong>Solo te quedan 3 días</strong> para dejar tu opinión sobre la transacción del producto '<strong>" . htmlspecialchars($nombreProducto) . "</strong>' con " . htmlspecialchars($nombreUsuario) . ".</p>";
+            $contenido .= "<p>Tu feedback es muy valioso para mantener la confianza en nuestra comunidad.</p>";
+        } else {
+            $contenido .= "<p>¡Tu transacción para el producto '<strong>" . htmlspecialchars($nombreProducto) . "</strong>' ha sido completada!</p>";
+            $contenido .= "<p>Ya puedes dejar una calificación para " . htmlspecialchars($nombreUsuario) . " sobre tu experiencia. Tu opinión es muy importante para la comunidad de Mixtli.</p>";
+        }
+        
         $contenido .= "<p>Puedes dejar tu calificación en el siguiente enlace:</p>";
-        
-        $contenido .= "<a href='" . $_ENV['HOST'] . $url . "'>Calificar ahora</a>";
-        $contenido .= "<p>Si no puedes acceder, copia y pega la siguiente URL en tu navegador:</p>";
+        $contenido .= "<p style='margin: 20px 0;'><a href='" . $_ENV['HOST'] . $url . "' style='background-color:#EE4BBA; color:#ffffff; padding:12px 20px; text-decoration:none; border-radius:5px;'>Calificar Ahora</a></p>";
+        $contenido .= "<p>Si el botón no funciona, copia y pega la siguiente URL en tu navegador:</p>";
         $contenido .= "<p>" . $_ENV['HOST'] . $url . "</p>";
 
-        $contenido .= "</body>";
-        $contenido .= "</html>";
+        $contenido .= "</body></html>";
 
         $mail->Body = $contenido;
         $mail->send();
     }
+
 
     public function enviarAvisoEliminacionConversacion($otherUserName, $productName, $conversationUrl, $daysRemaining) {
         $mail = $this->configurarEmailBasico();
