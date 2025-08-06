@@ -16,17 +16,12 @@ class RecomendacionController {
     public static function obtenerRecomendacionesUnificadas(int $usuarioId, int $limiteProductosPorCategoria = 15): array {
         $log = "";
         
-        // 1. Obtener recomendaciones por similitud de usuarios (alta prioridad)
-        $resultadoSimilitud = self::obtenerRecomendacionesPorSimilitud($usuarioId, $log);
-        $idsPorSimilitud = $resultadoSimilitud['ids']; // Extraemos solo el array de IDs
-        
-        // 2. Obtener categorías recomendadas por interacciones y preferencias
+        // Obtener categorías recomendadas por interacciones y preferencias
         $categoriasRecomendadas = self::obtenerCategoriasRecomendadas($usuarioId);
 
         $idsPorCategorias = [];
         if (!empty($categoriasRecomendadas)) {
             $log .= "Categorías recomendadas por interacción (ordenadas por peso): " . implode(', ', $categoriasRecomendadas) . "\n";
-            $idsCategoriasString = implode(',', $categoriasRecomendadas);
             
             foreach ($categoriasRecomendadas as $catId) {
                 $query = "SELECT id FROM productos WHERE categoriaId = {$catId} AND estado != 'agotado' LIMIT {$limiteProductosPorCategoria}";
@@ -40,11 +35,10 @@ class RecomendacionController {
             $log .= "No se encontraron categorías recomendadas por interacción.\n";
         }
 
-        // 3. Unificar todas las recomendaciones
-        // Ahora $idsPorSimilitud es un array plano y 'array_merge' funciona correctamente.
-        $todosLosIds = array_unique(array_merge($idsPorSimilitud, $idsPorCategorias));
+        // Unificar todas las recomendaciones
+        $todosLosIds = array_unique($idsPorCategorias);
         
-        // 4. Filtrar productos que al usuario no le interesan
+        // Filtrar productos que al usuario no le interesan
         $productosNoInteresados = ProductoNoInteresado::whereField('usuarioId', $usuarioId);
         $idsNoInteresados = array_column($productosNoInteresados, 'productoId');
 
@@ -259,99 +253,6 @@ class RecomendacionController {
         // 3. DEVOLVER el array final: filtrado y ordenado.
         return $categoriasFinalesParaUsuario;
     }
-
-    // Obtiene recomendaciones de productos basadas en la similitud con otros usuarios (Filtro Colaborativo).
-    public static function obtenerRecomendacionesPorSimilitud(int $usuarioId, string &$log): array {
-        $idsProductosUsuarioActual = [];
-        // Solo consideramos interacciones fuertes para la similitud
-        $interacciones = HistorialInteraccion::consultarSQL(
-            "SELECT productoId FROM historial_interacciones WHERE usuarioId = {$usuarioId} AND (tipo IN ('favorito', 'compra', 'clic')) AND productoId IS NOT NULL"
-        );
-        
-        if (!empty($interacciones)) {
-            $idsProductosUsuarioActual = array_unique(array_column($interacciones, 'productoId'));
-        }
-
-        if (empty($idsProductosUsuarioActual)) {
-            $log .= "Similitud: Usuario no tiene interacciones significativas (favoritos/compras). No se pueden generar recomendaciones por similitud.\n";
-            return ['ids' => [], 'log' => ''];
-        }
-        
-        // Pasamos el log por referencia para que la función de búsqueda pueda escribir en él
-        $usuariosSimilares = self::encontrarUsuariosSimilares($usuarioId, $idsProductosUsuarioActual, $log);
-        
-        if (empty($usuariosSimilares)) {
-            $log .= "Similitud: No se encontraron usuarios suficientemente similares.\n";
-            return ['ids' => [], 'log' => ''];
-        }
-
-        $idsUsuariosSimilares = array_keys($usuariosSimilares);
-        // Obtener los nombres de los usuarios similares para un log más legible
-        $nombresUsuariosSimilares = [];
-        foreach($idsUsuariosSimilares as $idSimilar) {
-            $usuario = Usuario::find($idSimilar);
-            $nombresUsuariosSimilares[] = $usuario ? "{$usuario->nombre} (ID: {$idSimilar})" : "Usuario ID: {$idSimilar}";
-        }
-        $log .= "Similitud: Usuarios similares encontrados (ordenados por relevancia): " . implode(', ', $nombresUsuariosSimilares) . ".\n";
-
-        // Buscar productos que a los usuarios similares les gustaron
-        $interaccionesSimilares = HistorialInteraccion::consultarSQL(
-            "SELECT DISTINCT productoId FROM historial_interacciones WHERE usuarioId IN (" . implode(',', $idsUsuariosSimilares) . ") AND (tipo = 'favorito' OR tipo = 'compra') AND productoId IS NOT NULL"
-        );
-        
-        $idsRecomendadosBruto = array_column($interaccionesSimilares, 'productoId');
-        
-        // Excluir productos que el usuario actual ya ha interactuado
-        $idsRecomendadosFinal = array_diff($idsRecomendadosBruto, $idsProductosUsuarioActual);
-        
-        if (empty($idsRecomendadosFinal)) {
-            $log .= "Similitud: Los usuarios similares no tienen productos nuevos que recomendar.\n";
-        } else {
-            $log .= "Similitud: Se encontraron " . count($idsRecomendadosFinal) . " productos recomendados desde usuarios similares: [" . implode(', ', $idsRecomendadosFinal) . "]\n";
-        }
-
-        return [
-            'ids' => array_values(array_unique($idsRecomendadosFinal)),
-            'log' => '' // El log ya se pasó por referencia
-        ];
-    }
-
-    // Encuentra usuarios con gustos similares basados en el índice de Jaccard.
-    private static function encontrarUsuariosSimilares(int $idUsuarioActual, array $idsProductosUsuarioActual, string &$log): array {
-        $interaccionesOtrosUsuarios = HistorialInteraccion::consultarSQL(
-            "SELECT usuarioId, productoId FROM historial_interacciones WHERE usuarioId != {$idUsuarioActual} AND (tipo IN ('favorito', 'compra', 'clic')) AND productoId IS NOT NULL"
-        );
-
-        $mapaUsuarioProducto = [];
-        foreach ($interaccionesOtrosUsuarios as $interaccion) {
-            // Nos aseguramos que cada producto solo cuente una vez por usuario
-            if (!isset($mapaUsuarioProducto[$interaccion->usuarioId]) || !in_array($interaccion->productoId, $mapaUsuarioProducto[$interaccion->usuarioId])) {
-                $mapaUsuarioProducto[$interaccion->usuarioId][] = $interaccion->productoId;
-            }
-        }
-
-        $similitudes = [];
-        $log .= "Similitud: Calculando índice de Jaccard contra otros usuarios...\n";
-        foreach ($mapaUsuarioProducto as $idUsuario => $idsProductos) {
-            $interseccion = count(array_intersect($idsProductosUsuarioActual, $idsProductos));
-            $union = count(array_unique(array_merge($idsProductosUsuarioActual, $idsProductos)));
-            
-            if ($union > 0) {
-                $indiceJaccard = $interseccion / $union;
-                // Solo registramos a los que tienen alguna similitud para no saturar el log
-                if ($indiceJaccard > 0) { 
-                    $log .= "  - vs Usuario ID {$idUsuario}: Intersección={$interseccion}, Unión={$union}, Similitud=" . number_format($indiceJaccard, 2) . "\n";
-                    // Aplicamos el umbral para considerarlo "similar"
-                    if ($indiceJaccard > 0.1) {
-                        $similitudes[$idUsuario] = $indiceJaccard;
-                    }
-                }
-            }
-        }
-        arsort($similitudes); // Ordenar por puntuación de similitud
-        return array_slice($similitudes, 0, 10, true); // Devolver los 10 usuarios más similares
-    }
-
 
     private static function obtenerPesoInteraccion(string $tipo): int {
         switch ($tipo) {
