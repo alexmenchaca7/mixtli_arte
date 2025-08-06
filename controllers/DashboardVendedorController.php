@@ -82,6 +82,7 @@ class DashboardVendedorController {
             // Procesar preferencias de notificación
             $prefsData = $_POST['prefs'] ?? [];
             $preferenciasParaGuardar = [
+                'notif_mensaje_email' => isset($prefsData['notif_mensaje_email']),
                 'notif_producto_nuevo_email' => isset($prefsData['notif_producto_nuevo_email']),
                 'notif_producto_nuevo_sistema' => isset($prefsData['notif_producto_nuevo_sistema'])
             ];

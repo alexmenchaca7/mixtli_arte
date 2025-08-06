@@ -103,6 +103,20 @@
                 <?php $prefs = json_decode($usuario->preferencias_notificaciones ?? '{}', true); ?>
 
                 <div class="formulario__campo">
+                    <label class="formulario__label">Nuevos Mensajes de Chat</label>
+                    <div class="formulario__opciones-notificacion">
+                        <label>
+                            <input type="checkbox" name="prefs[notif_mensaje_email]" value="1" <?php echo ($prefs['notif_mensaje_email'] ?? true) ? 'checked' : ''; ?>>
+                            Por Correo Electrónico
+                        </label>
+                        <label style="color: #999; cursor: not-allowed;">
+                            <input type="checkbox" name="prefs[notif_mensaje_sistema]" value="1" checked disabled>
+                            <span title="Esta notificación no se puede desactivar.">Dentro de la Plataforma (Siempre activo)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="formulario__campo">
                     <label class="formulario__label">Nuevos Productos</label>
                     <div class="formulario__opciones-notificacion"> 
                         <label>

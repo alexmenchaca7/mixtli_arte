@@ -29,6 +29,33 @@ $productoInfo = Producto::find($productoId);
 
 // Si todos los datos son válidos, procedemos a enviar el correo
 if ($destinatarioInfo && $remitenteInfo && $productoInfo) {
+
+    // Verificar las preferencias del destinatario
+    $prefs = json_decode($destinatarioInfo->preferencias_notificaciones ?? '{}', true);
+    $quiereEmail = $prefs['notif_mensaje_email'] ?? true; 
+
+    if (!$quiereEmail) {
+        // Si el usuario desactivó esta notificación, terminamos el script.
+        exit("El destinatario ha desactivado las notificaciones por correo para mensajes.\n");
+    }
+
+    // Comprobar si el usuario está activo
+    $isOnline = false;
+    if ($destinatarioInfo->last_active) {
+        $lastActiveTimestamp = strtotime($destinatarioInfo->last_active);
+        $currentTime = time();
+        // Si la última actividad fue hace menos de 3 minutos, consideramos que está online
+        if (($currentTime - $lastActiveTimestamp) < (3 * 60)) {
+            $isOnline = true;
+        }
+    }
+
+    // Si el usuario está online, no enviamos el correo.
+    if ($isOnline) {
+        exit("El destinatario está activo en la plataforma. No se enviará correo.\n");
+    }
+
+    // Si el usuario quiere email y no está activo, procedemos a enviar el correo
     $mensajeCortoPreview = substr(stripslashes($mensajeTexto), 0, 70);
     $urlConversacion = $_ENV['HOST'] . "/mensajes?productoId={$productoId}&contactoId={$remitenteId}";
     
