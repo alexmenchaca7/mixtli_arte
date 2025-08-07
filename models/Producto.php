@@ -109,8 +109,15 @@ class Producto extends ActiveRecord {
     }
 
     public static function eliminarPorUsuario($usuarioId) {
-        $query = "DELETE FROM " . static::$tabla . " WHERE usuarioId = " . self::$conexion->escape_string($usuarioId);
-        $resultado = self::$conexion->query($query);
-        return $resultado;
+        // Find all products for the given user
+        $productos = self::whereField('usuarioId', $usuarioId);
+
+        // Iterate through each product and delete it
+        foreach ($productos as $producto) {
+            // The eliminar() instance method handles deleting associated data
+            $producto->eliminar();
+        }
+
+        return true;
     }
 }
