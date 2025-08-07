@@ -33,7 +33,7 @@ class ReporteValoracion extends ActiveRecord {
 
     public static function eliminarPorUsuario($usuarioId) {
         $usuarioIdEsc = self::$conexion->escape_string($usuarioId);
-        $query = "DELETE FROM " . static::$tabla . " WHERE reportadorId = '{$usuarioIdEsc}' OR usuarioId = '{$usuarioIdEsc}'";
+        $query = "DELETE FROM " . static::$tabla . " WHERE reportadorId = '{$usuarioIdEsc}'";
         $resultado = self::$conexion->query($query);
         return $resultado;
     }
