@@ -34,6 +34,7 @@
             <div class="perfil-card">
                 <h3>Información de Contacto</h3>
                 <p><strong>Email:</strong> <?php echo htmlspecialchars($vendedor->email); ?></p>
+                <p><strong>Telefono:</strong> <?php echo(isset($vendedor->telefono)) ? $vendedor->telefono : 'N/A'; ?></p>
                 <p><strong>Miembro desde:</strong> <?php echo date('d/m/Y', strtotime($vendedor->creado)); ?></p>
             </div>
 
