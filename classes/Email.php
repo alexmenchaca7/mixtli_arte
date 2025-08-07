@@ -2,6 +2,7 @@
 
 namespace Classes;
 
+use Model\Usuario;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class Email {
@@ -458,31 +459,36 @@ class Email {
     }
 
     public function enviarNotificacionSoporteAdmin($emailUsuario, $asunto, $mensaje, $numeroCaso) {
-        $mail = $this->configurarEmailBasico();
-        $mail->clearAddresses(); // Limpiar direcciones previas
-        $mail->addAddress($this->email, $this->nombre); // Asignar la dirección del admin de soporte
-        $mail->Subject = 'NUEVA CONSULTA DE SOPORTE - MixtliArte (Caso #' . $numeroCaso . ')';
+        // Obtener todos los administradores
+        $admins = Usuario::findAdmins();
 
-        $contenido = '<html>';
-        $contenido .= "<body>";
-        $contenido .= "<h1>Nueva Consulta de Soporte Recibida</h1>";
-        $contenido .= "<p>Se ha recibido una nueva consulta de soporte en MixtliArte con los siguientes detalles:</p>";
-        $contenido .= "<p><strong>Número de Caso:</strong> " . htmlspecialchars($numeroCaso) . "</p>";
-        $contenido .= "<p><strong>Email del Usuario:</strong> " . htmlspecialchars($emailUsuario) . "</p>";
-        $contenido .= "<p><strong>Asunto:</strong> " . htmlspecialchars($asunto) . "</p>";
-        $contenido .= "<p><strong>Mensaje:</strong></p>";
-        $contenido .= "<p style='border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f9f9f9;'>" . nl2br(htmlspecialchars($mensaje)) . "</p>";
-        $contenido .= "<p>Por favor, accede al panel de administración para gestionar esta consulta.</p>";
-        $contenido .= "<p>Atentamente,<br>Sistema Automático MixtliArte</p>";
-        $contenido .= "</body>";
-        $contenido .= '</html>';
-        $mail->Body = $contenido;
+        foreach ($admins as $admin) {
+            $mail = $this->configurarEmailBasico();
+            $mail->clearAddresses(); // Limpiar direcciones de la iteración anterior
+            $mail->addAddress($admin->email, $admin->nombre . ' ' . $admin->apellido);
+            $mail->Subject = 'NUEVA CONSULTA DE SOPORTE - MixtliArte (Caso #' . $numeroCaso . ')';
 
-        if(!$mail->send()) {
-            error_log("Error al enviar email de notificación de soporte al admin {$this->email}: " . $mail->ErrorInfo);
-            return false;
+            $contenido = '<html>';
+            $contenido .= "<body>";
+            $contenido .= "<h1>Nueva Consulta de Soporte Recibida</h1>";
+            $contenido .= "<p>Se ha recibido una nueva consulta de soporte en MixtliArte con los siguientes detalles:</p>";
+            $contenido .= "<p><strong>Número de Caso:</strong> " . htmlspecialchars($numeroCaso) . "</p>";
+            $contenido .= "<p><strong>Email del Usuario:</strong> " . htmlspecialchars($emailUsuario) . "</p>";
+            $contenido .= "<p><strong>Asunto:</strong> " . htmlspecialchars($asunto) . "</p>";
+            $contenido .= "<p><strong>Mensaje:</strong></p>";
+            $contenido .= "<p style='border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f9f9f9;'>" . nl2br(htmlspecialchars($mensaje)) . "</p>";
+            $contenido .= "<p>Por favor, accede al panel de administración para gestionar esta consulta.</p>";
+            $contenido .= "<p>Atentamente,<br>Sistema Automático MixtliArte</p>";
+            $contenido .= "</body>";
+            $contenido .= '</html>';
+            $mail->Body = $contenido;
+
+            if(!$mail->send()) {
+                error_log("Error al enviar email de notificación de soporte al admin {$admin->email}: " . $mail->ErrorInfo);
+                // Puedes decidir si continuar con los demás admins o no
+            }
         }
-        return true;
+        return true; // Devuelve true si el bucle se completa
     }
 
     public function enviarNotificacionViolacion($motivo, $violacionesCount) {
