@@ -1,6 +1,6 @@
 <main class="auth">
     
-    <?php if($_SESSION['rol'] !== 'comprador'): ?>
+    <?php if(isset($_SESSION['rol']) && ($_SESSION['rol'] !== 'comprador')): ?>
         <h2 class="auth__heading"><?php echo $titulo; ?></h2>
     <?php endif; ?>
 
