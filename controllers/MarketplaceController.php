@@ -433,7 +433,7 @@ class MarketplaceController {
                 "moderado = 1",
                 "comentario IS NOT NULL AND comentario != ''" // Asegura que solo vengan las que tienen texto
             ],
-            'orden' => 'creado DESC', // Más recientes primero
+            'orden' => 'sale_completed_at DESC', // Más recientes primero
             'limite' => 3 // Límite de 3 opiniones
         ]);
 
