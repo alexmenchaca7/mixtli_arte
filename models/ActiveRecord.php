@@ -134,6 +134,12 @@ class ActiveRecord {
             $resultado = $this->actualizar();
         } else {
             // --- Creando un nuevo registro ---
+
+            // Verificamos si la clase actual tiene la propiedad 'modificado' y le asignamos la fecha y hora actual ANTES de guardar.
+            if (property_exists($this, 'modificado')) {
+                $this->modificado = date('Y-m-d H:i:s');
+            }
+
             $resultado = $this->crear();
         }
         return $resultado;
