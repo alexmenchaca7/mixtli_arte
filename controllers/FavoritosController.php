@@ -24,7 +24,8 @@ class FavoritosController {
         // Obtener productos favoritos
         $query = "SELECT p.* FROM favoritos f
                   INNER JOIN productos p ON f.productoId = p.id
-                  WHERE f.usuarioId = '$usuarioId'";
+                  WHERE f.usuarioId = '$usuarioId'
+                  ORDER BY f.creado DESC";
         $productos = Producto::consultarSQL($query);
 
         // Separar productos en disponibles y agotados
